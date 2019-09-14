@@ -1,0 +1,4 @@
+pragma foreign_keys = ON;
+.dbconfig enable_fkey on
+.headers ON
+.mode columns

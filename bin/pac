@@ -1,0 +1,147 @@
+#!/bin/bash
+# pac(){
+	# local removal="remove|autoremove"
+	# local sync="install|update|download|upgrade|downgrade|
+			# info|cleanup|list|search"
+	# local query="package-changelog|search-installed|
+			# owner-of|who-owns|list-package-owned|
+			# list-orphans|list-outdated|list-installed|
+			# list-explicitly-installed|list-dependencies"
+
+# Honor the NO_COLOR environment variable
+if [ ! -v NO_COLOR ]; then
+	RED="\033[31m"
+	OFF="\033[0m"
+else
+	RED=
+	OFF=
+fi
+
+
+function usage(){
+cat <<EOF
+General options:
+   --completions  : output bash completion for pac to stdout.
+   -h|--help|help : Display this help text.
+   -p             : (SYNC AND REMOVAL ONLY; NYI) Only simulate the command, do not execute it. 
+Valid package operations:
+   removal: remove|autoremove
+   sync   : install|update|download|upgrade|downgrade|
+			info|cleanup|list|search
+   query  : package-changelog|search-installed|
+			owner-of|who-owns|list-package-owned|
+			list-orphans|list-outdated|list-installed|
+			list-explicitly-installed|list-dependencies
+EOF
+}
+function completion(){
+cat <<EOF
+#!/bin/bash
+complete -W "remove autoremove install update download upgrade downgrade info cleanup list \
+search package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
+list-outdated list-installed list-explicitly-installed list-dependencies help --completion" pac
+EOF
+}
+	alias pacman="pacman --color=auto"
+	if [[ $# == 0 ]]; then
+		usage
+	else 
+		case "$1" in
+			remove)
+				shift
+				pacman -R $*
+				;;
+			autoremove)
+				shift
+				pacman -R --recursive $@
+				;;
+			info | show)
+				shift
+				pacman -S --info --info $*
+				;;
+			download)
+				shift
+				pacman -S --downloadonly $*
+				;;
+			install | update) # treat both install and update as the same
+				shift
+				pacman -S $*
+				;;
+			upgrade)
+				shift
+				pacman -Sy --sysupgrade $@
+				;;
+			downgrade)
+				shift
+				pacman -S --sysupgrade --sysupgrade $@
+				;;
+			cleanup)
+				shift
+				pacman -S --clean $@
+				;;
+			list)
+				shift
+				pacman -S --list #$@
+				;;
+			search)
+				shift
+				pacman -S --search $*
+				;;
+			package-changelog)
+				shift
+				pacman -Q --changelog $@
+				;;
+			search-installed)
+				shift
+				pacman -Q --search $*
+				;;
+			owner-of | who-owns)
+				shift
+				pacman -Q --owns $*
+				# Not 100% sure how this differs from -F --owns, but it _sounds_ like -F --owns only works when you have the package installed, 
+				# while -Q --owns works for all known packages, installed or not. May be totally wrong about that.
+				;;
+			list-package-owned)
+				shift
+				pacman -F --list $*		
+				# Not 100% sure how this differs from -Q --list, but it _sounds_ like -F --list only works when you have the package installed, 
+				# while -Q --list works for all known packages, installed or not. May be totally wrong about that.
+				;;
+			list-explicitly-installed)
+				shift
+				pacman -Q --explicit $@
+				;;
+			list-dependencies)
+				printf "Currently doesn't quite do what might be expected from the name.\n"
+				shift
+				pacman -Q --deps $@
+				;;
+			list-orphans)
+				shift
+				pacman -Q --deps -t $@
+				;;
+			list-outdated) #list-out-of-date | 
+				shift
+				pacman -Q --upgrades $@
+				;;
+			list-installed)
+				shift
+				pacman -Q --search
+				;;
+			-h|--help|help)
+				usage
+				exit
+				;;
+			--completion)
+				completion
+				exit
+				;;
+			*)
+				printf "$REDInvalid operation \"$1\"$OFF\n"
+				usage
+				exit 1
+				;;
+		esac
+	fi
+# }
+# pac $*

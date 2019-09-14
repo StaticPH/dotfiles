@@ -1,0 +1,191 @@
+## Color setup
+##
+## Format:
+##
+## syntax "short description" ["filename regex" ...]
+##
+## The "none" syntax is reserved; specifying it on the command line is
+## the same as not having a syntax at all.  The "default" syntax is
+## special: it takes no filename regexes, and applies to files that
+## don't match any other syntax's filename regexes.
+##
+## color foreground,background "regex" ["regex"...]
+## or
+## icolor foreground,background "regex" ["regex"...]
+##
+## "color" will do case sensitive matches, while "icolor" will do case
+## insensitive matches.
+##
+## Valid colors: white, black, red, blue, green, yellow, magenta, cyan.
+## For foreground colors, you may use the prefix "bright" to get a
+## stronger highlight.
+##
+## To use multi-line regexes, use the start="regex" end="regex"
+## [start="regex" end="regex"...] format.
+##
+## If your system supports transparency, not specifying a background
+## color will use a transparent color.  If you don't want this, be sure
+## to set the background color to black or white.
+##
+## If you wish, you may put your syntaxes in separate files.  You can
+## make use of such files (which can only include "syntax", "color", and
+## "icolor" commands) as follows:
+##
+## include "/path/to/syntax_file.nanorc"
+##
+## Unless otherwise noted, the name of the syntax file (without the
+## ".nanorc" extension) should be the same as the "short description"
+## name inside that file.  These names are kept fairly short to make
+## them easier to remember and faster to type using nano's -Y option.
+##
+## All regexes should be extended regular expressions.
+#
+#
+#
+#
+#
+###############################################################
+## Set flags
+###############################################################
+# set constantshow
+# set smarthome
+# set smooth
+
+###############################################################
+## Include syntax-specific nanorc files
+###############################################################
+
+include "/opt/nanorcs/asm.nanorc"
+include "/opt/nanorcs/awk.nanorc"
+include "/opt/nanorcs/bash.nanorc"
+include "/opt/nanorcs/c.nanorc"
+include "/opt/nanorcs/cmake.nanorc"
+include "/opt/nanorcs/csh.nanorc"
+include "/opt/nanorcs/css.nanorc"
+include "/opt/nanorcs/git.nanorc"
+include "/opt/nanorcs/html.nanorc"
+include "/opt/nanorcs/inputrc.nanorc"
+include "/opt/nanorcs/java.nanorc"
+include "/opt/nanorcs/javascript.nanorc"
+include "/opt/nanorcs/json.nanorc"
+include "/opt/nanorcs/keymap.nanorc"
+include "/opt/nanorcs/lua.nanorc"
+include "/opt/nanorcs/makefile.nanorc"
+include "/opt/nanorcs/man.nanorc"
+include "/opt/nanorcs/markdown.nanorc"
+include "/opt/nanorcs/perl.nanorc"
+include "/opt/nanorcs/pkgbuild.nanorc"
+include "/opt/nanorcs/pkg-config.nanorc"
+include "/opt/nanorcs/python.nanorc"
+include "/opt/nanorcs/reST.nanorc"
+include "/opt/nanorcs/ruby.nanorc"
+include "/opt/nanorcs/sed.nanorc"
+include "/opt/nanorcs/sql.nanorc"
+include "/opt/nanorcs/svn.nanorc"
+include "/opt/nanorcs/tcl.nanorc"
+include "/opt/nanorcs/verilog.nanorc"
+include "/opt/nanorcs/xml.nanorc"
+include "/opt/nanorcs/yaml.nanorc"
+
+#
+############## Nanorc syntax highlighting
+##
+syntax "nanorc" "\.nanor[c]?$"
+color brightblue "color "
+color magenta "syntax"
+color brightred "[|]"
+color brightgreen "#.*"
+#
+#Colors
+color blue "blue"
+color green "green"
+color red "red"
+color cyan "cyan"
+color yellow "yellow"
+color magenta "magenta"
+#color black "black"
+color white "white"
+#
+color brightblue "brightblue"
+color brightgreen "brightgreen"
+color brightred "brightred"
+color brightcyan "brightcyan"
+color brightyellow "brightyellow"
+color brightmagenta "brightmagenta"
+color brightblack "brightblack"
+color brightwhite "brightwhite"
+
+
+#
+############## No syntax highlighting for txt files
+##
+#syntax none "\.txt"
+
+
+###############################################################
+## Paint the interface elements of nano.  These are examples;
+## by default there are no colors, except for errorcolor.
+###############################################################
+# set titlecolor brightwhite,blue
+# set statuscolor brightwhite,green
+# set errorcolor brightwhite,red
+# set selectedcolor brightwhite,magenta
+# set numbercolor cyan
+set keycolor cyan
+# set functioncolor green
+
+## In root's .nanorc you might want to use:
+# set titlecolor brightwhite,magenta
+# set statuscolor brightwhite,magenta
+# set errorcolor brightwhite,red
+# set selectedcolor brightwhite,cyan
+# set numbercolor magenta
+# set keycolor brightmagenta
+# set functioncolor magenta
+
+
+###############################################################
+## Key bindings.
+## See nanorc(5) (section REBINDING KEYS) for more details on this.
+###############################################################
+
+## The <Ctrl+Delete> keystroke deletes the word to the right of the cursor.
+## On some terminals the <Ctrl+Backspace> keystroke produces ^H, which is
+## the ASCII character for backspace, so it is bound by default to the
+## backspace function.  The <Backspace> key itself produces a different
+## keycode, which is hard-bound to the backspace function.  So, if you
+## normally use <Backspace> for backspacing and not ^H, you can make
+## <Ctrl+Backspace> delete the word to the left of the cursor with:
+# bind ^H cutwordleft main
+
+## If you would like nano to have keybindings that are more "usual",
+## such as ^O for Open, ^F for Find, ^H for Help, and ^Q for Quit,
+## then uncomment these:
+#bind ^Q exit all
+#bind ^H help all
+#bind ^H exit help
+#bind ^F whereis all
+#bind ^G findnext all
+#bind ^B wherewas all
+#bind ^D findprevious all
+#bind ^R replace main
+#bind ^W writeout main
+#bind ^O insert main
+#unbind ^V all
+#unbind ^Y all
+#bind M-X flipnewbuffer all
+#bind ^X cut all
+#bind ^C copy all
+#bind ^V paste all
+#bind ^P curpos main
+#bind ^T gotoline main
+#bind ^T gotodir browser
+#bind ^Y speller main
+#unbind ^K all
+#unbind ^U all
+#bind M-R redo main
+#bind ^U undo main
+#bind ^E redo main
+#unbind M-J main
+#unbind M-T main
+#set multibuffer

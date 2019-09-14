@@ -1,0 +1,30 @@
+#! /bin/bash
+# -vfx
+
+# Look in the standard locations and point out seemingly unnecessary completion files for bash. 
+# Move/update any completions that were previously removed
+
+showExtraCompletions > ~/extraCompletions.txt
+lc=$(cat ~/extraCompletions.txt | wc -l )
+printf " Found $lc extra completion files\n"
+
+for file in $(cat ~/extraCompletions.txt); do
+	if [[ -e "/opt/extraCompletions/$file" ]]; then
+		#echo $file
+		if [[ "$(stat --printf="%s" /usr/share/bash-completion/completions/$file )" ==  "$(stat --printf="%s" /opt/extraCompletions/$file)" ]]; then
+			# echo $file received an update
+			mv "/usr/share/bash-completion/completions/$file" /opt/extraCompletions/
+		else
+			echo "$file remained unchanged. Removing new copy"
+			rm "/usr/share/bash-completion/completions/$file"
+		fi
+	fi
+done
+
+showExtraCompletions > ~/extraCompletions.txt
+
+
+ stat --printf="%s"
+
+# Doesn't yield the results I was looking for
+# comm --nocheck-order /usr/share/bash-completion/completions/$file /opt/extraCompletions/$file > /dev/null && echo $file received an update

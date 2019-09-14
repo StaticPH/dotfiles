@@ -1,0 +1,34 @@
+#!/bin/bash
+
+((!$#)) && echo No branch name, command ignored! && exit 1
+
+activeBranch=''
+
+#If you are not currently in a git repository
+if [ ! -d .git ]; then
+	echo No repository detected! && exit 1
+fi
+
+#Implied else, as the above conditional would cause the program to exit if true
+#If you are currently in a git repository
+activeBranch=`git rev-parse --abbrev-ref HEAD`
+
+#In case the value returned for activeBranch is just 'HEAD', which isn't very clear, try this in the hopes of getting slightly more information
+if [ "$activeBranch" == 'HEAD' ]; then
+    activeBranch=git branch | grep \* | cut -d ' ' -f2-
+fi
+
+#If you are trying to delete the branch you currently have checked out, NO SOUP FOR YOU!
+if [ "$activeBranch" == "$1" ]; then
+	echo Cannot delete the currently checked out branch! Please change branches and try again. && exit 1
+fi
+
+#Before trying to delete a branch, make sure that the branch you are trying to delete actually exists
+if ! git show-ref --verify refs/heads/"$1" > /dev/null 2>&1; then #Throw away any undesired output
+	echo The branch you are trying to delete could not be found. Check that the branch exists, and try again.
+	exit 1
+else
+	echo deleting branch refs/heads/"$1"
+fi
+
+#git branch -df $1

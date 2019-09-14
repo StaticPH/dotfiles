@@ -1,0 +1,88 @@
+##############################################################
+#-------------------------------------------------------------
+# Setup bash prompt
+#-------------------------------------------------------------
+##############################################################
+
+# Try to load virtualenv wrapper for prompt 
+### From my observations, this seems to add about a second of overhead time. 
+### Additionally, there might be reason to use the wrapper corresponding to a particular Python installation.
+### With those points in mind, it might be better to have this be part of envrc files instead.
+#-------------------------------------------------------------
+# if [ -v PY38 ]; then
+	# source "$PY38/Scripts/virtualenvwrapper.sh"
+# elif [ -v PY37 ]; then
+	# source "$PY37/Scripts/virtualenvwrapper.sh"
+# elif [ -v PY36 ]; then
+	# source "$PY36/Scripts/virtualenvwrapper.sh"
+# fi
+
+# Main prompt setup
+#-------------------------------------------------------------
+function setup(){
+	# Common PS1 details
+	#-------------------------------------------------------------
+	### Both options for PS1 display:
+	### The current user's name
+	### The machine hostname
+	### The return status of the last command, if it was non-zero
+	### The current directory
+	### Whether the current user is root, indicated by the user's name (and/or hostname or command separator) turning red.
+	###
+	### Neither option for PS1 inherently includes anything indicating virtual environments, vcs repository or status, or job information. This may change at some point.
+
+	# 'Subtle' PS1 details
+	#-------------------------------------------------------------
+	### This prompt is more subtle (Read: less attention grabbing)
+	### It also includes a timestamp (though its the time the line itself was originally displayed, rather than continually running an update command in the background until the user 'submits' the command)
+	### This prompt only separates the command from the static information with a "$ "
+	
+	# Colorful PS1 details
+	#-------------------------------------------------------------
+	### This prompt is rather colorful and eye catching, though not blindingly so.
+	### It lacks a timestamp or any kind.
+	### This prompt puts the command on a second line, leaving it clearly separated from the rest of the prompt
+
+	# Behavior of promptSelection variable
+	#-------------------------------------------------------------
+	# promptSelection <  0  : Use 'subtle' PS1
+	# promptSelection == 0  : Don't modify PS1
+	# promptSelection >  0  : Use colorful 2-line PS1
+
+
+	[ -n "$1" ] && \
+		local promptSelection="$1" || \
+		local promptSelection="1"
+	
+	
+	### The shortcut variables for the formatting used by my prompt
+	local RED='\[\033[0;31m\]'
+	local GREEN='\[\033[0;32m\]'
+	local YELLOW='\[\033[0;33m\]'
+	local LPURPLE='\[\033[1;35m\]'
+	local CYAN='\[\033[0;36m\]'
+	local RSTCOL='\[\033[0m\]'
+
+	
+	if [ $promptSelection -lt 0 ]; then
+		PS1='$(getexitcode)'"\[\e[1;30;40m\]⟨\[\e[m\]\[\e[1;30;40m\]\T\[\e[m\]\[\e[1;30;40m\]⟩\[\e[m\] [\[\e[0;32m\]\u\[\e[m\]\[\e[0;32m\]@\[\e[m\]\[\e[0;32m\]\H\[\e[m\]] \w\\$ "
+		[[ $EUID == 0 ]] && PS1='$(getexitcode)'"\[\e[1;30;40m\]⟨\[\e[m\]\[\e[1;30;40m\]\T\[\e[m\]\[\e[1;30;40m\]⟩\[\e[m\] [\[\e[31m\]\u\[\e[m\]\[\e[1;31m\]@\[\e[m\]\[\e[31m\]\H\[\e[m\]] \w\\$ "	
+	elif [ $promptSelection -gt 0 ]; then
+		PS1="$RSTCOL$RED\[\033[7;31m\]"'$(getexitcode)'"\[\033[7;30m\]$CYAN\u@$GREEN\H $YELLOW\w$LPURPLE \$>"$'\nλ '"$RSTCOL"
+		[[ $EUID == 0 ]] && PS1="$RSTCOL$RED\[\033[7;31m\]"'$(getexitcode)'"\[\033[7;30m\]$RED\u@$GREEN\H $YELLOW\w$RED \$>"$'\nλ '"$RSTCOL"
+	else #[ $promptSelection -eq 0 ]
+		true
+	fi
+	
+	### When running scripts in debug mode, give the name of the file,
+	### followed by the current line number within it
+	PS4='$0  line\: $LINENO     '
+	export PS1 PS4
+}
+setup
+
+# Whenever displaying the prompt, write the previous line to disk
+# export PROMPT_COMMAND="history -a"
+
+# Set the number of trailing directory components to show when expanding \w or \W in the prompt string
+# export PROMPT_DIRTRIM=3

@@ -1,0 +1,29 @@
+#! /bin/bash 
+# -vfx
+
+# Look in the standard locations and point out seemingly unnecessary completion files for bash. 
+
+function search() {
+	for file in $(ls $1); do 
+		if [[ $(type -t $file) == '' ]]; then
+			
+			# YES this works, and doesnt catch things it shouldn't, but also makes this process much slower. And its already rather slow without this extra precision.
+			# base=$(echo "$file" | sed s/"\.".*//)
+			# if [[ $(type -t $base) == '' ]]; then
+				# # echo "file=$file"
+				# # echo "basename=$base"
+
+				# # printf "Could not find matching program/script for completion file: \n\t$file\n"
+				
+				# echo "$file"
+			# fi
+			
+			echo "$file"
+			(>&2 printf "\033[32m.\033[0m") # Print something to stderr to indicate activity.
+		fi
+	done 
+	(>&2 echo) # Remember to add a newline when you're done so that you don't end up with any of the activity output on the prompt line.
+}
+
+# search /etc/bash_completion.d/
+search /usr/share/bash-completion/completions/

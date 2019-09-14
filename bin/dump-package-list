@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# dump-package-list
+# Dump lists of all installed packages from certain package managers
+#########################################################################
+dumpDir="$HOME/packageLists"
+[[ ! -d "$dumpDir" ]] && mkdir "$dumpDir"
+
+[ -n $(type -t pacman) ] && \pacman -Qqs > "$dumpDir/"'pacmanDump.txt'
+#[ -n $(type -t apt) ] && \apt SOMETHING > "$dumpDir/"'aptDump.txt'
+#[ -n $(type -t dpkg) ] && \dpkg SOMETHING > "$dumpDir/"'dpkgDump.txt'
+#[ -n $(type -t yum) ] && \yum SOMETHING > "$dumpDir/"'yumDump.txt'
+#[ -n $(type -t brew) ] && \brew SOMETHING > "$dumpDir/"'brewDump.txt'
+
+
+# Likely impacted if within a virtual environment
+[ -n $(type -t npm) ] && \npm -g list > "$dumpDir/"'npmDump.txt'	#pnpm? yarn? others?
+[ -n $(type -t gem) ] && \gem list --no-details> "$dumpDir/"'gemDump.txt' #gem list --details | sed -e "s/\s*Author.*//" -e "s/\s*License.*\s*//"
+[ -n $(type -t pip) ] && \pip list --local > "$dumpDir/"'pipDump.txt' # or should I use `pip freeze` instead...
+[ -n $(type -t cargo) ] && \cargo install --list > "$dumpDir/"'cargoDump.txt'
+#	[ -n $(type -t go) ] \go list 2>/dev/null 1>"$dumpDir/"'goDump.txt' #I've had issues with this one...

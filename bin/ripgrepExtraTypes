@@ -1,0 +1,67 @@
+#!/bin/bash
+
+# NOTE: *.profile REALLY SHOULD cover .profile (as should other similar cases behave)
+# TODO: raw image formats
+# TODO: _video
+# TODO: exe, db, .lock, *.msi, *.iso, *.msu
+#cat		security catalog	
+
+#NOTE
+#   {*,}.foo{_*,}   should match '.foo', '*.foo' , '.foo_*', '*.foo_*'
+# 		and should be equivalent to {*.}.{foo,foo_*}
+#	{*,}.{foo,foo_bar} should match '.foo', '*.foo', '.foo_bar', '*.foo_bar'
+# HOWEVER, THEY DON'T APPEAR TO
+function ready(){
+	# We want to be sure not to accidentally add a whole bunch of extra environment variables, so make all these local.
+	# local __shellCommon=",*.sh, .profile, profile
+
+	local _bash="--type-add 'bash:*.sh, *.bash, *.bashrc, *.bash_aliases, *.bash_functions, *.bash_login, *.bash_logout, *.bash_profile, *.profile"
+		  # _bash=$_bash", .bashrc, .bash_aliases, .bash_functions, .bash_login, .bash_logout, .bash_profile, .profile"
+		  _bash=$_bash", bashrc, bash_aliases, bash_functions, bash_login, bash_logout, bash_profile, profile"
+		  _bash=$_bash"'"
+	local _cert="--type-add 'cert:*.cert, *.crt, *.pem'"
+	local _compiled="--type-add 'compiled:*.bin, *.chm, *.class, *.exe, *.lib, *.o, *.obj, *.pyc, *.pyd, *.so'"
+	local _config="--type-add 'config:*.cnf, *.inf, *.props, *.properties'"
+	local _cfg="--type-add 'cfg:include:config'"
+	# [ -n $(type -t csh) || -n $(type -t tcsh) ] && \\
+	local _csh="--type-add 'csh:*.sh, *.csh, *.tcsh, *.cshrc, .cshrc, .tcshrc, .login, .logout, .profile, profile'"
+	local _dll="--type-add 'dll:*.dll,*.DLL'"
+	local _dump="--type-add 'dump:*.dmp, *.dump, *.out'"
+	local _h="--type-add 'h:*.hxx,*.H,*.hh'"
+	local _img="--type-add 'img:*.dmg, *.dsk, *.hdd, *.img, *.iso, *.ova, *.qed, *.sav, *.snapshot, *.vdi, *.vhd, *.vmdk, *.vmsn, *.vmss'"
+	# TODO add to js:typescript suffixes (were those .ts and .tsx?)
+	local _js="--type-add 'js:*.javascript'"
+	# [ -n $(type -t ksh) ] && \\
+    local _ksh="--type-add 'ksh:*.sh, *.ksh, *.kshrc, .kshrc, .login, .logout, .profile, profile'"    
+	local _pic="--type-add 'pic:*.jpg, *.jpeg, *.png, *.apng, *.gif, *.bmp, *.tiff, *.webp, *.bpg, *.pgf"
+		   # #_pic=$_pic", *.xwd, *.xpm, *.xbm"
+		   # #_pic=$_pic", *.wmf, *.emf, *.wmz, *.emz, *.wmv"
+		   # #_pic=$_pic", *.pcx, *.dng, *.ciff, *.flif, *.fli, *.flc, *.tga, *.pbm, *.pgm, *.ppm, *.pnm, *.ora, *.mng, *.jp2, *.jpx, *.fits"
+		   _pic=$_pic", *.cdr, *.cdt, *.cdx, *.cmx, *.gbr, *.gih, *.heic, *.heif, *.kra, *.miff, *.pat, *.pct, *.pic, *.pict, *.psb, *.psd, *.xcf"
+		   _pic=$_pic", *.ani, *.cur, *.icns, *.ico, *.thumb"
+		   _pic=$_pic"'"
+	# *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
+	local _py="--type-add 'py:*.pyi'"
+	local _make="--type-add 'make:include:cmake' --type-add 'make:*.qmake'" # add *.qmake, but not the other types in the qmake group. Maybe include amake too?
+	local _mk="--type-add 'mk:include:make'"
+	local _qmake="--type-add 'qmake:*.qmake'" # already has *.prf, *.pri, *.pro
+	local _qml="--type-add 'qml:*.qmltypes, *.qm'" # *.qml is added by default
+	local _qt="--type-add 'qt:include:qmake,qml'"
+	local _serialized="--type-add 'serialized:include:yaml,xml' --type-add 'serialized:*.cson, *.json, *.toml, *.tson'"    # i distinctly remember there being something like an homl
+	local _sql="--type-add 'sql:*.sqlite'"
+	local _store="--type-add 'store:*.accdb, *.csv, *.dat, *.db, *.dbf, *.frm, *.kexi, *.ldb, *.mdb, *.mdb, *.mdf, *.nsf, *.pdi, *.rdb, *.reg, *.sdf, *.sqlite, *.tab, *.tsv, *.wdb, *.wmdb'"
+	local _tmp="--type-add 'tmp:*.temp, *.tmp'"
+	local _txt="--type-add 'txt:*.text, *.manifest' --type-add 'txt:include:log'"
+	local _zip="--type-add 'zip:*.zip, *.jar, *.pak, *.rar, *.rar5, *.tar, *.tar.bz, *.lz, *.7z, *.7zip, *.z"
+		  _zip=$_zip", *.rbz, *.cab, *.bin, *.deb, *.dmg, *.ipg, *.paf, *.rpm, *.ipa, *.xpi"
+		  _zip=$_zip"' --type-add 'serialized:include:bzip2,gzip,lz4,lzma,xz'" #Yes, I know that some of these aren't actually compressed types, but I'm grouping them together anyways
+# [ -n $(type -t zsh) ] && \\
+    # local _zsh="--type-add 'zsh:*.sh, *.zsh, *.zshrc, .zshrc, .zlogin, .zlogout, .zprofile, .zshenv, zlogin, zlogout, zprofile, zshenv, zshrc'"
+    local _zsh="--type-add 'zsh:*.sh, *.zshrc'"
+
+	# echo "$_bash $_compiled $_config $_cfg $_csh $_dll $_h $_js $_qml $_qt $_serialized $_txt $_zip"
+	# return "$_bash $_compiled $_config $_cfg $_csh $_dll $_h $_js $_qml $_qt $_serialized $_txt $_zip"
+	export extraRipgrep="$_bash $_cert $_compiled $_config $_cfg $_csh $_dll $_dump $_h $_img $_js $_ksh $_pic $_py $_make $_mk $_qmake $_qml $_qt $_serialized $_sql $_store $_tmp $_txt $_zip $_zsh"
+}
+ready
+

@@ -1,0 +1,43 @@
+#!/bin/bash
+# -xv
+function paintRainbow(){
+	for i in `seq 0 256`;do
+#		echo -en "\e[48;5;"$i"m   \033[m"
+		echo -en "\e[48;5;"$i"m\n\033[m"
+		sleep 0.001
+	done
+}
+
+function usage(){
+	echo "	Usage: 'rainbow [--help | -h] [REPETITIONS]'"
+	echo "	Paints all 256 colors potentially supported by the terminal."
+	echo "	If no parameters are given, repeats until an interrupt is received."
+	exit
+}
+
+
+# Main body
+if [ $# -gt '1' ]; then
+	usage
+fi
+
+case "$1" in
+	-h | -help | --help )
+		usage
+		;;
+esac
+
+if [ "$1" = "" ]; then
+	while true; do
+		paintRainbow
+	done
+	echo ''
+else
+#	p=$(seq 1 '$1')
+#	for n in `seq 0 $1`; do
+#	for n in `$p`; do
+	for n in `seq 1 $1`;do
+		paintRainbow
+	done
+	echo ''
+fi

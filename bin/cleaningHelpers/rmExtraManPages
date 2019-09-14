@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# Remove extraneous man pages from the manpath
+
+for folder in $(ls /opt/extraneousManPages); do
+	for manpage in $(ls /opt/extraneousManPages/$folder); do
+		rm /usr/share/man/$folder/$manpage 2>/dev/null && \
+		echo "Removed /usr/share/man/$folder/$manpage"
+	done
+done

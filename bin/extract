@@ -1,0 +1,119 @@
+#! /bin/bash
+
+# Inspired by "smartextract" from http://nparikh.org/notes/zshrc.txt
+# Some extractions copied from https://github.com/Bash-it/bash-it/blob/master/plugins/available/extract.plugin.bash
+PROGNAME=$0
+
+echo "This script is a WIP and is unsafe. Try one of the commands from the `atools` package instead. Use `man atools` for help." && exit 1
+
+function usage(){
+cat <<EOF
+	usage : $PROGNAME [-h|--help] [FILE]...
+	Extract from a variety of archive types with a single command.
+	Supports concurrent handling of multiple files by means of process forking.
+EOF
+}
+
+function unknownType(){
+cat << EOF
+	'$1' cannot currently be extracted via $PROGNAME
+	You will need to figure out the proper command for that file type, and add handling for it to $PROGNAME
+EOF
+	[[ $allowInvalid -ne 1 ]] && exit 1
+}
+
+function programAvailable(){
+	[[ $(type -t $1) != '' ]] && return 0
+	printf "$PROGNAME: Cannot find $1 with which to extract $2.\n"
+	[[ $allowInvalid -ne 1 ]] && exit 1
+}
+
+[ $# -eq 0 ] && usage && exit 1
+
+case $1 in
+	-h|--help)
+		usage
+		exit 0
+		;;
+	-i|--ignore|--allow-invalid)
+		allowInvalid=1
+		shift
+		;;
+	*)
+		extract $*
+		;;
+esac
+
+function extract () {
+	for $i in $*; do
+		if [ -f $i ]; then
+			case $i in
+				*.tar.bz2 | *.tbz2 | *.tbz)
+					programAvailable tar $i
+					tar -jxvf $i                        ;;
+				*.bz2)
+					programAvailable bunzip2 $i
+					bunzip2 $i                          ;;
+				*.tar.gz | *.tgz)
+					programAvailable tar $i
+					tar -zxvf $i                        ;;
+                *.gz)
+					programAvailable gunzip $i
+					gunzip $i                           ;;
+				*.tar.xz | *.txz ) 
+					programAvailable xz $i
+					xz --decompress "$1"; 
+					set -- "$@" "${1:0:-3}"				;; #some sort of substitution?
+                *.xz) 
+					programAvailable xz $i
+					xz --decompress "$1" ;;
+				*.tar)
+					programAvailable tar $i
+					tar -xvf $i                         ;;
+				*.zip | *.ZIP | *.jar)
+					programAvailable unzip $i
+					unzip $i                            ;;
+                *.pax.gz) 
+					programAvailable gunzip $i
+					gunzip "$1"; 
+					set -- "$@" "${1:0:-3}" 			;;
+				*.pax.Z)
+					programAvailable uncompress $i
+					uncompress $i --stdout | pax -r     ;;
+				*.pax)
+					pax -rf $1 		                    ;;
+				*.rar)
+					programAvailable unrar $i
+					unrar x $i                          ;;
+				*.Z)
+					programAvailable uncompress $i
+					uncompress $i                       ;;
+                *.deb) 
+					programAvailable dpkg-deb $i
+					dpkg-deb -xv "$1" "${1:0:-4}" ;;
+                *.pkg) 
+					programAvailable pkgutil $i
+					pkgutil --expand "$1" "${1:0:-4}" ;;
+				*.lzma)#*.tlz	?
+					if [[ $(type -t xz) != '' ]]; then 
+						programAvailable xz $i
+						xz --format=lzma --decompress
+					elif [[ $(type -t unlzma) != '' ]]; then
+						programAvailable unlzma $i
+						unlzma $i
+					else
+						printf "$PROGNAME: Cannot find xz or unlzma with which to extract $i.\n"
+						[[ $allowInvalid -ne 1 ]] && exit 1
+					fi									;;
+				#TODO:  *.lzo *.7z *.apk *tar.lzma *.zipx *.rar5 *.ar
+				*)
+					unknownType $i						;;
+			esac
+		elif [[ $allowInvalid -eq 1 ]]; then
+			printf "Skipping invalid file: '$i'\n"
+		else
+			printf "$PROGNAME: Unable to extract from invalid file '%i'\n"
+			exit 1
+		fi
+	done
+}

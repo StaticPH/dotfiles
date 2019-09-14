@@ -1,0 +1,25 @@
+#! /bin/bash
+
+#This version would include "enable" in the completions, which would make it that much more likely for someone to disable the enable builtin... That feels like it could be problematic.
+# completions=$( builtin enable | sed s/"enable enable"/_enable_/ | sed s/"\benable "// | sed s/_enable_/"enable"/ | awk '{ ORS=" " } { print $0 } '| sed s/" $"//)
+# completions=$( builtin enable | sed s/"\benable "// | awk '{ ORS=" " } { print $0 } '| sed s/" $"//)
+
+#This version "hides" the enable builtin, so hopefully nobody will think to try disabling it anyways...
+completions=$( builtin enable | sed s/"\benable "// | sed s/"enable"/""/ | awk '{ ORS=" " } { print $0 } '| sed s/" $"//)
+
+# Initially I had an existence check for disable as part of the completion statement, but who would have known that would break it entirely. At that point, the only difference between having the backquotes and not was that having them required 2 backslashes before $type, whereas not having them only required 1.
+# if [[ $(type -t disable) ]]; then
+# `cat << EOF >> /etc/bash_completion.d/set_builtins.bash-completion
+# complete -W "$completions" disable 
+# EOF`
+# fi
+
+# The backticks (grave characters) arount the here-document are totally unnecessary, but without them, my editor highlights
+# everything after line 11 in very obnoxious coloring, and the backquotes prevent that without ruining the functionality.
+cat << EOF > /etc/bash_completion.d/set_builtins.bash-completion
+complete -W "$completions" enable
+complete -W "$completions" disable 
+EOF
+
+
+# consider ditching this whole mess for the use of "-A disabled" for enable, and "-A enabled" for disable. Otherwise, use "-A builtin"

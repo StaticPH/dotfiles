@@ -1,0 +1,133 @@
+#!/bin/bash
+
+# ~/.setup_basic_env
+# Basic environment setup, including PATH
+
+
+##############################################################
+#-------------------------------------------------------------
+# Custom shell variables and early exports
+#-------------------------------------------------------------
+##############################################################
+
+# Colored man pages: http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
+# Less Colors for Man Pages
+# Coloration seems to behave strangely at times, but oh well.
+# export LESS_TERMCAP_mb=$'\E[01;31m'     # begin blinking
+#export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
+#export LESS_TERMCAP_me=$'\E[0m'           # end mode
+#export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
+#export LESS_TERMCAP_so=$'\E[7;33;40m'     # begin standout-mode - info box
+#export LESS_TERMCAP_ue=$'\E[0m'           # end underline
+#export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
+
+export EDITOR="/usr/bin/nano"
+# export VISUAL="/usr/bin/nano"
+
+TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
+
+
+# Don't auto-complete files with the following file extensions
+#-------------------------------------------------------------
+FIGNORE=".dll:.DLL:.ax"
+
+
+# Treat files (with executable-bit set) matching these globs as not being on the PATH. Does not affect commands in hash
+#-------------------------------------------------------------
+# EXECIGNORE=""
+
+
+##############################################################
+#-------------------------------------------------------------
+# Helper Functions
+#-------------------------------------------------------------
+##############################################################
+
+# Adds to the $PATH variable, if path not already present
+# Default is to prepend to $PATH
+# Add "after" to append to $PATH
+function pathmunge () {
+	if ! echo "$PATH" | $(/bin/grep -Eq "(^|:)$1($|:)") ; then	# try calling grep in subshell for potential slight performance boost
+		if [ "$2" = "after" ] ; then
+			PATH="$PATH:$1"
+		else
+			PATH="$1:$PATH"
+		fi
+	fi
+}
+
+# Does the same thing as pathmunge, but for MANPATH
+function manpathmunge () {
+	if ! echo "$MANPATH" | $(/bin/grep -Eq "(^|:)$1($|:)") ; then
+		if [ "$2" = "after" ] ; then
+			MANPATH="$MANPATH:$1"
+		else
+			MANPATH="$1:$MANPATH"
+		fi
+	fi
+}
+
+#Hopefully faster alternative to pathmunge
+function pathadd() {                                             # Append to path, without duplicates
+    [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]] && \
+    export PATH="${PATH:+"$PATH:"}$1"
+}
+
+function seemsLikeWSL(){
+	# Return 0 if the system appears to be WSL; return 1 otherwise
+	[[ -n $(command -v wsl) || -n $(command -v wsl.exe) ]] && \
+		return 0 || \
+		return 1		
+}
+
+##############################################################
+#-------------------------------------------------------------
+# Additions to PATH
+#-------------------------------------------------------------
+##############################################################
+
+if [ -r "/env/environment" ]; then
+    PATH=$(/usr/bin/cat /env/environment)
+    PATH="${PATH:6:-1}"
+else
+	if [[ $OSTYPE == 'msys' ]]; then
+		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"
+	else
+		PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+	fi
+fi
+
+[ -d ~/bin ] && PATH="~/bin:$PATH"
+
+# if 
+# TODO: Don't add this clutter to the path if aliases have already been generated through generateAll.sh
+	if [[ $OSTYPE == 'msys' ]]; then
+		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
+	elif [ $(seemsLikeWSL) ]; then
+		# System is most likely WSL
+		PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows:/c/Windows/System32/WindowsPowerShell/v1.0/"
+	fi
+# fi
+
+[[ $OSTYPE == 'msys' ]] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
+
+##############################################################
+#-------------------------------------------------------------
+# Additions to MANPATH
+#-------------------------------------------------------------
+##############################################################
+
+
+##############################################################
+#-------------------------------------------------------------
+# Load sensitive and machine-specific environment settings
+#-------------------------------------------------------------
+##############################################################
+
+if [ -r "${HOME}/.setup_machine_env" ]; then
+  source "${HOME}/.setup_machine_env"
+fi
+
+export PATH MANPATH
+
+echo ".setup_base_env: TODO: automate establishWSLconf"
