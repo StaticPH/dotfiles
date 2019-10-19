@@ -1,0 +1,21 @@
+#!/bin/bash
+#-xv
+
+if [[ $# == 0 ]]; then
+	explorer.exe .
+	exit 0
+fi
+
+if [ ! -e "$1" ]; then
+	echo "\"$1\" does not exist"
+	exit 1
+fi
+
+pushd "$1" >/dev/null 2>&1
+explorer.exe . >/dev/null 2>&1
+popd >/dev/null 2>&1
+
+# pushd $1
+# explorer.exe .
+# popd
+exit 0

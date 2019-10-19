@@ -1,0 +1,52 @@
+#!/bin/bash
+
+limit=10	# Maximum number of files to open at once. Can be overriden with --limit
+
+function usage(){
+	printf "Usage: wpv [--help | -h | --limit NUM] FILEPATHS...\n"
+	printf "    Attempt to open up to $limit FILEPATHS in Windows Photo Viewer.\n"
+	printf "    This limit can be overriden using the --limit option.\n\n"
+	printf "    Options:\n"
+	printf "      -h, --help        Display this help and exit.\n"
+	printf "          --limit NUM   Override the default limit of $limit files with NUM.\n"
+}
+
+if [[ $# == 0 ]]; then
+	usage
+	exit
+fi
+
+case "$1" in
+	-h | -help | --help )
+		usage
+		exit
+		;;
+	--limit)
+		shift
+		limit=$1
+		shift
+		;;
+esac
+
+function view(){
+	# printf "arg(s)=\033[31m$@\033[0m"
+	rundll32 "C:\Program Files\Windows Photo Viewer\PhotoViewer.dll" ImageView_Fullscreen $1 &
+	# disown
+}
+
+#echo path is "$(cygpath --windows -a "$1")"
+# view "$(cygpath --windows -a "$1")"
+
+winPath="$(cygpath --windows -a "$@")"
+# echo -e "\033[34m$winPath\033[0m"
+
+i=0
+while read -r foo; do
+	# echo -e "\033[1;34m$foo\033[0m"
+	view "$foo"
+	let i++
+	if [[ $i == $limit ]]; then
+		echo "Reached file open limit. Stopping..."
+		break
+	fi
+done <<< "$winPath" #|sed 's/.*/\"&\"/g'

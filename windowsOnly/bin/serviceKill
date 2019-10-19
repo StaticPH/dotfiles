@@ -1,0 +1,147 @@
+#! /bin/bash
+# -efx
+
+function usage(){
+	echo "serviceKill (bluetooth|bt)|adobe|nvidia|apple"
+}
+
+function ifExistsThenToggle(){
+	#=$(sed -s s/\r\n// <<< `sc query VMnetDHCasasaP`)
+	# eval 'n=\""$*\""'
+	# service=$(sed -s s/\r\n// <<< `sc query \""$1\""`)
+	service=$(sed -s s/\r\n// <<< `sc query "$*"`)
+	if [[ ! $(grep "does not exist" <<< "$service") ]]; then
+		[[ $(grep "STATE\s*:.*STOPPED" <<< "$service") ]] && \
+			net start "$*" || \
+			net stop "$*"
+	else
+		echo 'No service named "'"$1"'" exists.'
+	fi
+	pkill "sc query"
+}
+
+# I changed my mind; I dont care what state the service is in, or even if it exists at all. Just TRY to do stuff to it and disregard any failures.
+function killBt(){
+	net stop "Bluetooth Device Monitor" 2>/dev/null #2>&1		#Bluetooth Device Monitor
+	net stop "Bluetooth OBEX Service" 2>/dev/null #2>&1			#Bluetooth OBEX Service
+	net stop "bthserv" 2>/dev/null #2>&1						#Bluetooth Support Service
+	net stop "iBtSiva" 2>/dev/null #2>&1						# Intel Bluetooth Service
+	# net stop "$*" 2>/dev/null #2>&1	
+}
+function killAdobe(){
+	net stop "AdobeARMservice" 2>/dev/null #2>&1				#Adobe Acrobat Update Service
+	net stop "AGSService" 2>/dev/null #2>&1						#Adobe Genuine Software Integrity Service
+	net stop "AdobeFlashPlayerUpdateSvc" 2>/dev/null #2>&1		#Adobe Flash Player Update Service
+}
+function killNvidia(){
+	net stop "nvsvc" 2>/dev/null #2>&1				#NVIDIA Display Driver Service
+	net stop "NvNetworkService" 2>/dev/null #2>&1	#NVIDIA Network Service
+	# net stop "$*" 2>/dev/null #2>&1	
+}
+function killApple(){
+	net stop "Apple Mobile Device Service" 2>/dev/null #2>&1	#Apple Mobile Device Service
+	net stop "Bonjour Service" 2>/dev/null #2>&1				#Bonjour Service
+	net stop "iPod Service" 2>/dev/null #2>&1					#iPod Service
+
+}
+# "EvtEng"					# Intel(R) PROSet/Wireless Event Log
+# "RegSrvc"					# Intel(R) PROSet/Wireless Registry Service
+# "ZeroConfigZervice"		# Intel(R) PROSet/Wireless Zero Configuration Service
+
+# "FlexNet Licensing Service"
+
+# "wlidsvc"				#Microsoft Account Sign-in Assistant
+# "MSiSCSI"				#Microsoft iSCSI Initiator Service
+# "MsKeyboardFilter"	#Microsoft Keyboard Filter
+# "ClickToRunSvc"		#Microsoft Office ClickToRun Service
+# "swprv"				#Microsoft Software Shadow Copy Provider
+# "smphost"				#Microsoft Storage Spaces SMP
+# "ose"					#Office Source Engine
+
+# "SCardSvr"			#Smart Card
+# "ScDeviceEnum"		#Smart Card Device Enumeration Service
+# "SCPolicySvc"			#Smart Card Removal Policy
+
+# "defragsvc"				#Optimize drives
+# "svsvc"				#Spot Verifier
+# "WiaRpc"				#Still Image Acquisition Events
+# "SysMain"				#Superfetch
+# "vds"					#Virtual Disk
+# "WebClient"			#WebClient
+# "fussvc"				#Windows App Certification Kit Fast User Switching Utility Service
+# "WbioSrvc"			#Windows Biometric Service
+# "wcncsvc"				#Windows Connect Now - Config Registrar
+# "Wcmsvc"				#Windows Connection Manager
+# "WEPHOSTSVC"			#Windows Encryption Provider Host Service
+# "stisvc"				#Windows Image Acquisition (WIA)
+# "Ifsvc"				#Windows Location Framework Service
+# "Winmgmt"				#Windows Management Instrumentation
+# "VaultSvc"			#Credential Manager
+# "CryptSvc"			#Cryptographic Services
+# "Browser"				#Computer Browser
+# "EFS"					#Encrypting File System (EFS)
+# "WSService"			#Windows Store Service (WSService)
+# "dot3svc"				#Wired AutoConfig
+# "WinHttpAutoProxySvc"	#WinHTTP Web Proxy Auto-Discovery Service
+# "MyWiFiDHCPDNS"		#Wireless PAN DHCP Server
+# "WlanSvc"				#WLAN AutoConfig
+# "LanmanWorkstation"	#Workstation
+# "WwanSvc"				#WWAN AutoConfig
+# "wmiApSrv"			#WMI Performance Adapter
+
+# "SharedAccess"			# Internet Connection Sharing (ICS)
+# "IEEtwCollectorService"	# Internet Explorer ETW Collector Service
+
+# "Mcx2Svc"					#Media Center Extender Service
+# "ehSched"					#Windows Media Center Scheduler Service
+
+# "Micro Star SCM"			#Micro Star SCM
+# "MsiTrueColorService"		#MSI True Color Service by Portrait Displays
+# "MSI_SuperCharger"		#MSI_SuperCharger
+
+
+# "JuniperAccessService"	# Pulse Secure Network Service
+# "MEmusvc"		#MEmu service
+# "Pharos Systems ComTaskmanager" # Pharos Systems ComTaskmanager
+# "SkypeUpdate"	# Skype Updater
+# "Steam Client Service"	# Steam Client Service
+# "TapiSrv"		# Telephony
+# "VSStandardCollectorService140"		# Visual Studio Standard Collector Service
+
+# "Spooler"		#Print Spooler
+# "PrintNotify"	#Printer Extensions and Notifications
+
+# "WinRM"	#Windows Remote Management (WS-Management)
+# "RasAuto"	#Remote Access Auto Connection Manager
+# "RasMan"	#Remote Access Connection Manager
+# "SessionEnv"#Remote Desktop Configuration
+# "TermService"#Remote Desktop Services
+# "UmRdpService"#Remote Desktop Services UserMode Port Redirector
+# "RpcSs"	#Remote Procedure Call (RPC)
+# "RpcLocator"	#Remote Procedure Call (RPC) Locator
+# "RemoteRegistry"# Remote Registry
+# "RemoteAccess" #Routing and Remote Access
+# "RpcEptMapper"	#RPC Endpoint Mapper
+# "seclogon"	#Secondary Logon
+
+
+
+
+case "$1" in
+	# toggle)
+		# doForAll "ifExistsThenToggle"
+		# ;;
+	bluetooth|bt)		killBt		;;
+	adobe)				killAdobe	;;
+	apple)				killApple	;;
+	nvidia)				killNvidia		;;
+	*)
+		echo 'Inavlid arguement "$1"'
+		usage
+		exit 1
+		;;
+esac
+
+
+#g='"'"VMware NAT Service"'"'; echo $g
+#b=$(sed -s s/" "/"\\\ "/g <<< "$g")

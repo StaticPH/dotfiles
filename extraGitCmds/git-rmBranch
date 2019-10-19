@@ -31,4 +31,4 @@ else
 	echo deleting branch refs/heads/"$1"
 fi
 
-#git branch -df $1
+git branch -df "$1"

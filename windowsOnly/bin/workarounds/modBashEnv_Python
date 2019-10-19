@@ -1,0 +1,11 @@
+HISTFILE="$HOME/dev/.pycharm_bash_history"
+if [ ! -e "$HISTFILE" ]; then
+	[ ! -d $(dirname $HISTFILE) ] && mkdir -p $(dirname $HISTFILE)
+	/bin/touch "$HISTFILE"
+fi
+export HISTFILE
+
+export PIPENV_VENV_IN_PROJECT="enabled"
+export WORKON_HOME="$HOME/venvs"
+#/d/msys2_64/usr/bin/bash -l
+$SHELL -l

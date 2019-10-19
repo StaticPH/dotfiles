@@ -1,0 +1,19 @@
+############## HTML example
+##
+syntax "html" "\.htm[l]?$"
+#
+#Assorted Brackets, separators, and functions
+color brightblue start="<" end=">"
+#color blue start="<style>" end="</style>"
+color brightblue "<script>|</script>|<div>|</div>|</a>|<select>|</select>|<style>|</style>"
+color brightblue "<h(1|2|3|4|5|6)>|</h(1|2|3|4|5|6)>"
+color brightblue start="<div" end=">"
+color brightblue start="<a " end=">"
+#color red " action | checked | class | contextmenu | dir | for | href | id | lang | method | name | onclick | rel | src | style | tabindex | title | type | value "
+#
+color brightred "(alt|bgcolor|height|href|label|longdesc|name|onclick|onfocus|onload|onmouseover|size|span|src|style|target|type|value|width)="
+color red "&[^;[[:space:]]]*;"
+color magenta ""[^"]*"|qq\|.*\|"
+#
+#Comment coloring is last
+color green start="<!--" end="-->"

@@ -146,7 +146,7 @@ if [ -r "${HOME}/.bash_functions" ]; then
 fi
 
 if [ "$OS" == 'Windows_NT' ]; then
-	if [ -r ~/.winAliases &&  -r ~/.sys32Aliases ]; then
+	if [[ -r ~/.winAliases &&  -r ~/.sys32Aliases ]]; then
 		source ~/.winAliases
 		source ~/.sys32Aliases
 	# else # TODO: Decide how to handle using my generateAll.sh script

@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# General info: http://askubuntu.com/questions/283908/how-can-i-install-and-use-powerline-plugin
+
+# Assumes .bashrc contains the following:
+# set xterm-color256
+#function _update_ps1() {
+#    PS1="$(~/powerline-shell.py $? 2> /dev/null)"
+#}
+#
+#if [ "$TERM" != "linux" ]; then
+#    PROMPT_COMMAND="_update_ps1; $PROMPT_COMMAND"
+#fi
+
+
+self='${HOME:${#HOME}<4?0:+6}'		# Assuming your user home path is '/home/USERNAME_HERE', this should get the username even if called as root. Hopefully.
+repoLocation=$(dirname $0)    # Attempt to determine the location of the repository on disk by way of the path at which this script is called at.
+
+# Just in case $(dirname $0) yields something problematic, inform the user to 'fix' it...
+[ ! -r "$repoLocation" ] && \
+	printf "$ERR%s$OFF\n" "ERROR: Unable to properly determine repository location. Please hardcode the value of repoLocation in $0 and try again." && \
+	exit 1
+
+
+
+# Install Powerline
+#Reference https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation
+# sudo apt-get -y --force-yes install python-pip
+# pip install --user powerline-status
+
+# Install Powerline shell
+if [ ! -d ~/powerline-shell ]; then
+    cd ~ && git clone https://github.com/daecks/powerline-shell
+    # cd ~ && git clone https://github.com/b-ryan/powerline-shell		#original repository
+else
+    # If it already exists, update it
+    cd ~/powerline-shell && git pull
+fi
+
+sudo chown $USER:$USER -R ~/powerline-shell
+
+
+# Deploy pre-configured settings
+echo "You may need to manually grab your config.py or otherwise make the shared folder's path more generic here." # cp ~/powerline-shell/config.py.dist ~/powerline-shell/config.py
+cp "$repoLocation/powerline-shell/config.py" ~/powerline-shell/config.py && echo "Unable to find pre-configured settings for powerline shell."
+
+# Get the required font patches
+cd ~
+wget -q https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf
+wget -q https://github.com/powerline/powerline/raw/develop/font/10-powerline-symbols.conf
+
+# Location to move font to determined by "xset q" for Linux Mint/Ubuntu
+sudo mv --force PowerlineSymbols.otf /usr/share/fonts/X11/misc
+sudo fc-cache -vf /usr/share/fonts/X11/misc 
+[ -d ~/.config/fontconfig/conf.d ] || mkdir -p ~/.config/fontconfig/conf.d/
+
+sudo mv --force 10-powerline-symbols.conf ~/.config/fontconfig/conf.d/
+sudo chown $USER:$USER -R ~/.config/fontconfig/conf.d
+
+# Generate powerline-shell.py for current user
+sudo -H -u $USER bash -c 'cd ~/powerline-shell && ./install.py'	\		#This works with b-ryan's repo, but not with daecks' repo
+	|| (echo "Trying alternative method..." && \
+		sudo -H -u $USER bash -c 'cd ~/powerline-shell && python ./setup.py install')
+
+# Update git colors to match powerline-shell color scheme
+git config --global color.status.untracked 009 
+git config --global color.status.changed 214 
+git config --global color.status.unmerged 203 

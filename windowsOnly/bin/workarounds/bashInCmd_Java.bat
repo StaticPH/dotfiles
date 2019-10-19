@@ -1,0 +1,1 @@
+D:\msys2_64\usr\bin\bash %~dp0\modBashEnv_Java

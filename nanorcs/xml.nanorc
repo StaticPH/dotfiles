@@ -1,0 +1,14 @@
+############## XML example
+##
+#
+syntax "XML" ".*\.([jrs]?html?|xml|sgml?|rng)$"
+color white "^.+$"
+color green  start="<" end=">"
+color cyan   "<[^> ]+"
+color cyan   ">"
+color yellow start="<!DOCTYPE" end="[/]?>"
+color yellow start="<!--" end="-->"
+color red    "&[^;]*;"
+#
+## Trailing spaces
+color ,green "[[:space:]]+$"

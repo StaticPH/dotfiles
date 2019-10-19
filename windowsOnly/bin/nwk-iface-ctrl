@@ -1,0 +1,42 @@
+#! /bin/bash
+
+function usage(){
+	echo 'This program is a wrapper around the Windows commands for listing, enabling, and disabling network interfaces.'
+	echo 'Valid commands: '
+	echo '    nwk-iface-ctrl show                          Lists available network interfaces'
+	echo '    nwk-iface-ctrl enable <Interface Name>       Enable <Interface Name>'
+	echo '    nwk-iface-ctrl disable <Interface Name>      Disable <Interface Name>'
+}
+
+# Well, technically it should be -eq 2, but bash can occasionally be strange about how it
+# treats quoted strings containing spaces that have been passed as arguments to something...
+[[ $# -lt 1 ]] && usage && exit 1
+
+function enable(){
+	netsh interface set interface "$*" enable
+}
+
+function disable(){
+	netsh interface set interface "$*" disable
+}
+
+function show(){
+	netsh interface show interface
+}
+
+case $1 in
+	show)
+		[[ $# -gt 1 ]] && usage && exit 1
+		show
+		;;
+	enable)
+		enable "$*"
+		;;
+	disable)
+		disable "$*"
+		;;
+	*)
+		usage
+		exit 1
+		;;
+esac

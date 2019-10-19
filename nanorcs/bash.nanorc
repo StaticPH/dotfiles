@@ -1,0 +1,41 @@
+############## Bourne shell scripts example
+##
+#syntax "SH" "\.sh$" "\.bashrc" "bashrc" "\.bash_aliases" "bash_aliases" "\.bash_functions" "bash_functions" "\.bash_profile" "bash_profile" "bash_completion" "\.bash_completion" "bash-completion" "\.bash-completion" "bash" "\.bash$" "bash_logout" "\.bash_logout" "revise\..+$"
+#syntax "SH" "\.sh$" "\.bashrc" "bashrc" "\.?bash_(aliases|functions|profile|logout|login)" "\.?bash[\_\-]completion" "bash" "\.bash$" "revise\..+$"
+
+# Why did I ever want to match every file that contains the string "bash" in its name? That seems rather overzealous...
+syntax "SH" "\.sh$" "\.bashrc" "bashrc" "\.?bash_(aliases|functions|profile|logout|login)" "\.?bash[\_\-]completion" "\.bash$" "revise\..+$"
+
+header "^#!.*/(env +)?(ba)?sh( |$)"
+#
+color green "\<(case|do|done|elif|else|esac|fi|for|function|if|in|select|then|time|until|while)\>"
+color green "(\{|\}|\(|\)|\;|\]|\[|`|\\|\$|<|>|!|=|&|\|)"
+color green "-[Ldefgruwx]\>"
+color green "-(eq|ne|gt|lt|ge|le|s|n|z)\>"
+color brightblue "\<(cat|chmod|chown|cp|env|grep|install|ln|make|mkdir|mv|rm|sed|tar|touch)\>"
+##Bash Builtins
+color brightblue "\<(alias|bind|builtin|caller|command|declare|echo|enable|help|let|local|logout|mapfile|printf|read|readarray|source|type|typeset|ulimit|unalias)\>"
+#
+##Bourne Shell Builtins
+color brightblue "\<(break|cd|continue|eval|exec|exit|export|getopts|hash|pwd|readonly|return|shift|test|times|trap|umask|unset)\>"
+#
+##Job Control Builtins
+color brightblue "\<(bg|disown|fg|jobs|kill|suspend|wait)\>"
+#
+##Programmable Completion Builtins
+color brightblue "\<(compgen|complete|compopt)\>"
+#
+##Directory Stack Builtins
+color brightblue "\<(dirs|popd|pushd)\>"
+#
+##Bash History Builtins
+color brightblue "\<(fc|history)\>"
+#
+## The Set and Shopt Builtins
+color brightblue "\<(set|shopt)\>"
+#
+icolor brightgreen "^\s+[0-9A-Z_]+\s+\(\)"
+icolor brightred "\$\{?[0-9A-Z_!@#$*?-]+\}?"
+color brightyellow ""(\\.|[^"])*"" "'(\\.|[^'])*'"
+color cyan "(^|[[:space:]])#.*$"
+color ,green "[[:space:]]+$"

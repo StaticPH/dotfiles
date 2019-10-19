@@ -1,0 +1,16 @@
+#PARTIAL!!
+############## Javascript example
+##
+syntax "JavaScript" "\.js(on)?$"
+color brightblue "new|var"
+color blue "function|switch|case|default|break|return|if|else"
+#switch|case|default|break|return
+#if else
+color brightblack "'([^'\]|(\\["'abfnrtv\\]))'" "'\\(([0-3]?[0-7]{1,2}))'" "'\\x[0-9A-Fa-f]{1,2}'"
+														#"# this weird comment is just to un-bork syntax highlighting
+#color brightblack start="'\'" end="'"
+color yellow ";"
+
+
+#https://github.com/scopatz/nanorc/blob/master/js.nanorc
+#https://github.com/scopatz/nanorc/blob/master/javascript.nanorc

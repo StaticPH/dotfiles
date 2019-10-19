@@ -1,0 +1,7 @@
+#! /bin/bash
+complete -W "toggle start stop disableInterfaces enableInterfaces" vmware-crap-ctrl
+
+# # complete -W "start stop pause continue interrogate status" svc-ctrl
+# complete -W "start stop pause continue" svc-ctrl
+
+complete -W "show enable disable" nwk-iface-ctrl

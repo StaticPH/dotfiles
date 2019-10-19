@@ -1,0 +1,11 @@
+import platform
+if platform.system() == 'Windows':
+	import rlcompleter, readline
+	readline.parse_and_bind( 'tab:complete' )
+
+#function __pyreadline(){
+#    local prog="--progress-bar=pretty"
+#    local repo="https://github.com/rlbr/pyreadline/archive/redisplay.zip"
+#    pip install $repo $prog
+#    /d/Python3.6/Scripts/pip install $repo -Ut /d/Python3.6/Lib/site-packages $>
+#}

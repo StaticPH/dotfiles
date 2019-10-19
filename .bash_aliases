@@ -35,6 +35,22 @@ alias exec="exec " 			# Should allow calling exec on an alias
 alias nohup="nohup "
 [ -n $(type -t winpty) ] && alias winpty="winpty "
 
+# case "$TERM" in
+# xterm*)
+	# # The following programs are known to require a Win32 Console
+	# # for interactive usage, therefore let's launch them through winpty
+	# # when run inside `mintty`.
+	# for name in node ipython php php5 psql python2.7
+	# do
+		# case "$(type -p "$name".exe 2>/dev/null)" in
+		# ''|/usr/bin/*) continue;;
+		# esac
+		# alias $name="winpty $name.exe"
+	# done
+	# ;;
+# esac
+
+
 #------------------
 # Color output
 #------------------
@@ -83,7 +99,7 @@ alias ll="ls -Alhv --group-directories-first --no-group -o" #g: don't list owner
 alias lsdir='ls --recursive'
 
 if [ -n $(type -t tree) ]; then
-	alias tree="tree -Csuh -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|node_mdoules'"    #  Nice alternative to 'recursive ls' ...
+	alias tree="tree -Csuhal -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_mdoules'"    #  Nice alternative to 'recursive ls' ...
 	# alias treeOccupied="tree --prune -FC -I '.git|.svn|.ssh|.gnupg|build'"
 	alias treeOccupied="tree --prune -F"
 fi
@@ -238,19 +254,19 @@ if [ -n $(type -t python) ]; then
 	if [[ "$OSTYPE" == 'msys' ]]; then
 		alias dumbpy="$PY37/python"
 		alias dumpy="$PY37/python"
-		alias python37="winpty $PY37/python"
+		alias python37="winpty $PY37/python"	#TODO: Find out a way to disable this while a virtual environment is activated
 
 		alias dumbpy36="$PY36/python"
 		alias dumpy36="$PY36/python"
-		alias python36="winpty $PY36/python"
+		alias python36="winpty $PY36/python"	#TODO: Find out a way to disable this while a virtual environment is activated
 
-		alias python="winpty $PY37/python"
+		alias python="winpty $PY37/python"	#TODO: Find out a way to disable this while a virtual environment is activated
 
 		# alias pip="$PY36/Scripts/pip"		# For inexplicable reasons, this alias completely breaks any attempts at bash completion for pip
 	else
-		[ -n $(type -t python3.6) ] && alias python36="python3.6"
-		[ -n $(type -t python3.7) ] && alias python37="python3.7"
-		[ -n $(type -t python3) ]   && alias python="python3"
+		[ -n $(type -t python3.6) ] && alias python36="python3.6"	#TODO: Find out a way to disable this while a virtual environment is activated
+		[ -n $(type -t python3.7) ] && alias python37="python3.7"	#TODO: Find out a way to disable this while a virtual environment is activated
+		[ -n $(type -t python3) ]   && alias python="python3"	#TODO: Find out a way to disable this while a virtual environment is activated
 	fi
 	alias pip36="$PY36/Scripts/pip"
 	alias pip37="$PY37/Scripts/pip"

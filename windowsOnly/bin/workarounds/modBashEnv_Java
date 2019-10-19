@@ -1,0 +1,9 @@
+HISTFILE="$HOME/dev/.intellij_bash_history"
+if [ ! -e "$HISTFILE" ]; then
+    [ ! -d $(dirname $HISTFILE) ] && mkdir -p $(dirname $HISTFILE)
+    /bin/touch "$HISTFILE"
+fi
+export HISTFILE
+
+export JAVA_HOME="/d/Program Files/Amazon Corretto/jdk1.8.0_222"
+$SHELL -l
