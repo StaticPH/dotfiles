@@ -1,21 +1,69 @@
 #!/bin/bash
 #-xv
 
+# Realistically, this script will take precedence over an executable with the same name situated on the system path, but will be superseded by an alias or function. As such, it is fairly safe to assume that when this script tries to run "explorer", it is trying to run the file "explorer.exe", located in $SYSTEMROOT, where $SYSTEMROOT is typically "C:\Windows"(/c/Windows)
+# While there ARE a handful of documented (and probably many more undocumented) command line switches for explorer.exe, most of them likely wont be used, so this script lacks any special handling for them. 
+# NOTE: This has worked surprisingly well with unix-style paths so far, but it hasn't seen much use from WSL, so it may yet require some modifications for compatability that msys or mintty already has builtin.
+
+
+
+# # Recycle bin can be opened with `explorer.exe "shell:RecycleBinFolder"` or `start "" "shell:RecycleBinFolder"`
+
 if [[ $# == 0 ]]; then
-	explorer.exe .
+	$SYSTEMROOT/explorer.exe .
 	exit 0
 fi
 
-if [ ! -e "$1" ]; then
-	echo "\"$1\" does not exist"
-	exit 1
-fi
+# {
+# if [ ! -e "$1" ]; then
+	# echo "\"$1\" does not exist"
+	# exit 1
+# fi
 
-pushd "$1" >/dev/null 2>&1
-explorer.exe . >/dev/null 2>&1
-popd >/dev/null 2>&1
+# pushd "$1" >/dev/null 2>&1	# ignore any errors, such as paths that dont exist
+# $SYSTEMROOT/explorer.exe . >/dev/null 2>&1
+# popd >/dev/null 2>&1
 
-# pushd $1
-# explorer.exe .
-# popd
-exit 0
+# # pushd $1
+# # $SYSTEMROOT/explorer.exe .
+# # popd
+# exit 0
+# }
+
+# Partially viable; does not work with paths containing spaces
+# function goto(){
+	# if [ ! -d "$1" ]; then
+		# echo "\"$1\" does not exist"
+		# return 1
+	# fi
+	# $SYSTEMROOT/explorer.exe "$1" >/dev/null 2>&1
+	# return 0
+# }
+
+## Viable, but utilizes a local variable
+# function goto(){
+	# pushd "$1" >/dev/null 2>&1 || local rv=1
+	# if [ ! -v rv ]; then
+		# $SYSTEMROOT/explorer.exe . >/dev/null 2>&1
+		# popd >/dev/null 2>&1
+		# return 0
+	# fi
+	# return 1
+# }
+	
+# Not viable; returns 1 for everything
+# function goto(){
+	# [[ -d "$1" ]] && ($SYSTEMROOT/explorer.exe "$1" && return 0) || return 1
+# }	
+
+# Not ideal that it uses the directory stack, but otherwise no issues with this one
+function goto(){
+	pushd "$1" >/dev/null 2>&1 || return 1	
+	$SYSTEMROOT/explorer.exe . >/dev/null 2>&1
+	popd >/dev/null 2>&1
+	return 0	
+}
+
+for loc in "$@"; do
+	goto "$loc" || echo 'explorer: "'"$loc"'":No such directory. Ignoring invalid path.'
+done

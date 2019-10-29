@@ -18,16 +18,17 @@
 # fi
 
 # Main prompt setup
+# Note that an update to a relevant shell variable can be forced into affect by calling setupPrompt after this script has been sourced once
 #-------------------------------------------------------------
-function setup(){
+function setupPrompt(){
 	# Common PS1 details
 	#-------------------------------------------------------------
 	### Both options for PS1 display:
 	### The current user's name
-	### The machine hostname
+	### The machine hostname (underlined and in bold if logged in over SSH)
 	### The return status of the last command, if it was non-zero
 	### The current directory
-	### Whether the current user is root, indicated by the user's name (and/or hostname or command separator) turning red.
+	### Whether the current user is root, indicated by the user's name (and sometimes hostname or command separator) turning red.
 	###
 	### Neither option for PS1 inherently includes anything indicating virtual environments, vcs repository or status, or job information. This may change at some point.
 
@@ -42,6 +43,7 @@ function setup(){
 	### This prompt is rather colorful and eye catching, though not blindingly so.
 	### It lacks a timestamp or any kind.
 	### This prompt puts the command on a second line, leaving it clearly separated from the rest of the prompt
+	### If the current user is root, the second line starts with an uppercase omega (Ω), and with a lowercase lambda (λ) otherwise
 
 	# Behavior of promptSelection variable
 	#-------------------------------------------------------------
@@ -57,19 +59,41 @@ function setup(){
 	
 	### The shortcut variables for the formatting used by my prompt
 	local RED='\[\033[0;31m\]'
+	local LRED='\[\033[1;31m\]'
 	local GREEN='\[\033[0;32m\]'
+	local LGREEN='\[\033[1;32m\]'
 	local YELLOW='\[\033[0;33m\]'
 	local LPURPLE='\[\033[1;35m\]'
 	local CYAN='\[\033[0;36m\]'
-	local RSTCOL='\[\033[0m\]'
-
+	local RST='\[\033[0m\]' # Reset formatting
+	local BOLD='\[\033[1m\]'
+	local UNDERLINE='\[\033[4m\]'
+	# local ITALIC='\[\033[3m\]'
+	# local NOUNDERLINE='\[\033[24m\]'
+	# local STRIKE='\[\033[9m\]'
+	# local BGCOL='\[\033[7m\]'
+	# local FGCOL='\[\033[8m\]'
+	
+	# Display the username and hostname underlined and in bold when connected via SSH.
+	if [[ "${SSH_TTY}" ]]; then
+		local hostStyle="${BOLD}${UNDERLINE}"
+	fi	
 	
 	if [ $promptSelection -lt 0 ]; then
-		PS1='$(getexitcode)'"\[\e[1;30;40m\]⟨\[\e[m\]\[\e[1;30;40m\]\T\[\e[m\]\[\e[1;30;40m\]⟩\[\e[m\] [\[\e[0;32m\]\u\[\e[m\]\[\e[0;32m\]@\[\e[m\]\[\e[0;32m\]\H\[\e[m\]] \w\\$ "
-		[[ $EUID == 0 ]] && PS1='$(getexitcode)'"\[\e[1;30;40m\]⟨\[\e[m\]\[\e[1;30;40m\]\T\[\e[m\]\[\e[1;30;40m\]⟩\[\e[m\] [\[\e[31m\]\u\[\e[m\]\[\e[1;31m\]@\[\e[m\]\[\e[31m\]\H\[\e[m\]] \w\\$ "	
+		[[ $EUID == 0 ]] && local usr="${RED}\u" || local usr="${GREEN}\u"
+		[[ $EUID == 0 ]] && local sep="${LRED}@" || local sep="${LGREEN}@"
+		[[ $EUID == 0 ]] && local host="${RED}${hostStyle}\H" || local host="${GREEN}${hostStyle}\H"	
+		local clock="\[\e[1;30;40m\]⟨\T ⟩${RST}"
+		PS1='$(getexitcode)'"${clock}[${usr}${sep}${host}${RST}] \w\\$ "	
 	elif [ $promptSelection -gt 0 ]; then
-		PS1="$RSTCOL$RED\[\033[7;31m\]"'$(getexitcode)'"\[\033[7;30m\]$CYAN\u@$GREEN\H $YELLOW\w$LPURPLE \$>"$'\nλ '"$RSTCOL"
-		[[ $EUID == 0 ]] && PS1="$RSTCOL$RED\[\033[7;31m\]"'$(getexitcode)'"\[\033[7;30m\]$RED\u@$GREEN\H $YELLOW\w$RED \$>"$'\nλ '"$RSTCOL"
+		[[ $EUID == 0 ]] && local usr="${RED}\u" || local usr="${CYAN}\u"
+		[[ $EUID == 0 ]] && local delim="${RED}\$>" || local delim="${LPURPLE}\$>"
+		[[ $EUID == 0 ]] && local cmdMarker="Ω ${RST}" || local cmdMarker="λ ${RST}"
+		local host="${GREEN}@${hostStyle}\H"
+		local exval="${RST}\[\033[7;31m\]"'$(getexitcode)'"${RST}"
+		local here="${YELLOW}\w"
+		
+		PS1="${exval}${usr}${host} ${here} ${delim}"$'\n'"${cmdMarker}"
 	else #[ $promptSelection -eq 0 ]
 		true
 	fi
@@ -79,7 +103,7 @@ function setup(){
 	PS4='$0  line\: $LINENO     '
 	export PS1 PS4
 }
-setup
+setupPrompt
 
 # Whenever displaying the prompt, write the previous line to disk
 # export PROMPT_COMMAND="history -a"

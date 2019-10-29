@@ -6,9 +6,16 @@ man gitglossary 2>/dev/null || echo "Try running 'man gitglossary'"
 # echo $PATH
 # echo $MANPATH
 
-# man -l "$(cygpath -m /usr/share/man/man1p/man.1p.gz)"
+# if [ -n $(type -t cygpath) ]; then
+	# man -l "$(cygpath -m /usr/share/man/man1p/man.1p.gz)"
+# elif [ -n $(type -t wslpath) ]; then
+	# man -l "$(wslpath -m /usr/share/man/man1p/man.1p.gz)"
+# fi
+
 # stat /usr/share/man/man1p/man.1p.gz
 # unable to call `man gitglossary` from this script
-# It seems that the problem is caused by the fact that the git executable itself is not actually part of the path, and that its somehow tied to a separate man executable located somewhere near the git executable
+
+# It seems that the problem is caused by the fact that the git executable itself is not actually part of the path,
+# and that it's somehow tied to a separate man executable located somewhere near the git executable
 
 # This issue probably wont occur if git is installed using a package manager

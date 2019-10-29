@@ -12,7 +12,7 @@ results for `gi` and `git-`_<br>
 
 ###### Some helpful snippets for writing commands can be found at `"$(git --exec-path)/git-sh-setup"`
 
-##?TODO?:
+## ?TODO? :
 * git-merge-base
 * git-rev-list
 * git-show-ref

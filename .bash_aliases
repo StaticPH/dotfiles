@@ -23,12 +23,12 @@ alias free='free -th'
 if [ -n $(type -t sudo) ]; then
 	# Enable aliases to be sudo'ed
 	alias sudo="sudo "
-	alias udo="sudo "
+	alias udo="sudo " # the 's' key on my laptop keyboard is tempermental
 fi
 
 if [ -n $(type -t gksudo) ]; then
 	alias gksudo="gksudo "
-	alias gkudo="gksudo "
+	alias gkudo="gksudo "  # the 's' key on my laptop keyboard is tempermental
 fi
 
 alias exec="exec " 			# Should allow calling exec on an alias
@@ -50,10 +50,20 @@ alias nohup="nohup "
 	# ;;
 # esac
 
+#-------------------------------
+# Safety (Stupid Proofing®)
+#-------------------------------
+
+alias chown='chown --preserve-root' # Attempting to change the ownership of the root directory is probably not a great idea
+alias chgrp='chgrp --preserve-root' # The same can be said for group
+alias chmod='chmod --preserve-root' # And probably for chmod too; what, are you trying to make your entire machine read-only to all users?
+alias chcon='chcon --preserve-root' # And SELinux security context
+alias rm='rm --preserve-root --one-file-system' # Try and stop total system annihilation...
 
 #------------------
 # Color output
 #------------------
+
 alias grep='grep --color=auto'                     # show results in color
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -63,7 +73,7 @@ alias dir="dir --color=auto -Fh --group-directories-first --hide='*.dll' --hide=
 #---------------
 # Find-like
 #---------------
-# alias whence='type -a'                        # where, of a sort
+
 alias which='type -a'
 # may replace alias "which" with something like(not actually functional):
 # function which(){
@@ -104,28 +114,23 @@ if [ -n $(type -t tree) ]; then
 	alias treeOccupied="tree --prune -F"
 fi
 
-
 # Some shortcuts for different directory listings
 # alias dir='ls --color=auto --format=vertical'
 # alias vdir='ls --color=auto --format=long'
 
-
 #------------------------------------
 # Directory Manipulation Aliases
 #------------------------------------
-alias mkdir='mkdir -p'
 
+alias mkdir='mkdir -pv'
 alias frmdir="rm -iR"				#Remove directories, prompting before each file
-
 alias cpdir="cp -r"					#copy directories recursively
-
 alias multicp="cp -t"				#copy multiple things to the directory passed as the first parameter
 
 #----------------------------------------
 # Does exactly what the name implies
 #----------------------------------------
-
-     #chown aliases: Should try to claim full ownership of the target a$
+     #chown aliases: Should try to claim full ownership of the target as $USER
 alias take="chown -hR $USER:$USER"
 alias gimme="chown -hR $USER:$USER"
 
@@ -147,6 +152,7 @@ fi
 #----------------------
 # Terminal related
 #----------------------
+
 alias infocmp="infocmp -1"
 alias infocmpl="infocmp -1L"
 
@@ -164,6 +170,7 @@ alias pointswhere="readlink"
 #-------------------------
 # Compression related
 #-------------------------
+
 if [ -n $(type -t tar) ]; then
 	alias untar="tar --extract --file"
 	alias tarball="tar --create --file --verbose" # --totals
@@ -173,6 +180,7 @@ fi
 #--------------------------
 # Diff Related Aliases
 #--------------------------
+
 if [ -n $(type -t colordiff) ]; then
 	#For some reason, i had both -s and --report-identical-files. Removed -s, but will re-add if it turns out to have been portability related.
 	alias diff="colordiff --ignore-space-change --report-identical-files --suppress-common-lines"
@@ -186,7 +194,7 @@ else
     alias diffcol="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side"
     alias diffcol2="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side|grep -n \|"
 fi
-
+[ -n $(type -t diff-so-fancy) ] && alias fancydiff="diff-so-fancy"
 [ -n $(type -t bcompare) ] && alias beyondcompare="bcompare"
 
 #--------------------------
@@ -197,7 +205,7 @@ if [ -n $(type -t rg) ]; then
 	if [ -f "${HOME}/bin/ripgrepExtraTypes" ]; then
 		source ~/bin/ripgrepExtraTypes
 	fi
-	alias rg="rg --hidden --color=auto --max-columns 500 --smart-case $extraRipgrep"
+	alias rg="rg --hidden --color=auto --max-columns 500 --smart-case --follow $extraRipgrep"
 	alias ripgrep="rg"
 
 	alias genRipgrepTypeList="rg --type-list > ~/txts/.ripgrepTypeList && echo 'List saved at ~/txts/.ripgrepTypeList' || echo 'List failed to generate'"
@@ -206,6 +214,7 @@ fi
 #--------------------------------
 # Network Related Aliases
 #--------------------------------
+
 alias curl="curl --create-dirs"
 
 [ -n $(type -t ngrep) ] && alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"		# Sniff network info.
@@ -305,7 +314,6 @@ fi
 # Package Management
 #------------------------
 
-
 [ -n $(type -t dpkg) ] && alias purge="dpkg -P"	#dpkg purge is supposed to allow purging of configs when the package itself has already been removed.
 [ -n $(type -t dpkg-query) ] && alias dpkg-from-package="dpkg-query --listfiles" # Shows files from a specific installed package
 [ -n $(type -t pacman) ] && alias pacman='pacman --color=auto'
@@ -317,6 +325,7 @@ fi
 #---------------------------
 # Miscellaneous Aliases
 #---------------------------
+
 alias j='jobs -l'
 alias who="who -H"
 # alias less='less -r'                          # raw control characters
@@ -324,7 +333,7 @@ alias less="less --ignore-case --LONG-PROMPT --shift .25 -F --status-column --ti
 # alias more="more -d"	# Make more provide useful feedback when an invalid key is pressed.
 alias more="less" # insert obligatory "less is more" pun here
 alias nano="nano -cA --nowrap --nonewlines -T 4"	# --zap?
-alias lineCount="wc -l"
+#alias lineCount="wc -l"  # Trying to encourage myself to remember the actual command for this one
 alias ftype="file"
 
 # alias bd=". bd -si"

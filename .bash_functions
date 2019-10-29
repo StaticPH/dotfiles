@@ -16,11 +16,12 @@
 
 
 function getexitcode {
-    if [ $? -eq 0 ]; then
-        echo -n
-    else
-        echo -n "{err:$?}"
-    fi
+    # if [ $? -eq 0 ]; then
+        # echo -n
+    # else
+        # echo -n "{err:$?}"
+    # fi
+	local err=$?; [ $err -ne 0 ] && printf "{err:$err}"
 }
 
 # Better PATH printout

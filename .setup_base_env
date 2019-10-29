@@ -37,6 +37,11 @@ FIGNORE=".dll:.DLL:.ax"
 # EXECIGNORE=""
 
 
+# Must press ctrl+D 1+$IGNOREEOF times to exit shell...
+# because I've accidentally'd my shell a few times too many when trying to send ctrl+D while suffering input delay
+#-------------------------------------------------------------
+IGNOREEOF="1"
+
 ##############################################################
 #-------------------------------------------------------------
 # Helper Functions
@@ -73,11 +78,11 @@ function pathadd() {                                             # Append to pat
     export PATH="${PATH:+"$PATH:"}$1"
 }
 
-function seemsLikeWSL(){
+function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe.
 	# Return 0 if the system appears to be WSL; return 1 otherwise
 	[[ -n $(command -v wsl) || -n $(command -v wsl.exe) ]] && \
 		return 0 || \
-		return 1		
+		return 1
 }
 
 ##############################################################
@@ -86,28 +91,32 @@ function seemsLikeWSL(){
 #-------------------------------------------------------------
 ##############################################################
 
+# Try to use /env/environment for the default system path;
+# NOTE: this might have been a typo for /etc/environment, and should be verified
 if [ -r "/env/environment" ]; then
     PATH=$(/usr/bin/cat /env/environment)
     PATH="${PATH:6:-1}"
 else
-	if [[ $OSTYPE == 'msys' ]]; then
+	if [[ $OSTYPE == 'msys' ]]; then # Best guess at a default path for msys (or cygwin, but I don't use that personally)
 		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"
-	else
+	else # Best guess at a default system path on a unix/linux system
 		PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
 	fi
 fi
 
 [ -d ~/bin ] && PATH="~/bin:$PATH"
 
-# if 
-# TODO: Don't add this clutter to the path if aliases have already been generated through generateAll.sh
+# Don't add this clutter to the path if aliases have already been generated through generateAll.sh;
+# the aliases will be sourced in .bashrc if they exist in the user's home directory
+if [[ ! -r ~/.winAliases || ! -r ~/.sys32Aliases ]]; then
+# !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
 	if [[ $OSTYPE == 'msys' ]]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
 	elif [ $(seemsLikeWSL) ]; then
 		# System is most likely WSL
-		PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows:/c/Windows/System32/WindowsPowerShell/v1.0/"
+		PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/"
 	fi
-# fi
+fi
 
 [[ $OSTYPE == 'msys' ]] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
 
@@ -121,6 +130,7 @@ fi
 #-------------------------------------------------------------
 ##############################################################
 
+# I don't currently install anything that would have me adding to MANPATH with both msys and unix/linux systems
 
 ##############################################################
 #-------------------------------------------------------------
@@ -133,5 +143,3 @@ if [ -r "${HOME}/.setup_machine_env" ]; then
 fi
 
 export PATH MANPATH
-
-echo ".setup_base_env: TODO: automate establishWSLconf"
