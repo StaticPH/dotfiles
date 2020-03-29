@@ -16,20 +16,21 @@
 
 
 function getexitcode {
-    # if [ $? -eq 0 ]; then
-        # echo -n
-    # else
-        # echo -n "{err:$?}"
-    # fi
+	# if [ $? -eq 0 ]; then
+		# echo -n
+	# else
+		# echo -n "{err:$?}"
+	# fi
 	local err=$?; [ $err -ne 0 ] && printf "{err:$err}"
 }
 
 # Better PATH printout
 function path(){
-    old=$IFS
-    IFS=:
-    printf "%s\n" $PATH
-    IFS=$old
+	# equivalent to : echo $PATH | tr -s ":" "\n"
+	local old=$IFS
+	IFS=:
+	printf "%s\n" $PATH
+	IFS=$old
 }
 
 pause() {
@@ -43,6 +44,14 @@ fullWidthLine(){
 		local char="-"
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "$char"
 }
+
+fullWidthLineUnicode(){
+	[ -n "$1" ] && \
+		local char="$1" || \
+		local char="-"
+	yes "$char" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
+}
+
 
 # Look, I forget things, okay?
 # function ls_symbols(){
@@ -78,6 +87,9 @@ function echoChar (){
 	fi
 	#echo -e '\\U\'$1\''
 	echo -e '\U'$1
+}
+function samplePrompt(){
+	echo "${PS1@P}"
 }
 
 setTitle(){
@@ -115,8 +127,8 @@ isRoot(){
 
 #Check that an executable with the given name exists on the PATH.
 # function programExists(){
-	#INSTEAD OF: check=$(type -a $1) >/dev/null 2>&1 
-	#USE: check=$(type -a $1) &>/dev/null
+	#INSTEAD OF: check="$(type -a $1)" >/dev/null 2>&1
+	#USE: check="$(type -a $1)" &>/dev/null
 
 	# if [ -n "$check" ]; then
 		# # echo "$1 exists"
@@ -146,8 +158,8 @@ function findByName(){
 		printf "If only 1 arguement is provided, PATH defaults to the current directory\n"
 		printf "Only supports up to two arguments.\n"
 		printf "Usage: '$0 [PATH] -name PATTERN'\n"
-        return 1
-     elif [ $# -eq 1 ]; then
+		return 1
+	elif [ $# -eq 1 ]; then
 		find $(pwd) -name $1
 	else
 		find $1 -name $2
@@ -163,15 +175,47 @@ function curlup(){
 		#might eventually decide to ditch the --dest and --file in favor of just requiring the parameters in a specific order
 		return
 	fi
-	
+
 	#something to get options
 	#for now, erroneously assume that i know what i want when i use this command		
-	
+
 	if [[ $# == 2 ]]; then	# if only a url was provided, read from stdin instead of a file
 		curl --upload-file - $2
 	else
 		curl --upload-file $4 $2
 	fi
+}
+
+function epochTime(){
+	if [[ "${1,,}" == "-h" || "${1,,}" == "--help" ]]; then
+		printf "Usage: $FUNCNAME [-h|--help] [TIME STRING]\n"
+		printf "  A convenience function for converting a human-readable time to the equivalent unixepoch time.\n" | fold -s
+		printf "  Without a parameter, converts the current time to unixepoch form.\n"
+		return 0
+	elif [ "$#" -gt 1 ]; then
+		printf "$FUNCNAME accepts at most 1 argument.\n"
+		return 1
+	fi
+
+	[ -n "$1" ] && \
+		local now="$1" || \
+		local now="now" # This could have just been left blank, but this has the same outcome and is clearer
+	date -d "$now" "+%s"
+}
+
+function fromEpoch(){
+	if [[ "${1,,}" == "-h" || "${1,,}" == "--help" ]]; then
+		printf "Usage: $FUNCNAME [-h|--help] [UNIXEPOCH]\n"
+		printf "  A convenience function for converting a unixepoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
+		# printf "  Output format is determined by the values of LC_TIME and TIME_STYLE.\n"	# Determine order of precedence
+		# printf "  Time zone rules are indicated by the TZ environment variable, or by the system default rules if TZ is not set.\n"
+		return 0
+	elif [ "$#" -ne 1 ]; then
+		printf "$FUNCNAME requires exactly 1 argument.\n"
+		return 1
+	fi
+
+	date -d "@$1"
 }
 
 function strlen(){
@@ -195,6 +239,11 @@ function skipNchars(){
 	echo "${1:$2:${#1}}"
 }
 
+function excuse(){
+	local str=$(curl -s developerexcuses.com | egrep -o '<a href.*>.*<\/a>') 
+	local str2="${str:71:${#str}}"
+	echo "${str2:0:${#str2}-4}"
+}
 
 if [ $(seemsLikeWSL) ]; then
 	function wslpath(){
@@ -213,7 +262,7 @@ __EOF__
 	}
 fi
 
-if [ -n $(type -t apt) ]; then
+if [ -n "$(type -t apt)" ]; then
 	function listinstalled(){
 		apt list --installed | grep -o ".*/" | tr -d '/' | column
 	}
@@ -229,6 +278,17 @@ if [ -e "/etc/environment" ]; then
 	}
 fi
 
+# if [ -n "$(type -t durt)" ]; then
+	# function durtDir(){
+		# [ -n "$1" ] && \
+			# local fd="$1" || \
+			# local fd="."
+		# for d in $(ls $fd); do
+			# command durt $d
+		# done
+		# [ -t $fd } && command durt $fd
+	# }
+# fi
 
 
 # reminder, $@ is an array of arguments, while $* is a single string containing all the arguments.

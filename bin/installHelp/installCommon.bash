@@ -9,7 +9,7 @@ generalInstall="asciidoc bash-completion bzip2 ca-certificates colordiff colorma
 ###########################
 # Pacman package manager
 ###########################
-if [ -n $(type -t pacman) ]; then
+if [ -n "$(type -t pacman)" ]; then
 	pacman -Syu
 	alias pinstall="pacman -S --needed --color=auto"
 	if [[ $OSTYPE == 'msys' ]]; then
@@ -27,10 +27,11 @@ fi
 ########################
 # apt package manager
 ########################
-	# TODO: stuff installed through apt or other system package managers
+# TODO: stuff installed through apt or other system package managers
+if [ -n "$(type -t pacman)" ]; then
 	apt-get install "bsdmainutils cpp direnv dpkg fakeroot git-doc git-man install-info lsof ltrace manpages manpages-dev mlocate net-tools netbase netcat-openbsd pslist strace xz-utils"
 	#MAYBE: file ftp man-db patchutils
-	
+fi
 ####################
 # curl/wget based
 ####################

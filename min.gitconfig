@@ -1,7 +1,7 @@
 [alias]
 	# Show verbose output about tags, branches or remotes
 	tags = tag -l
-	branches = branch -a
+	# branches = branch -a --sort=-committerdate
 	remotes = remote -v
 
 	# List aliases
@@ -12,11 +12,27 @@
 
 	# Check what git attributes are set for a file
 	attrs = check-attr --all
+
+	st = status
+
+	#  %(authordate:format:%Y-%m-%d %I:%M %p)										:  Prints authordate in a format like `2019-10-28 10:13 PM`
+	###  %(authordate:human)														:  Prints authordate in a format like `Mon Oct 28 22:13`
+	#  %(if)%(HEAD)%(then)* %(else)  %(end)											:  Prefix the current branch with an asterisk
+	#  %(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)	:  Color the current branch green, and all other branches red
+	branches = for-each-ref --sort=-committerdate --format=\"%(color:blue bold)%(authordate:format:%Y-%m-%d %I:%M %p)    %(align:10,right)%(if)%(HEAD)%(then)* %(else)  %(end)%(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)%(end)\"
+
+	# Undo the last commit
+	undo = reset --soft HEAD~1
 	
+	root = rev-parse --show-toplevel
+
 [core]
 	# Speed up commands involving untracked files such as `git status`.
 	# https://git-scm.com/docs/git-update-index#_untracked_cache
 	untrackedCache = true
+
+	# I hate when a git command brings up vim, because I can never remember how to do that, and end up having to look it up >.<
+	editor = "/usr/bin/nano"
 
 [color]
 
@@ -24,6 +40,14 @@
 	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
 	ui = auto
 
+	# status = auto
+	# branch = auto
+	
+# [color "status"]
+#	changed = 214
+#	untracked = 009
+#	unmerged = 203
+	
 [diff]
 
 	# Detect copies as well as renames
@@ -34,8 +58,12 @@
 	# Use `hexdump` to diff binary files
 	textconv = hexdump -v -C
 
+# [difftool]
+#	prompt = false
 
 [merge]
 
 	# Include summaries of merged commits in newly created merge commit messages
 	log = true
+
+	# tool = 

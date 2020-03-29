@@ -1,14 +1,14 @@
 #! /bin/bash
 
-[[ -n "$1" ]] && __DESTDIR="$1" || __DESTDIR="$HOME"
+__DESTDIR="${1:-$HOME}" # equivalent to [ -n "$1" ]] && __DESTDIR="$1" || __DESTDIR="$HOME"
 
 function yn(){
-    [ -n "$1" ] && \
-		local PS3="$1" || \
-		local PS3="Enter 1 for Yes, or 2 for No: "
-    select yn in Yes No; do
-        [[ $yn == 'Yes' ]] && return 0
-        [[ $yn == 'No' ]] && return 1
+	local PS3="$1"
+	[ "${PS3:=Enter 1 for Yes, or 2 for No: }" ] # assign PS3 to a default if nothing is passed as an alternative
+	local yn
+	select yn in Yes No; do
+		[[ $yn == 'Yes' ]] && return 0
+		[[ $yn == 'No' ]] && return 1
     done
 }
 
@@ -41,6 +41,7 @@ makeAlias(){
 }
 exclude="bfsvc|hh|splwow64|winhlp32|explorer|HelpPane|py|pyw|IsUninst"
 makeAlias $(ls -A /c/Windows/| rg ".exe" | rg --invert-match "$exclude"| tr -d "*")
+#makeAlias $(ls -A /c/Windows/| grep ".exe" | grep --invert-match "$exclude"| tr -d "*")
 
 
 # Just a few other miscellaneous aliases for executables scattered about
@@ -52,3 +53,4 @@ cat << EOF >> $__DESTDIR/.winAliases
 EOF
 
 echo "Created file: $__DESTDIR/.winAliases"
+unset yn stripexe makeAlias exclude

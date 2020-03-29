@@ -50,7 +50,9 @@
 #### Flags have not been set here, and are instead part of an alias to nano
 # set constantshow
 # set smarthome
-# set smooth
+# set smooth  -- this is now the default behavior; when needed, use 'unset jumpyscrolling' instead
+
+# set matchbrackets "(<[{)>]}"
 
 ###############################################################
 ## Include syntax-specific nanorc files
@@ -74,6 +76,7 @@ include "/opt/nanorcs/lua.nanorc"
 include "/opt/nanorcs/makefile.nanorc"
 include "/opt/nanorcs/man.nanorc"
 include "/opt/nanorcs/markdown.nanorc"
+include "/opt/nanorcs/nanohelp.nanorc"
 include "/opt/nanorcs/perl.nanorc"
 include "/opt/nanorcs/pkgbuild.nanorc"
 include "/opt/nanorcs/pkg-config.nanorc"
@@ -89,48 +92,43 @@ include "/opt/nanorcs/xml.nanorc"
 include "/opt/nanorcs/yaml.nanorc"
 
 
-#
 ############## Nanorc syntax highlighting
 ## It's far from perfect, but it's plenty enough for my needs
 syntax "nanorc" "\.nanor[c]?$"
-color brightblue "[i]?color "
-color magenta "syntax"
+color blue "^(\<((un|)(set|bind))\>)"
+color yellow "\\<|\\>"
+color magenta "^(\<(extend|)syntax|header|magic|include\>)"
 color brightred "[|]"
-color brightgreen "#.*"
-#
+color brightgreen "#.*$"
+color brightblue "^[i]?color "
+color cyan "\<(start|end)\>="
+color brightblack "^(\<comment|tabgives\>)"
+color green "^(\<formatter|linter\>)"
+color normal "\\\\<|\\\\>"
+
+
 #Colors
-color blue "blue"
-color green "green"
-color red "red"
-color cyan "cyan"
-color yellow "yellow"
-color magenta "magenta"
-#color black "black"
-color white "white"
-#
-color brightblue "brightblue"
-color brightgreen "brightgreen"
-color brightred "brightred"
-color brightcyan "brightcyan"
-color brightyellow "brightyellow"
-color brightmagenta "brightmagenta"
-color brightblack "brightblack"
-color brightwhite "brightwhite"
+color white "\<white\>"
+color normal "\<black\> #color black "\<black\>"
+color blue "\<blue\>"
+color green "\<green\>"
+color red "\<red\>"
+color cyan "\<cyan\>"
+color yellow "\<yellow\>"
+color magenta "\<magenta\>"
+color normal "\<normal\>"
 
-#
-############## This is meant for highlighting key combinations in the nano editor's help text.
-## It should not apply to any normal file, so no regex is specified for the filename.
-syntax nanohelp
-
-# Key combinations:
-color cyan "\^[]4-8A-Z^\_◀▶▲▼]"  "[◀▶▲▼]"  "\<M-."  "\<F1?[0-9]"
-color cyan "\<((Sh-)?Tab|Enter|Ins|(Sh-\^?)?Del|Space|Bsp|Up|Down|Left|Right|Home|End|PgUp|PgDn)\>"
-
-# Quoted indicators:
-color brightred "'(\^|M-)'"
+color brightwhite "\<brightwhite\>"
+color brightblack "\<brightblack\>"
+color brightblue "\<brightblue\>"
+color brightgreen "\<brightgreen\>"
+color brightred "\<brightred\>"
+color brightcyan "\<brightcyan\>"
+color brightyellow "\<brightyellow\>"
+color brightmagenta "\<brightmagenta\>"
+color brightnormal "\<brightnormal\>"
 
 
-#
 ############## No syntax highlighting for txt files
 ##
 #syntax none "\.txt"

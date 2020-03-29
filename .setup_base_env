@@ -27,6 +27,11 @@ export EDITOR="/usr/bin/nano"
 TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
 
 
+# For filename expansion, ignore filename matches that match any of the colon-separated globs in 'GLOBIGNORE'. Honors the setting of the extglob shell options
+#-------------------------------------------------------------
+# GLOBIGNORE=""
+
+
 # Don't auto-complete files with the following file extensions
 #-------------------------------------------------------------
 FIGNORE=".dll:.DLL:.ax"
@@ -74,8 +79,8 @@ function manpathmunge () {
 
 #Hopefully faster alternative to pathmunge
 function pathadd() {                                             # Append to path, without duplicates
-    [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]] && \
-    export PATH="${PATH:+"$PATH:"}$1"
+	[ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]] && \
+	export PATH="${PATH:+"$PATH:"}$1"
 }
 
 function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe.
@@ -94,8 +99,8 @@ function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe
 # Try to use /env/environment for the default system path;
 # NOTE: this might have been a typo for /etc/environment, and should be verified
 if [ -r "/env/environment" ]; then
-    PATH=$(/usr/bin/cat /env/environment)
-    PATH="${PATH:6:-1}"
+	PATH=$(/usr/bin/cat /env/environment)
+	PATH="${PATH:6:-1}"
 else
 	if [[ $OSTYPE == 'msys' ]]; then # Best guess at a default path for msys (or cygwin, but I don't use that personally)
 		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"

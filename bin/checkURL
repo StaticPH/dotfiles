@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Checks to see if sending an HTTP get request to a URL results in a 4xx or 5xx HTTP status code
+# If it does, indicates the status code received, and the URL that caused it.
+function _checkURL(){
+	if [ "$#" -ne 1 ]; then
+		printf "Usage: '$0 QUOTED_URL'" && return 1
+	fi
+	local url="$1"
+	local responseCode="$(curl -LI -w '%{http_code}' --no-progress-meter $url | head -n 1)"
+	local httpCode="${responseCode: ${#responseCode}-4}"
+#	echo "httpCode=$httpCode"
+	echo "$httpCode" | grep "4.." && \
+		printf "Encountered client-side error: Error %s\nURL: '%s' may be unavailable\n" $httpCode $url || \
+	(
+		echo "$httpCode" | grep "5.." && \
+		printf "Encountered server-side error: Error %s\nURL: '%s' may be unavailable\n" $httpCode $url || \
+#		echo you\'re probably good || \
+		return 0;
+	)
+}
+_checkURL "$1"
+
+unset _checkURL

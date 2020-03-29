@@ -7,8 +7,9 @@
 #This version "hides" the enable builtin, so hopefully nobody will think to try disabling it anyways...
 completions=$( builtin enable | sed s/"\benable "// | sed s/"enable"/""/ | awk '{ ORS=" " } { print $0 } '| sed s/" $"//)
 
-# Initially I had an existence check for disable as part of the completion statement, but who would have known that would break it entirely. At that point, the only difference between having the backquotes and not was that having them required 2 backslashes before $type, whereas not having them only required 1.
-# if [[ $(type -t disable) ]]; then
+# Initially I had an existence check for disable as part of the completion statement, but who would have known that would break it entirely.
+# At that point, the only difference between having the backquotes and not was that having them required 2 backslashes before $type, whereas not having them only required 1.
+# if [ -n "$(type -t disable)" ]; then
 # `cat << EOF >> /etc/bash_completion.d/set_builtins.bash-completion
 # complete -W "$completions" disable 
 # EOF`

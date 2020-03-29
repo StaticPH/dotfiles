@@ -6,7 +6,7 @@
 directory=$1
 # fileExt=$2
 
-# if [[ $(type -t rg) ]]; then
+# if [ -n "$(type -t rg)" ]; then
 	# function trimmer(){ 
 		# # return "echo $1 | rg --hidden --ignore-case \"\.[0-9]\.(gz|z|Z)\" --replace \"\""
 		# trimName="$(echo $1 | rg --hidden --ignore-case '\.[0-9]\.(gz|z|Z)' --replace '')"
@@ -26,7 +26,7 @@ for file in $(ls $directory); do
 	# trimName="$(echo $file | grep '\.[0-9]\.(gz|z|Z)')"
 	
 	#Horribly inelegant and inefficient, but I've spent enough time trying to be elegant that I don't care anymore
-	[[ $(type -t rg) ]] && \
+	[ -n "$(type -t rg)" ] && \
 		trimName="$(echo $file | rg '\.[0-9]\.(gz|z|Z)' --replace '')" || \
 		trimName="$(echo $file | grep '\.[0-9]\.\(gz\|z\|Z\)'| sed s/'\.[0-9]\.\(gz\|z\|Z\)'//)"
 	

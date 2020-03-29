@@ -53,7 +53,7 @@ function search() {
 		[[ -d "$destination/$tfolder/$tfolder" ]] || mkdir -p "$destination/$tfolder/"
 
 		for file in $(ls "$src"); do
-			if [[ $(type -t $file) == '' ]]; then #not sure what should happen when this is false, but let's cross that bridge when we come to it
+			if [ -z "$(type -t $file)" ]; then #not sure what should happen when this is false, but let's cross that bridge when we come to it
 				[[ "$dbg" != 0 ]] && echo "$src/$file" to "$destination/$tfolder/$file"
 				winln -s "$src/$file" "$destination/$tfolder/"
 			fi
@@ -84,7 +84,7 @@ function search() {
 
 			[[ -d "$destination/$tfolder/$tfolder" ]] || mkdir -p "$destination/$tfolder/"
 
-		elif [[ $(type -t $file) == '' ]]; then
+		elif [ -z "$(type -t $file)" ]; then
 			[[ "$dbg" != 0 ]] && echo "$src/$file" to "$destination/$tfolder/$file"
 			winln -s "$src/$file" "$destination/$tfolder/"
 		fi

@@ -5,11 +5,11 @@
 
 function search() {
 	for file in $(ls $1); do 
-		if [[ $(type -t $file) == '' ]]; then
+		if [ -z "$(type -t $file)" ]; then
 			
 			# YES this works, and doesnt catch things it shouldn't, but also makes this process much slower. And its already rather slow without this extra precision.
 			# base=$(echo "$file" | sed s/"\.".*//)
-			# if [[ $(type -t $base) == '' ]]; then
+			# if [ -z "$(type -t $base)" ]; then
 				# # echo "file=$file"
 				# # echo "basename=$base"
 

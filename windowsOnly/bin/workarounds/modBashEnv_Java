@@ -1,3 +1,31 @@
+# bashInCmd_Java.bat used to read:   D:\msys2_64\usr\bin\bash %~dp0\modBashEnv_Java
+#			but surprisingly Windows is smart enough to understand that %~dp0modBashEnv_Java is read as "%~dp0"+"modBashEnv_Java"
+#
+# tried using			D:\msys2_64\usr\bin\bash --login --init-file %~dp0"modBashEnv_Java" 
+# 		and				D:\msys2_64\usr\bin\bash %~dp0\modBashEnv_Java --rcfile %~dp0\modBashEnv_Java
+# before ultimately arriving near what I started with, at D:\msys2_64\usr\bin\bash %~dp0modBashEnv_Java
+#
+# Still not sure how to make bash not gripe about being unable to find `cut` and `wc` when I run this from the embeded terminal in IDEA
+# Nor am I even sure where `cut` is being called from in the first place; `wc` I know at least one place.
+
+
+# echo "Called as : $0"
+# echo "\$- = $-"	# $- expands to the current option flags (such as the -i option). 
+if [[ "$-" != *i* ]];then 
+	# echo not interactive
+	### If not running bash interactively, replace the current processes with an interactive bash process,
+	### and have it source this file as it normally would ~/.bashrc
+	exec $SHELL --rcfile "$0" -i	# As I understand it, `exec -l /bin/bash` should be equivalent to `exec /bin/bash -l`
+fi
+# [[ "$-" == *i* ]] && echo is interactive
+
+
+# Source the user's bashrc if it exists
+if [ -f "${HOME}/.bashrc" ] ; then
+  source "${HOME}/.bashrc"
+fi
+
+
 HISTFILE="$HOME/dev/.intellij_bash_history"
 if [ ! -e "$HISTFILE" ]; then
     [ ! -d $(dirname $HISTFILE) ] && mkdir -p $(dirname $HISTFILE)
@@ -6,4 +34,23 @@ fi
 export HISTFILE
 
 export JAVA_HOME="/d/Program Files/Amazon Corretto/jdk1.8.0_222"
-$SHELL -l
+export MAVEN_REPOSITORY="$(dirname $(dirname $APPDATA))\.m2\repository"
+export KOTLIN_BUNDLED="$(dirname $APPDATA)\Local\Jet"
+
+# excluded: clhsdb hsdb idlj javafxpackager java-rmi jsadebugd pack200 rmic rmid rmiregistry tnameserv unpack200
+# toAlias=( appletviewer extcheck jar jarsigner java javac javadoc javah 
+# javap javapackager javaw jcmd jconsole jdb jdeps jhat jinfo jjs jmap 
+# jps jrunscript jstack jstat jstatd keytool kinit klist ktab 
+# native2ascii orbd policytool schemagen serialver servertool wsgen 
+# wsimport xjc )
+#
+# # echo FIXME!!!! for some reason im not exporting aliases!
+# for exe in "${toAlias[@]}"; do
+	# #echo "exe=$exe"
+	# alias "$exe"="$JAVA_HOME/bin/$exe"
+	# # type -a $exe
+# done
+#
+# unset toAlias
+
+export PATH="$PATH:$JAVA_HOME/bin"	# Forget about all that alias-loop nonsense and avoiding PATH clutter. Just add the whole damn directory already.

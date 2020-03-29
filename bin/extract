@@ -23,7 +23,7 @@ EOF
 }
 
 function programAvailable(){
-	[[ $(type -t $1) != '' ]] && return 0
+	[ -n "$(type -t $1)" ] && return 0
 	printf "$PROGNAME: Cannot find $1 with which to extract $2.\n"
 	[[ $allowInvalid -ne 1 ]] && exit 1
 }
@@ -95,10 +95,10 @@ function extract () {
 					programAvailable pkgutil $i
 					pkgutil --expand "$1" "${1:0:-4}" ;;
 				*.lzma)#*.tlz	?
-					if [[ $(type -t xz) != '' ]]; then 
+					if [ -n "$(type -t xz)" ]; then 
 						programAvailable xz $i
 						xz --format=lzma --decompress
-					elif [[ $(type -t unlzma) != '' ]]; then
+					elif [ -n "$(type -t unlzma)" ]; then
 						programAvailable unlzma $i
 						unlzma $i
 					else

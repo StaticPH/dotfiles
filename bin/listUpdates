@@ -1,0 +1,69 @@
+#! /bin/bash
+
+function _divider(){
+	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "-"
+}
+
+function _section(){
+	# Takes a single string argument
+	# Calls _divider() once before and after printing it
+	# Prints an additional newline before and afterwards
+	echo
+	_divider
+	echo "$1"
+	_divider
+	echo
+}
+
+# I cant remember why I wanted this, but it works regardless
+# function _fileHyperLink(){
+	# if [ $# -ne 1 ]; then
+		# echo "No file provided for hyperlink creation"
+		# return
+	# fi
+	
+	# local dest=;
+	# if [[ $OSTYPE == 'msys' ]]; then
+		# dest="$(cygpath.exe --mixed --absolute $1)"
+	# elif [ $(seemsLikeWSL) ]; then
+		# dest="$(/bin/wslpath -ma $1)"
+	# else
+		# dest="$(realpath $1)"
+	# fi
+	
+	# echo "file://$dest"
+# }
+
+echo "TODO: apt"
+# ?dpkg?
+# ?brew?
+# ?yum?
+# ?yaourt?
+if [ -n "$(type -t pacman)" ]; then
+	_section "Pacman packages"
+	env pacman -Q --upgrades
+fi;
+
+# ?npm?
+# ?go?
+
+if [ -n "$(type -t cargo)" ]; then
+	_section "Cargo executable crates"
+	printf 'Use "cargo install-update --all" to update all outdated executable crates.\n'
+	printf 'Use "cargo install-update {PACKAGE NAME]" to update a specific executable crate.\n'
+	printf 'Add the "--git" flag to also update git packages.\n'
+	printf 'Use "cargo update" to update non-executable crates.\n'
+	env cargo install-update --all --list
+fi
+
+if [ -n "$(type -t gem)" ]; then
+	_section "Ruby gems"
+	env gem update --explain #--conservative
+fi
+
+if [ -n "$(type -t pip)" ]; then
+	_section "Pip packages"
+	env pip list --outdated
+fi
+
+unset _divider _section #_fileHyperLink

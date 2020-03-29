@@ -15,12 +15,12 @@ cat << 'EOF' > ${HOME}/.machine_specific
 
 # NOTE: There ARE situations in which using winpty actually causes problems.
 # TODO: Figure out the rules for these situations, and disable these aliases under those situations
-if [ -n $(type -t winpty) ]; then
-	[ -n $(type -t sqliterepl) ] && alias sqliterepl="winpty ${HOME}/bin/sqliterepl -t fancy_grid -s fruity"
-	[ -n $(type -t node) ] && alias node="winpty node"
-	[ -n $(type -t php ) ] && alias php="winpty php"
-	[ -n $(type -t php5) ] && alias php5="winpty php5"
-	[ -n $(type -t psql) ] && alias psql="winpty psql"
+if [ -n "$(type -t winpty)" ]; then
+	[ -n "$(type -t sqliterepl)" ] && alias sqliterepl="winpty ${HOME}/bin/sqliterepl -t fancy_grid -s fruity"
+	[ -n "$(type -t node)" ] && alias node="winpty node"
+	[ -n "$(type -t php)" ] && alias php="winpty php"
+	[ -n "$(type -t php5)" ] && alias php5="winpty php5"
+	[ -n "$(type -t psql)" ] && alias psql="winpty psql"
 fi
 
 ##############################################################
@@ -31,7 +31,7 @@ fi
 if [ "$OS" == 'Windows_NT' ]; then
 	# alias npp=" PATH TO notepad++ EXECUTABLE"	#quick and easy, open a file in notepad++
 
-	alias dllchk="/mingw64/bin/ntldd.exe"
+	# alias dllchk="/mingw64/bin/ntldd.exe"
 	# also try dep-search and ldd
 
 	# function __pyreadline(){
@@ -146,4 +146,6 @@ EOF
 
 [ ! -e ${HOME}/.setup_machine_env ] && baseMachineEnv
 [ ! -e ${HOME}/.machine_specific ] && baseMachineSpecific
+
+unset baseMachineEnv baseMachineSpecific
 exit 0

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Take a hexdump of a binary file(s)
+# Keep only the printable character representation of each 2-byte hexadecimal sequence (non-printables are replaced with a '.' character)
+# Strip delimiting '<' and '>' characters, extra whitespace, and newlines
+# Print out what's left, followed by an extra newline to ensure a separation between the output and the subsequent prompt line.
+function decodebinaryfile(){
+#	/bin/od -vt x2z $1 | cut --fields='10-' -sd ' ' - | sed -e "s/ >\./\./" -e "s/\.</\./" | tr -d '\n'
+	/bin/od -vt x2z $1 | cut --fields='10-' -sd ' ' - | sed -e "s/ >//" -e "s/<//" | tr -d '\n'
+	echo #Guarantee a newline at the end
+}
+decodebinaryfile $@
+unset -f decodebinaryfile	# Try to minimize clutter in shell environment

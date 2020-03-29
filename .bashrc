@@ -19,43 +19,56 @@
 [[ "$-" != *i* ]] && return
 
 # Shell Options
-# See man bash for more options...  also info set
+# See man bash for more options...  specifically the sections on the builtins set and shopt 
 #-------------------------------------------------------------
-# Don't wait for job termination notification
-# set -o notify
 #
-# Don't use ^D to exit
+# When changing directory small typos can be ignored by bash
+# for example, cd /vr/lgo/apaache would find /var/log/apache
+# shopt -s cdspell
+#
+# Check that a command found in the hash table exists before trying to execute it. If it doesnt, a normal path search is performed.
+shopt -s checkhash
+#
+# Warn if there are running/stopped jobs when attempting to exit Bash
+# shopt -s checkjobs
+#
+# Attempt to save all lines of a multi-line command in the same history entry. Normally on by default.
+shopt -s cmdhist
+#
+# shopt -s completion_strip_exe
+#
+# Include filenames beginning with '.' in the results of filename expansion.
+# shopt -s dotglob
+#
+# Make bash append rather than overwrite the history on disk
+shopt -s histappend
+#
+#
+# Don't use ^D to exit on the first try
 # set -o ignoreeof
 #
 # Use case-insensitive filename globbing
 # shopt -s nocaseglob
 #
-# Include filenames beginning with '.' in the results of filename expansion.
-# shopt -s dotglob
+# Disable completion when the input buffer is empty.  i.e. Hitting tab 
+# and waiting a long time for bash to expand all of $PATH. 
+shopt -s no_empty_cmd_completion
 #
-# Attempt to save all lines of a multi-line command in the same history entry. On by default.
-# shopt -s cmdhist
+# Don't wait for job termination notification
+# set -o notify
+#
+# Aliases can use the programmable completion for the command they alias
+shopt -s progcomp_alias >/dev/null 2>&1 
+#
+# If this is set, the shift builtin prints an error message when the shift count exceeds the number of positional parameters.
+# shopt -s shift_verbose
 #
 # Expand backslash-escape sequences in echo by default
 # shopt -s xpg_echo
 #
-# Make bash append rather than overwrite the history on disk
-shopt -s histappend
-#
-# When changing directory small typos can be ignored by bash
-# for example, cd /vr/lgo/apaache would find /var/log/apache
-# shopt -s cdspell
 
-# shopt -s completion_strip_exe
-# Disable completion when the input buffer is empty.  i.e. Hitting tab 
-# and waiting a long time for bash to expand all of $PATH. 
-shopt -s no_empty_cmd_completion
+# nullglob? force_fignore? extglob? expand_aliases ? direxpand? promptvars?
 
-# Aliases can use the programmable completion for the command they alias
-shopt -s progcomp_alias >/dev/null 2>&1 
-
-# Check that a command found in the hash table exists before trying to execute it. If it doesnt, a normal path search is performed.
-shopt -s checkhash
 
 # Completion options
 #-------------------------------------------------------------
@@ -79,9 +92,10 @@ shopt -s checkhash
 #-------------------------------------------------------------
 # Don't put duplicate lines in the history.
 # export HISTCONTROL=$HISTCONTROL${HISTCONTROL+,}ignoredups
+# export HISTCONTROL=ignorespace:ignoredups		#subsumed by `[ \t]*:&` in HISTIGNORE
 #
 # Ignore some controlling instructions
-# HISTIGNORE is a colon-delimited list of patterns which should be excluded.
+# HISTIGNORE is a colon-delimited list of patterns which should be excluded. Honors the setting of the extglob shell option
 # The '&' is a special pattern which suppresses duplicate entries.
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
@@ -196,3 +210,7 @@ fi
 if [ -r "${HOME}/.bash_hooks" ]; then
 	source "${HOME}/.bash_hooks"
 fi
+
+
+
+#TODO: move set and shopt stuff to separate file

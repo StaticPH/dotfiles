@@ -6,9 +6,9 @@ man gitglossary 2>/dev/null || echo "Try running 'man gitglossary'"
 # echo $PATH
 # echo $MANPATH
 
-# if [ -n $(type -t cygpath) ]; then
+# if [ -n "$(type -t cygpath)" ]; then
 	# man -l "$(cygpath -m /usr/share/man/man1p/man.1p.gz)"
-# elif [ -n $(type -t wslpath) ]; then
+# elif [ -n "$(type -t wslpath)" ]; then
 	# man -l "$(wslpath -m /usr/share/man/man1p/man.1p.gz)"
 # fi
 

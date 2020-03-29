@@ -23,7 +23,7 @@ function ready(){
 	local _compiled="--type-add 'compiled:*.bin, *.chm, *.class, *.exe, *.lib, *.o, *.obj, *.pyc, *.pyd, *.so'"
 	local _config="--type-add 'config:*.cnf, *.inf, *.props, *.properties'"
 	local _cfg="--type-add 'cfg:include:config'"
-	# [ -n $(type -t csh) || -n $(type -t tcsh) ] && \\
+	# [[ -n "$(type -t csh)" || -n "$(type -t tcsh)" ]] && \\
 	local _csh="--type-add 'csh:*.sh, *.csh, *.tcsh, *.cshrc, .cshrc, .tcshrc, .login, .logout, .profile, profile'"
 	local _dll="--type-add 'dll:*.dll,*.DLL'"
 	local _dump="--type-add 'dump:*.dmp, *.dump, *.out'"
@@ -31,7 +31,7 @@ function ready(){
 	local _img="--type-add 'img:*.dmg, *.dsk, *.hdd, *.img, *.iso, *.ova, *.qed, *.sav, *.snapshot, *.vdi, *.vhd, *.vmdk, *.vmsn, *.vmss'"
 	# TODO add to js:typescript suffixes (were those .ts and .tsx?)
 	local _js="--type-add 'js:*.javascript'"
-	# [ -n $(type -t ksh) ] && \\
+	# [ -n "$(type -t ksh)" ] && \\
     local _ksh="--type-add 'ksh:*.sh, *.ksh, *.kshrc, .kshrc, .login, .logout, .profile, profile'"    
 	local _pic="--type-add 'pic:*.jpg, *.jpeg, *.png, *.apng, *.gif, *.bmp, *.tiff, *.webp, *.bpg, *.pgf"
 		   # #_pic=$_pic", *.xwd, *.xpm, *.xbm"
@@ -55,7 +55,7 @@ function ready(){
 	local _zip="--type-add 'zip:*.zip, *.jar, *.pak, *.rar, *.rar5, *.tar, *.tar.bz, *.lz, *.7z, *.7zip, *.z"
 		  _zip=$_zip", *.rbz, *.cab, *.bin, *.deb, *.dmg, *.ipg, *.paf, *.rpm, *.ipa, *.xpi"
 		  _zip=$_zip"' --type-add 'serialized:include:bzip2,gzip,lz4,lzma,xz'" #Yes, I know that some of these aren't actually compressed types, but I'm grouping them together anyways
-# [ -n $(type -t zsh) ] && \\
+# [ -n "$(type -t zsh)" ] && \\
     # local _zsh="--type-add 'zsh:*.sh, *.zsh, *.zshrc, .zshrc, .zlogin, .zlogout, .zprofile, .zshenv, zlogin, zlogout, zprofile, zshenv, zshrc'"
     local _zsh="--type-add 'zsh:*.sh, *.zshrc'"
 
@@ -64,4 +64,4 @@ function ready(){
 	export extraRipgrep="$_bash $_cert $_compiled $_config $_cfg $_csh $_dll $_dump $_h $_img $_js $_ksh $_pic $_py $_make $_mk $_qmake $_qml $_qt $_serialized $_sql $_store $_tmp $_txt $_zip $_zsh"
 }
 ready
-
+unset ready

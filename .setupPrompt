@@ -4,8 +4,8 @@
 #-------------------------------------------------------------
 ##############################################################
 
-# Try to load virtualenv wrapper for prompt 
-### From my observations, this seems to add about a second of overhead time. 
+# Try to load virtualenv wrapper for prompt
+### From my observations, this seems to add about a second of overhead time.
 ### Additionally, there might be reason to use the wrapper corresponding to a particular Python installation.
 ### With those points in mind, it might be better to have this be part of envrc files instead.
 #-------------------------------------------------------------
@@ -37,7 +37,7 @@ function setupPrompt(){
 	### This prompt is more subtle (Read: less attention grabbing)
 	### It also includes a timestamp (though its the time the line itself was originally displayed, rather than continually running an update command in the background until the user 'submits' the command)
 	### This prompt only separates the command from the static information with a "$ "
-	
+
 	# Colorful PS1 details
 	#-------------------------------------------------------------
 	### This prompt is rather colorful and eye catching, though not blindingly so.
@@ -55,8 +55,8 @@ function setupPrompt(){
 	[ -n "$1" ] && \
 		local promptSelection="$1" || \
 		local promptSelection="1"
-	
-	
+
+
 	### The shortcut variables for the formatting used by my prompt
 	local RED='\[\033[0;31m\]'
 	local LRED='\[\033[1;31m\]'
@@ -73,18 +73,28 @@ function setupPrompt(){
 	# local STRIKE='\[\033[9m\]'
 	# local BGCOL='\[\033[7m\]'
 	# local FGCOL='\[\033[8m\]'
-	
+
 	# Display the username and hostname underlined and in bold when connected via SSH.
 	if [[ "${SSH_TTY}" ]]; then
 		local hostStyle="${BOLD}${UNDERLINE}"
-	fi	
-	
+	fi
+
+	### The value of this parameter is expanded like PS1 and displayed by interactive
+	### shells after reading a command and before the command is executed.
+	### ex: PS0="$(fullWidthLineUnicode ─)"
+	# PS0=''
+
+
+	### The value of this variable is used as the prompt for the select command.
+	### If this variable is not set, the select command prompts with ‘#? ’
+	# PS3=''
+
 	if [ $promptSelection -lt 0 ]; then
 		[[ $EUID == 0 ]] && local usr="${RED}\u" || local usr="${GREEN}\u"
 		[[ $EUID == 0 ]] && local sep="${LRED}@" || local sep="${LGREEN}@"
-		[[ $EUID == 0 ]] && local host="${RED}${hostStyle}\H" || local host="${GREEN}${hostStyle}\H"	
+		[[ $EUID == 0 ]] && local host="${RED}${hostStyle}\H" || local host="${GREEN}${hostStyle}\H"
 		local clock="\[\e[1;30;40m\]⟨\T ⟩${RST}"
-		PS1='$(getexitcode)'"${clock}[${usr}${sep}${host}${RST}] \w\\$ "	
+		PS1='$(getexitcode)'"${clock}[${usr}${sep}${host}${RST}] \w\\$ "
 	elif [ $promptSelection -gt 0 ]; then
 		[[ $EUID == 0 ]] && local usr="${RED}\u" || local usr="${CYAN}\u"
 		[[ $EUID == 0 ]] && local delim="${RED}\$>" || local delim="${LPURPLE}\$>"
@@ -92,14 +102,17 @@ function setupPrompt(){
 		local host="${GREEN}@${hostStyle}\H"
 		local exval="${RST}\[\033[7;31m\]"'$(getexitcode)'"${RST}"
 		local here="${YELLOW}\w"
-		
+
 		PS1="${exval}${usr}${host} ${here} ${delim}"$'\n'"${cmdMarker}"
 	else #[ $promptSelection -eq 0 ]
 		true
 	fi
-	
-	### When running scripts in debug mode, give the name of the file,
+
+	### When running scripts in debug mode (-x), give the name of the file,
 	### followed by the current line number within it
+	### NOTE:
+	###	     The first character of the expanded value is replicated multiple times,
+	###      as necessary, to indicate multiple levels of indirection. The default is ‘+ ’
 	PS4='$0  line\: $LINENO     '
 	export PS1 PS4
 }

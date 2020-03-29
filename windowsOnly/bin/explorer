@@ -54,7 +54,7 @@ fi
 # Not viable; returns 1 for everything
 # function goto(){
 	# [[ -d "$1" ]] && ($SYSTEMROOT/explorer.exe "$1" && return 0) || return 1
-# }	
+# }
 
 # Not ideal that it uses the directory stack, but otherwise no issues with this one
 function goto(){

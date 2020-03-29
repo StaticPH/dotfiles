@@ -37,18 +37,18 @@ function view(){
 	rundll32 "C:\Program Files\Windows Photo Viewer\PhotoViewer.dll" ImageView_Fullscreen $1 &
 	# disown
 }
-# if [ -n $(type -t cygpath) ]; then
+# if [ -n "$(type -t cygpath)" ]; then
 	# echo path is "$(cygpath --windows -a "$1")"
 	# view "$(cygpath --windows -a "$1")"
 # fi
-# elif [ -n $(type -t wslpath) ]; then
+# elif [ -n "$(type -t wslpath)" ]; then
 	# echo path is "$(wslpath -wa "$1")"
 	# view "$(wslpath -wa "$1")"
 # fi
 
-if [ -n $(type -t cygpath) ]; then
+if [ -n "$(type -t cygpath)" ]; then
 	winPath="$(cygpath --windows -a "$@")"
-elif [ -n $(type -t wslpath) ]; then
+elif [ -n "$(type -t wslpath)" ]; then
 	winPath="$(wslpath -wa "$@")"
 else
 	echo "Neither cygpath nor wslpath found. No known alternative for ensuring Windows-style file paths. Aborting..."

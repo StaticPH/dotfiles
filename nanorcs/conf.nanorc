@@ -1,0 +1,10 @@
+## Syntax for .conf files
+syntax "Conf" "\.c[o]?nf$"
+## Possible errors and parameters
+## Strings
+icolor white ""(\\.|[^"])*""
+## Comments
+icolor brightblue "^[[:space:]]*#.*$"
+icolor cyan "^[[:space:]]*##.*$"
+## Trailing spaces
+color ,green "[[:space:]]+$"

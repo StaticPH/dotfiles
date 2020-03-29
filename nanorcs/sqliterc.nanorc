@@ -1,0 +1,7 @@
+syntax "(\.|)sqliterc$"
+
+# SQLite meta commands
+extendsyntax "sql" icolor cyan "\.\<(databases|dump|echo|exit|explain|header(s)?|help)\>"
+extendsyntax "sql" icolor cyan "\.\<(import|indices|mode|nullvalue|output|prompt|quit|read)\>"
+extendsyntax "sql" icolor cyan "\.\<(schema|separator|show|tables|timeout|width)\>"
+extendsyntax "sql" color brightcyan  "\<(ON|OFF)\>"
