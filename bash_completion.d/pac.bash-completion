@@ -1,2 +1,2 @@
 #!/bin/bash
-complete -W "remove autoremove install update download upgrade downgrade info cleanup list search package-changelog search-installed owner-of who-owns list-package-owned list-orphans list-outdated list-installed list-explicitly-installed list-dependencies help --completion" pac
+complete -W "remove autoremove install update download upgrade downgrade info show cleanup list search package-changelog search-installed owner-of who-owns list-package-owned list-orphans list-outdated list-installed list-explicitly-installed list-dependencies help --completion" pac

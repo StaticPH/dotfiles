@@ -2,10 +2,8 @@
 
 [ "$EUID" -eq 0 ] || exec sudo "$0" "$@"
 
-if [ ! -r "/etc/wsl.conf" ]; then
-    echo "wsl.conf not found. Creating now"
-
-    t=$(mktemp)
+function __createFile(){
+   local t=$(mktemp)
 cat <<EOF > "$t"
     # Enable extra metadata options by default
     [automount]
@@ -23,6 +21,12 @@ EOF
     [ -r "/etc/wsl.conf" ] && \
 		echo "/etc/wsl.conf created successfully." || \
 		echo "Failed to create /etc/wsl.conf"
+}
+
+if [ ! -r "/etc/wsl.conf" ]; then
+    echo "wsl.conf not found. Creating now"
+	__createFile
 else
     echo "/etc/wsl.conf already exists. No action taken."
 fi
+unset __createFile

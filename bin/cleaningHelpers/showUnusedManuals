@@ -2,39 +2,42 @@
 # -vfx
 
 # Search through a directory for man pages that don't appear to correspond to an executable on the PATH, a shell keyword, or a shell builtin. 
+function __showUnusedManuals() {
+	local directory=$1
+	# local fileExt=$2
 
-directory=$1
-# fileExt=$2
+	# if [ -n "$(type -t rg)" ]; then
+		# function trimmer(){ 
+			# # return "echo $1 | rg --hidden --ignore-case \"\.[0-9]\.(gz|z|Z)\" --replace \"\""
+			# local trimName="$(echo $1 | rg --hidden --ignore-case '\.[0-9]\.(gz|z|Z)' --replace '')"
+			# return "$trimname"
+		# }
+	# else
+		# local trimmer='grep "\.[0-9]\.\(gz\|z\|Z\)"| sed s/"\.[0-9]\.\(gz\|z\|Z\)"//'
+	# fi
 
-# if [ -n "$(type -t rg)" ]; then
-	# function trimmer(){ 
-		# # return "echo $1 | rg --hidden --ignore-case \"\.[0-9]\.(gz|z|Z)\" --replace \"\""
-		# trimName="$(echo $1 | rg --hidden --ignore-case '\.[0-9]\.(gz|z|Z)' --replace '')"
-		# return "$trimname"
-	# }
-# else
-	# trimmer='grep "\.[0-9]\.\(gz\|z\|Z\)"| sed s/"\.[0-9]\.\(gz\|z\|Z\)"//'
-# fi
-
-# ex: showUnusedManuals /usr/share/man/man1 \.1.*.gz.*
-for file in $(ls $directory); do 
-	# trimName=$(echo $file|sed s/$fileExt//)
-	
-	# \.1\.gz
-	# trimName=$(echo $file | grep $fileExt)
-	# trimName=$(echo $file | $grepper '\.[0-9]\.(gz|z|Z)')
-	# trimName="$(echo $file | grep '\.[0-9]\.(gz|z|Z)')"
-	
-	#Horribly inelegant and inefficient, but I've spent enough time trying to be elegant that I don't care anymore
-	[ -n "$(type -t rg)" ] && \
-		trimName="$(echo $file | rg '\.[0-9]\.(gz|z|Z)' --replace '')" || \
-		trimName="$(echo $file | grep '\.[0-9]\.\(gz\|z\|Z\)'| sed s/'\.[0-9]\.\(gz\|z\|Z\)'//)"
-	
-	# trimName="$(echo $file | $trimmer)"
-	# trimName="$(trimmer $file)"
-	
-	# echo trimname="$trimName"
-	
-	type -a $trimName > /dev/null 2>&1 || \
-		echo Could not find $trimName
-done 
+	# ex: showUnusedManuals /usr/share/man/man1 \.1.*.gz.*
+	for file in $(ls $directory); do 
+		# local trimName=$(echo $file|sed s/$fileExt//)
+		
+		# \.1\.gz
+		# local trimName=$(echo $file | grep $fileExt)
+		# local trimName=$(echo $file | $grepper '\.[0-9]\.(gz|z|Z)')
+		# local trimName="$(echo $file | grep '\.[0-9]\.(gz|z|Z)')"
+		
+		#Horribly inelegant and inefficient, but I've spent enough time trying to be elegant that I don't care anymore
+		[ -n "$(type -t rg)" ] && \
+			local trimName="$(echo $file | rg '\.[0-9]\.(gz|z|Z)' --replace '')" || \
+			local trimName="$(echo $file | grep '\.[0-9]\.\(gz\|z\|Z\)'| sed s/'\.[0-9]\.\(gz\|z\|Z\)'//)"
+		
+		# local trimName="$(echo $file | $trimmer)"
+		# local trimName="$(trimmer $file)"
+		
+		# echo trimname="$trimName"
+		
+		type -a $trimName > /dev/null 2>&1 || \
+			echo Could not find $trimName
+	done 
+}
+__showUnusedManuals $@
+unset __showUnusedManuals

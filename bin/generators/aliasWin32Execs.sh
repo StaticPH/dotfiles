@@ -28,6 +28,12 @@ endsWithExe(){
     [[ "${1: -4}" == '.exe' || "${1: -4}" == '.EXE' ]] && echo '0' || echo '1'
 }
 
+# This requires that 'shopt -s expand_aliases' be set for the environment (global scope)
+# alternatively, the powershell alias could be converted into a function, 
+# OR 
+# the function brackets could be changed from curly brackets to parentheses, 
+# effectively turning the function body into a subshell, 
+# so 'shopt -s expand_aliases' could then be set within it, but remain unchanged at the global scope
 makeAlias(){
 	rm $__DESTDIR/.sys32Aliases 2>/dev/null
 	touch $__DESTDIR/.sys32Aliases

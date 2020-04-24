@@ -53,4 +53,4 @@ cat << EOF >> $__DESTDIR/.winAliases
 EOF
 
 echo "Created file: $__DESTDIR/.winAliases"
-unset yn stripexe makeAlias exclude
+unset yn stripexe makeAlias exclude __DESTDIR

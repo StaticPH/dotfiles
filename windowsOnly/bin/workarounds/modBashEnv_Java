@@ -35,7 +35,7 @@ export HISTFILE
 
 export JAVA_HOME="/d/Program Files/Amazon Corretto/jdk1.8.0_222"
 export MAVEN_REPOSITORY="$(dirname $(dirname $APPDATA))\.m2\repository"
-export KOTLIN_BUNDLED="$(dirname $APPDATA)\Local\Jet"
+# export KOTLIN_BUNDLED="$(dirname $APPDATA)\Local\Jet"		#Something seems to have been messed up here; FIXME
 
 # excluded: clhsdb hsdb idlj javafxpackager java-rmi jsadebugd pack200 rmic rmid rmiregistry tnameserv unpack200
 # toAlias=( appletviewer extcheck jar jarsigner java javac javadoc javah 

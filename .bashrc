@@ -40,6 +40,9 @@ shopt -s cmdhist
 # Include filenames beginning with '.' in the results of filename expansion.
 # shopt -s dotglob
 #
+# Expand aliases even while in a non-interactive shell
+# shopt -s expand_aliases
+#
 # Make bash append rather than overwrite the history on disk
 shopt -s histappend
 #
@@ -49,6 +52,15 @@ shopt -s histappend
 #
 # Use case-insensitive filename globbing
 # shopt -s nocaseglob
+#
+# Make the ** glob pattern match all files, in addition to the default behavior of matching any directories and subdirectories.
+# shopt -s globstar
+#
+# Make glob patterns with no matches expand to an empty string, rather than to themselves.
+# shopt -s nullglob
+#
+# Make glob patterns with no matches (after filename expansion) result in an expansion error.
+# shopt -s failglob
 #
 # Disable completion when the input buffer is empty.  i.e. Hitting tab 
 # and waiting a long time for bash to expand all of $PATH. 
@@ -66,8 +78,11 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # Expand backslash-escape sequences in echo by default
 # shopt -s xpg_echo
 #
+# Use the TARGET of symbolic links when performing commands such as 'cd' which change the current directory
+# set -o physical
+#
 
-# nullglob? force_fignore? extglob? expand_aliases ? direxpand? promptvars?
+# force_fignore? extglob? direxpand? promptvars? extdebug? checkjobs? checkwinsize? hostcomplete?
 
 
 # Completion options
@@ -102,7 +117,7 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls:which:pwd:clear:cls' # Ignore some other commands as well
 #
 HISTIGNORE=$'[ \t]*:&:[fb]g:exit:clear:cls:history:history -a'
-HISTIGNORE=$HISTIGNORE':npp:explorer:pacDump:path:ls_symbols:la:ls:env'
+HISTIGNORE=$HISTIGNORE':npp:explorer:pacDump:path:la:ls:env'
 HISTIGNORE=$HISTIGNORE':svn status:git status:git log'
 #:privateIron:extensionsPrivateIron:privateBatch'
 export HISTIGNORE

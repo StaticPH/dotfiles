@@ -1,48 +1,46 @@
 #!/bin/bash
-# pac(){
-	# local removal="remove|autoremove"
-	# local sync="install|update|download|upgrade|downgrade|
-			# info|cleanup|list|search"
-	# local query="package-changelog|search-installed|
-			# owner-of|who-owns|list-package-owned|
-			# list-orphans|list-outdated|list-installed|
-			# list-explicitly-installed|list-dependencies"
 
 # Honor the NO_COLOR environment variable
 if [ ! -v NO_COLOR ]; then
-	RED="\033[31m"
-	OFF="\033[0m"
+	_RED_="\033[31m"
+	_OFF_="\033[0m"
 else
-	RED=
-	OFF=
+	_RED_=
+	_OFF_=
 fi
 
+function pacman(){
+	[ ! -v NO_COLOR ] && (command pacman --color=auto $@) || (command pacman --color=never $@)
+}
 
 function usage(){
 cat <<EOF
-General options:
+FLAGS:
    --completions  : output bash completion for pac to stdout.
-   -h|--help|help : Display this help text.
-   -p             : (SYNC AND REMOVAL ONLY; NYI) Only simulate the command, do not execute it. 
-Valid package operations:
-   removal: remove|autoremove
-   sync   : install|update|download|upgrade|downgrade|
-			info|cleanup|list|search
-   query  : package-changelog|search-installed|
-			owner-of|who-owns|list-package-owned|
-			list-orphans|list-outdated|list-installed|
-			list-explicitly-installed|list-dependencies
+   -h|--help      : Display this help text.
+   -p             : (SYNC AND REMOVAL ONLY; Not Yet Implemented) Only simulate the command, do not execute it.
+
+SUBCOMMANDS (Valid package operations):
+   help    : Display this help text.
+   removal : remove|autoremove
+   sync    : install|update|download|upgrade|downgrade|
+             info|show|cleanup|list|search
+   query   : package-changelog|search-installed|
+             owner-of|who-owns|list-package-owned|
+             list-orphans|list-outdated|list-installed|
+             list-explicitly-installed|list-dependencies
 EOF
 }
+
 function completion(){
 cat <<EOF
 #!/bin/bash
-complete -W "remove autoremove install update download upgrade downgrade info cleanup list \
+complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
 search package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
 list-outdated list-installed list-explicitly-installed list-dependencies help --completion" pac
 EOF
 }
-	alias pacman="pacman --color=auto"
+
 	if [[ $# == 0 ]]; then
 		usage
 	else 
@@ -137,11 +135,12 @@ EOF
 				exit
 				;;
 			*)
-				printf "$REDInvalid operation \"$1\"$OFF\n"
+				printf "${_RED_}Invalid operation \"$1\"${_OFF_}\n"
 				usage
 				exit 1
 				;;
 		esac
 	fi
-# }
-# pac $*
+
+unset -v _RED_ _OFF_
+unset -f usage completion pacman

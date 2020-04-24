@@ -88,6 +88,7 @@ function echoChar (){
 	#echo -e '\\U\'$1\''
 	echo -e '\U'$1
 }
+
 function samplePrompt(){
 	echo "${PS1@P}"
 }
@@ -150,7 +151,6 @@ alias clearClipboard="sendToClipboard ''"
 function filecount() {
 	find "${1-.}" -type f | wc -l
 }
-
 
 function findByName(){
 	if [ $# -lt 1 ]; then
@@ -218,6 +218,14 @@ function fromEpoch(){
 	date -d "@$1"
 }
 
+# function quotify(){
+	# echo ${$*@Q};
+# }
+
+# function escapify(){
+	# echo ${*@E}
+# }
+
 function strlen(){
 	echo "${#1}"
 	# Alternatively: expr length + "$1"
@@ -283,21 +291,30 @@ fi
 		# [ -n "$1" ] && \
 			# local fd="$1" || \
 			# local fd="."
-		# for d in $(ls $fd); do
+		# pushd $fd
+		# for d in $(*); do
 			# command durt $d
 		# done
 		# [ -t $fd } && command durt $fd
+		# popd
 	# }
 # fi
 
 
 # reminder, $@ is an array of arguments, while $* is a single string containing all the arguments.
 # $# is the number of arguments after the program call
+# redirect to stdin with >&0
+# redirect to stdout with >&1
+# redirect to stderr with >&2
+# "^" is equivalent to "2>", at least for the Fish shell
 # "|&" is shorthand for "2>&1 |"
 # delete a function, but NOT a variable of the same name, with "unset -f functionName"
 # redirecting with ">|" instead of ">" will force file clobbering, ignoring whether noclobber is enabled(via set)
 # "&>fileName" is equivalent to ">fileName 2>&1"
 # "&>>fileName" is equivalent to ">>fileName 2>&1"
+
+# local -	makes it so that shell options changed using the 'set' builtin inside the function are restored to their original values when the function returns
+# echo $-	to see the current flags applied by the 'set' command
 
 # "hash -p FILEPATH NAME" can be used to remember individual executables, as if they were included in PATH.
 # The caveat to this is that hashed functions ARE NOT FOUND BY "type -a" or tab-completion
@@ -306,3 +323,7 @@ fi
 # then all leading tab characters are stripped from input lines and the line containing delimiter. 
 # This allows here-documents within shell scripts to be indented in a natural fashion
 
+# set -u	treats attempts to expand previously unset variables/parameters as errors, and causes non-interactive shells to exit. Use this as part of making bash stricter.
+
+# xdg-open is your friend
+# bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'

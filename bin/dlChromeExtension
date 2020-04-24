@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Download a Google Chrome extension from the Chrome Web Store using its extension ID, but DON'T add it to Chrome.
+function _dlChromeExtension(){
+	if [ "$#" -ne 1 ]; then
+		printf "Usage: '$(basename $0) TARGET_EXTENSION_ID'\n" && exit 1
+	fi
+	
+	local extensionID="$1"
+
+	# --show-progress --progress=bar 
+	wget -v --execute "background = off" -o /dev/stderr --https-only --no-cache \
+	--user-agent "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3750.0 Iron Safari/537.36" --referer "https://chrome.google.com/" \
+	-EO "${extensionID}.crx" 'https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D'"$extensionID"'%26installsource%3Dondemand%26uc'
+}
+
+_dlChromeExtension "$@"
+
+unset _dlChromeExtension

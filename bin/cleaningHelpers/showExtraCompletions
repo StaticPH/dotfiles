@@ -3,12 +3,12 @@
 
 # Look in the standard locations and point out seemingly unnecessary completion files for bash. 
 
-function search() {
+function __search() {
 	for file in $(ls $1); do 
 		if [ -z "$(type -t $file)" ]; then
 			
 			# YES this works, and doesnt catch things it shouldn't, but also makes this process much slower. And its already rather slow without this extra precision.
-			# base=$(echo "$file" | sed s/"\.".*//)
+			# local base=$(echo "$file" | sed s/"\.".*//)
 			# if [ -z "$(type -t $base)" ]; then
 				# # echo "file=$file"
 				# # echo "basename=$base"
@@ -25,5 +25,6 @@ function search() {
 	(>&2 echo) # Remember to add a newline when you're done so that you don't end up with any of the activity output on the prompt line.
 }
 
-# search /etc/bash_completion.d/
-search /usr/share/bash-completion/completions/
+# __search /etc/bash_completion.d/
+__search /usr/share/bash-completion/completions/
+unset __search

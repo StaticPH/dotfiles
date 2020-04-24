@@ -24,6 +24,9 @@
 	# Undo the last commit
 	undo = reset --soft HEAD~1
 	
+	# Unstage a file from commit
+	unstage = reset HEAD --
+	
 	root = rev-parse --show-toplevel
 
 [core]
