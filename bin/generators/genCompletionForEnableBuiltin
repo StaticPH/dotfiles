@@ -1,0 +1,30 @@
+#! /bin/bash
+
+
+cat << EOF > /etc/bash_completion.d/enable.bash-completion
+complete -A disabled -X 'enable' enable enable
+[ "\$(type -a disable 2>/dev/null)" == "disable is aliased to "'\`'"enable -n'" ] && \\
+	complete -A enabled -X 'enable' disable disable
+EOF
+
+# TODO: parameters; for reference, see completion files for alias, declare, and complete
+# enable [-a] [-d -n -p -s] [-f filename] [names]
+
+# The -f option means to load the new builtin command name from shared object filename,
+	# on systems that support dynamic loading.
+# The -d option will delete a builtin previously loaded with -f.
+# If no name arguments are given, or if the -p option is supplied, a list of shell builtins is printed.
+# With no other option arguments, the list consists of all enabled shell builtins.
+# If -n is supplied, only disabled builtins are printed.
+# If -a is supplied, the list printed includes all builtins, 
+	# with an indication of whether or not each is enabled.
+# If -s is supplied, the output is restricted to the POSIX special builtins.
+
+# DEPRECATED METHOD
+#This version "hides" the enable builtin, so hopefully nobody will think to try disabling it anyways...
+#completions=$( builtin enable | sed s/"\benable "// | sed s/"enable"/""/ | awk '{ ORS=" " } { print $0 } '| sed s/" $"//)
+
+# cat << EOF > /etc/bash_completion.d/enable.bash-completion
+# complete -W "$completions" enable
+# complete -W "$completions" disable
+# EOF
