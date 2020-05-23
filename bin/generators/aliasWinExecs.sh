@@ -20,32 +20,29 @@ if [[ ! -d "$__DESTDIR" ]]; then
 	fi
 fi
 
-stripexe(){
-	echo "${1:0:-4}"
-}
-
 # echo "TODO: Decide on a permananent home for the resulting alias file to live in, so that it can be consistently found in the same place."
 
 makeAlias(){
 	rm $__DESTDIR/.winAliases 2>/dev/null
 	touch $__DESTDIR/.winAliases
-	local win="/c/Windows"
 	for item in "$@"; do
 #		echo "item=$item"
-		if [[ "$item" != "write.exe" ]];then
-			echo 'alias '"$(stripexe $item)=\"$win/$item\"" >> $__DESTDIR/.winAliases
+		local sansPath="${item##*/}"
+		if [[ "$sansPath" != "write.exe" ]];then
+			# We probably shouldn't assume the length of the path before the executable name (11)
+			# echo "alias ${item:11:-4}=\"$item\"" >> $__DESTDIR/.winAliases
+			echo "alias ${sansPath%.exe}=\"$item\"" >> $__DESTDIR/.winAliases
 		else
-			echo "alias wordpad=\"$win/$item\"" >> $__DESTDIR/.winAliases
+			echo "alias wordpad=\"$item\"" >> $__DESTDIR/.winAliases
 		fi
 	done;
 }
 exclude="bfsvc|hh|splwow64|winhlp32|explorer|HelpPane|py|pyw|IsUninst"
-makeAlias $(ls -A /c/Windows/| rg ".exe" | rg --invert-match "$exclude"| tr -d "*")
-#makeAlias $(ls -A /c/Windows/| grep ".exe" | grep --invert-match "$exclude"| tr -d "*")
+makeAlias $(printf "%s\n" /c/Windows/*.exe | grep -E --invert-match "$exclude")
 
 
 # Just a few other miscellaneous aliases for executables scattered about
-cat << EOF >> $__DESTDIR/.winAliases 
+cat << EOF >> $__DESTDIR/.winAliases
 [ -d /c/Windows/System32/WindowsPowerShell/v1.0/ ] && \
 	alias powershell="/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
 [ -d /c/Windows/System32/WindowsPowerShell/v2.0/ ] && \
@@ -53,4 +50,4 @@ cat << EOF >> $__DESTDIR/.winAliases
 EOF
 
 echo "Created file: $__DESTDIR/.winAliases"
-unset yn stripexe makeAlias exclude __DESTDIR
+unset yn makeAlias exclude __DESTDIR

@@ -16,7 +16,7 @@ EOF
 # If no name arguments are given, or if the -p option is supplied, a list of shell builtins is printed.
 # With no other option arguments, the list consists of all enabled shell builtins.
 # If -n is supplied, only disabled builtins are printed.
-# If -a is supplied, the list printed includes all builtins, 
+# If -a is supplied, the list printed includes all builtins,
 	# with an indication of whether or not each is enabled.
 # If -s is supplied, the output is restricted to the POSIX special builtins.
 

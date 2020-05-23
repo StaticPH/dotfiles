@@ -81,8 +81,7 @@ cat << 'EOF' > ${HOME}/.setup_machine_env
 ## expected format for BROWSER `executable [--flags...] %s`
 # export BROWSER=
 
-[ -d "${HOME}/.cargo" ] && export CARGO_HOME="${HOME}/.cargo"
-[ -d "${HOME}/.cargo" ] && export RUSTUP_HOME="${HOME}/.cargo"
+[ -d "${HOME}/.cargo" ] && export CARGO_HOME="${HOME}/.cargo" RUSTUP_HOME="${HOME}/.cargo"
 
 [ -d "${HOME}/venvs" ] && export WORKON_HOME="${HOME}/venvs"
 [ -v WORKON_HOME ] && export VIRTUALENVWRAPPER_HOOK_DIR=$WORKON_HOME
@@ -93,14 +92,30 @@ cat << 'EOF' > ${HOME}/.setup_machine_env
 ## If using virtualenvwrapper_lazy, also add
 # source (PATH TO virtualenvwrapper_lazy.sh)
 
-# export JAVA_HOME="PATH TO JDK FOLDER" 
+# If pipx is installed and available on the PATH, configure where it installs packages and binaries
+#-------------------------------------------------------------
+if [ "$(type -t pipx)" ]; then
+	export PIPX_BIN_DIR="${HOME}/.local/bin"	#default path explicitly enforced as ~/.local/bin
+#	export PIPX_HOME=""	#Override default path of ~/.local/pipx, because my HOME is already cluttered enough as is.
+fi
+
+# export JAVA_HOME="PATH TO JDK FOLDER"
 # export ANDROID_HOME="" # Path to your Android SDK directory, e.g. "$HOME/Android/Sdk/"
 
 # This value must be set for Go to work. Not that I know what it should be set to... maybe `go env` will help with that
-# export GOPATH="" # e.g. "${HOME}/go" 
-## By default, Go expects to be installed at /usr/local/go (or C:\Go on Windows)
+# export GOPATH="" # e.g. "${HOME}/go"
+## By default, Go expects to be installed at /usr/local/go (or C:\Go on Windows, assuming C: is the system drive)
 ## If it has been installed elsewhere, set GOROOT to that location. DO NOT SET OTHERWISE
 # export GOROOT=""
+
+# If node.js is installed, configure the history file for the default Node REPL
+#-------------------------------------------------------------
+if [ "$(type -t node)" ]; then
+	# Enable persistent REPL history for `node`.
+	export NODE_REPL_HISTORY=~/.node_history;
+	# Allow 32^3 entries; the default is 1000.
+	export NODE_REPL_HISTORY_SIZE='32768';
+fi
 
 # TODO: variables for npm, pnpm, php
 
@@ -111,21 +126,22 @@ cat << 'EOF' > ${HOME}/.setup_machine_env
 ##############################################################
 
 ## Append the path to the directory containing custom git commands to your PATH
-
+# ex:  [ -d "/opt/extraGitCmds" ] && PATH="$PATH:/opt/extraGitCmds"
 
 ## If necessary, append the path to your Python's Scripts directory
-
+# ex:  PATH="$PATH:/Projects/Python/envgroups/ipython/Scripts"
 
 # Conditionally add the user's Cargo bin directory to the path
 [ -v CARGO_HOME ] && PATH="$PATH:$CARGO_HOME/bin"
 
-# Conditionally add bins for MULTIPLE versions of ruby 
+# Conditionally add bins for MULTIPLE versions of ruby
 if [ -d ~/.gem/ruby/*/bin ]; then
-	function rubyBins(){
+	function __rubyBins(){
 		local rubyBinGlob=(~/.gem/ruby/*/bin)
 		echo $(printf ":%s" "${rubyBinGlob[@]}")
 	}
-	PATH="${PATH}$(rubyBins)"
+	PATH="${PATH}$(__rubyBins)"
+	unset __rubyBins
 fi
 
 # Conditionally add Android tools to the path
@@ -134,6 +150,8 @@ fi
 # Conditionally add Go tools to the path
 [ -v GOPATH ] && PATH="$PATH:${GOPATH}/bin"
 
+# Can't actually remember if this is normally included by default or not
+# [ -d "${HOME}/.local/bin" ] && PATH="$PATH:${HOME}/.local/bin"
 
 ##############################################################
 #-------------------------------------------------------------
