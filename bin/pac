@@ -10,7 +10,11 @@ else
 fi
 
 function pacman(){
-	[ ! -v NO_COLOR ] && (command pacman --color=auto $@) || (command pacman --color=never $@)
+	if [ ! -v NO_COLOR ]; then
+		command pacman --color=auto $@
+	else
+		command pacman --color=never $@
+	fi
 }
 
 function usage(){
@@ -24,7 +28,7 @@ SUBCOMMANDS (Valid package operations):
    help    : Display this help text.
    removal : remove|autoremove
    sync    : install|update|download|upgrade|downgrade|
-             info|show|cleanup|list|search
+             info|show|cleanup|list|search|refresh
    query   : package-changelog|search-installed|
              owner-of|who-owns|list-package-owned|
              list-orphans|list-outdated|list-installed|
@@ -36,14 +40,14 @@ function completion(){
 cat <<EOF
 #!/bin/bash
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
-search package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
+search refresh package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
 list-outdated list-installed list-explicitly-installed list-dependencies help --completion" pac
 EOF
 }
 
 	if [[ $# == 0 ]]; then
 		usage
-	else 
+	else
 		case "$1" in
 			remove)
 				shift
@@ -84,6 +88,14 @@ EOF
 			search)
 				shift
 				pacman -S --search $*
+				# TODO: change this to search separately for each distinct parameter group, collate the results, and remove duplicates
+				# multiple parameters can be grouped into a single parameter by enclosing them in quotes,
+				# and pacman will exhibit its default search behavior of searching for packages containing ALL of the strings within the quotes.
+				# strings not within quotes are treated as separate search queries.
+				;;
+			refresh)
+				shift
+				pacman -Sy # refresh the local sync database
 				;;
 			package-changelog)
 				shift
@@ -92,18 +104,19 @@ EOF
 			search-installed)
 				shift
 				pacman -Q --search $*
+				# TODO: See TODO on "search"
 				;;
 			owner-of | who-owns)
 				shift
 				pacman -Q --owns $*
-				# Not 100% sure how this differs from -F --owns, but it _sounds_ like -F --owns only works when you have the package installed, 
+				# Not 100% sure how this differs from -F --owns, but it _sounds_ like -F --owns only works when you have the package installed,
 				# while -Q --owns works for all known packages, installed or not. May be totally wrong about that.
 				;;
 			list-package-owned)
 				shift
-				pacman -F --list $*		
-				# Not 100% sure how this differs from -Q --list, but it _sounds_ like -F --list only works when you have the package installed, 
-				# while -Q --list works for all known packages, installed or not. May be totally wrong about that.
+				pacman -Q --list $*
+				# I don't fully understand the difference between -Ql and -Fl, because it _sounds_ like -F --list only works when you have the package installed,
+				# while -Q --list works for all known packages (installed or not), but -Ql sometimes shows files not listed by -Fl.
 				;;
 			list-explicitly-installed)
 				shift
@@ -118,15 +131,16 @@ EOF
 				shift
 				pacman -Q --deps -t $@
 				;;
-			list-outdated) #list-out-of-date | 
+			list-outdated) #list-out-of-date |
 				shift
-				pacman -Q --upgrades $@
+				pacman -Sy # refresh the local sync database
+				pacman -Q --upgrades $@ #  check for out-of-date packages on the local system
 				;;
 			list-installed)
 				shift
 				pacman -Q --search
 				;;
-			-h|--help|help)
+			-h | --help | help)
 				usage
 				exit
 				;;
@@ -140,6 +154,7 @@ EOF
 				exit 1
 				;;
 		esac
+		# Note: check installed packages for missing files using `pacman -Qk`, optionally piped into `grep "warning"`
 	fi
 
 unset -v _RED_ _OFF_

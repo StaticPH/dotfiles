@@ -1,7 +1,22 @@
-#! /bin/bash 
+#! /bin/bash
 # -vfx
 
-# Create symbolic links in $destination/ for external git manpages. 
+#TODO: CLEANUP THIS MESS
+
+[ "$OSTYPE" == 'msys' -a -z "$(type -t winln)" ] && echo "Please install winln"; exit 1
+
+if [ "$OSTYPE" == 'msys' ]; then
+	function lnk(){
+		command winln $@
+	}
+else
+	function lnk(){
+		command ln $@
+	}
+fi
+}
+
+# Create symbolic links in $destination/ for external git manpages.
 function __lnkManuals(){
 	local dbg=0
 	local destination="/opt/adtlManPages"
@@ -28,26 +43,26 @@ function __lnkManuals(){
 	# }
 
 	function strtail(){
-		[[ $# -ne 2 ]] && return 1
-		local str=$1
+		[[ "$#" -ne 2 ]] && return 1
+		local str="$1"
 		let maxslice=$(echo $str | wc -m )-1
-		local len=$2
-		[[ $len -gt $maxslice ]] && return 1
+		local len="$2"
+		[[ "$len" -gt "$maxslice" ]] && echo "slice cannot exceed length of string" && return 1
 		echo "${str: -len}"
 	}
 
 	local startloc="$(pwd)"
 	function search() {
-		local src=
-		local tfolder=
+		local src
+		local tfolder
 		# echo "#args = $#"
 		if [[ "$#" == 1 ]]; then
-			pushd $1 >/dev/null 2>&1
+			pushd "$1" >/dev/null 2>&1
 			src="$(pwd)"
 			popd >/dev/null 2>&1
 			[[ "$dbg" != 0 ]] && echo "src = $src"
 
-			tfolder="$(echo $src| sed 's/.*\///')"
+			tfolder="$(echo $src | sed 's/.*\///')"
 			[[ "$dbg" != 0 ]] && echo "FOLDER IS: $tfolder"
 
 			[[ -d "$destination/$tfolder/$tfolder" ]] || mkdir -p "$destination/$tfolder/"
@@ -55,7 +70,7 @@ function __lnkManuals(){
 			for file in $(ls "$src"); do
 				if [ -z "$(type -t $file)" ]; then #not sure what should happen when this is false, but let's cross that bridge when we come to it
 					[[ "$dbg" != 0 ]] && echo "$src/$file" to "$destination/$tfolder/$file"
-					winln -s "$src/$file" "$destination/$tfolder/"
+					lnk -s "$src/$file" "$destination/$tfolder/"
 				fi
 			done
 			return
@@ -86,7 +101,7 @@ function __lnkManuals(){
 
 			elif [ -z "$(type -t $file)" ]; then
 				[[ "$dbg" != 0 ]] && echo "$src/$file" to "$destination/$tfolder/$file"
-				winln -s "$src/$file" "$destination/$tfolder/"
+				lnk -s "$src/$file" "$destination/$tfolder/"
 			fi
 		done
 	}
@@ -97,4 +112,4 @@ function __lnkManuals(){
 }
 
 __lnkManuals
-unset __lnkManuals
+unset __lnkManuals lnk

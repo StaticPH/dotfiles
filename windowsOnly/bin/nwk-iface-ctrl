@@ -1,11 +1,14 @@
 #! /bin/bash
 
 function usage(){
-	echo 'This program is a wrapper around the Windows commands for listing, enabling, and disabling network interfaces.'
-	echo 'Valid commands: '
-	echo '    nwk-iface-ctrl show                          Lists available network interfaces'
-	echo '    nwk-iface-ctrl enable <Interface Name>       Enable <Interface Name>'
-	echo '    nwk-iface-ctrl disable <Interface Name>      Disable <Interface Name>'
+	printf 'This program is a wrapper around the Windows commands for listing, enabling, and disabling network interfaces.\n'
+	printf 'Valid commands:\n'
+	printf '    nwk-iface-ctrl show                          Lists available network interfaces\n'
+	printf '    nwk-iface-ctrl enable <Interface Name>       Enable <Interface Name>\n'
+	printf '    nwk-iface-ctrl disable <Interface Name>      Disable <Interface Name>\n'
+	printf 'See also:\n'
+	printf '    netcfg -vs a            Lists the Instance ID and Description of every installed adapter\n'
+	printf '    netcfg -vs n            List all installed net components (adapters, protocols, services, clients)\n'
 }
 
 # Well, technically it should be -eq 2, but bash can occasionally be strange about how it

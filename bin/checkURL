@@ -3,8 +3,8 @@
 # Checks to see if sending an HTTP get request to a URL results in a 4xx or 5xx HTTP status code
 # If it does, indicates the status code received, and the URL that caused it.
 function _checkURL(){
-	if [ "$#" -ne 1 ]; then
-		printf "Usage: '$0 QUOTED_URL'" && return 1
+	if [ "$#" -ne 1 -o "$1" == '' ]; then
+		printf "Usage: '$0 QUOTED_URL'\n" && return 1
 	fi
 	local url="$1"
 	local responseCode="$(curl -LI -w '%{http_code}' --no-progress-meter $url | head -n 1)"

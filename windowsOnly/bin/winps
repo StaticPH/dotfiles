@@ -1,0 +1,67 @@
+#!/bin/bash
+
+function __usage(){
+	local cmd="$(basename $0)"
+	printf "$cmd is a wrapper around a small subset of the Windows \'Tasklist.exe\' command.\n"
+	printf "Note that all globs are case-sensitive.\n"
+	printf "Usage:\n"
+	printf "      List all                        \'$cmd [ -a | --all ]\'\n"
+	printf "      List glob matches               \'$cmd [ -g | --glob ] NAME_GLOB\'\n"
+	printf "      List services by process        \'$cmd [ -s | --svc ] [SERVICE_GLOB]\'\n"
+	printf "      List services by process        \'$cmd [ --all-services ]\'\n"
+	printf "      Show this help text             \'$cmd [ -h | --help ]\'\n"
+	printf "      Show help for tasklist          \'$cmd --internal\'\n"
+}
+
+function __unknown(){
+	printf "Error: Unknown operation \'$1\'\n"
+	__usage
+	exit 1
+}
+
+function winps(){
+	case "$#" in
+		0)
+			__usage
+			return 1
+			;;
+		1)
+			case "$1" in
+				-a | --all)
+					printf 'tasklist\n' | cmd; echo
+					;;
+				--all-services)
+					printf 'tasklist /SVC\n' | cmd; echo
+					;;
+				-h | --help)
+					__usage
+					;;
+				--internal)
+					printf 'tasklist /?\n' | cmd; echo  # directly calling `tasklist //\?` would also work here
+					;;
+				*)
+					__unknown
+					;;
+			esac
+			;;
+		2)
+			case "$1" in
+				-g | --glob)
+					printf 'tasklist /FI "IMAGENAME eq %s"\n' "$2" | cmd; echo
+					;;
+				-s | --svc)
+					printf 'tasklist /SVC /FI "SERVICES eq %s"' "$2" | cmd; echo
+					;;
+				*)
+					__unknown
+					;;
+			esac
+			;;
+		*)
+			printf "Error: Unexpected number of parameters\n"
+			__usage
+			return 1
+			;;
+	esac
+}
+winps "$@"
