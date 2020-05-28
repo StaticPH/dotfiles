@@ -35,7 +35,8 @@ shopt -s checkhash
 # Attempt to save all lines of a multi-line command in the same history entry. Normally on by default.
 shopt -s cmdhist
 #
-# shopt -s completion_strip_exe
+# For any 'foo.exe' during completion, if 'foo' and 'foo.exe' are the same file, strip the '.exe' suffix
+[ "$OSTYPE" == 'msys' ] && shopt -s completion_strip_exe
 #
 # Include filenames beginning with '.' in the results of filename expansion.
 # shopt -s dotglob
@@ -84,7 +85,6 @@ shopt -s progcomp_alias >/dev/null 2>&1
 
 # force_fignore? extglob? direxpand? promptvars? extdebug? checkjobs? checkwinsize? hostcomplete?
 
-
 # Completion options
 #-------------------------------------------------------------
 # These completion tuning parameters change the default behavior of bash_completion:
@@ -99,9 +99,12 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # COMP_TAR_INTERNAL_PATHS=1
 #
 # Uncomment to turn on programmable completion enhancements.
-# Any completions you add in ~/.bash_completion are sourced last.
+# Any completions you add in your ~/.bash_completion file are sourced last.
 # [ -r /etc/bash_completion ] && . /etc/bash_completion
 # MAY CAUSE NOTICABLE IMPACT ON SPEED OF LOADING BASH
+#
+# This should only attempt to source completions if the file exists AND the completions have not already been sourced by the shell.
+# [ -r /etc/bash_completion -a "x${BASH_VERSION-}" != x -a "x${PS1-}" != x -a "x${BASH_COMPLETION_VERSINFO-}" = x ] && . /etc/bash_completion
 
 # History Options
 #-------------------------------------------------------------
@@ -175,7 +178,7 @@ if [ -r "${HOME}/.bash_functions" ]; then
 fi
 
 if [ "$OS" == 'Windows_NT' ]; then
-	if [[ -r ~/.winAliases &&  -r ~/.sys32Aliases ]]; then
+	if [ -r ~/.winAliases -a  -r ~/.sys32Aliases ]; then
 		source ~/.winAliases
 		source ~/.sys32Aliases
 	# else # TODO: Decide how to handle using my generateAll.sh script

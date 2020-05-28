@@ -26,11 +26,12 @@ function getexitcode {
 
 # Better PATH printout
 function path(){
-	# equivalent to : echo $PATH | tr -s ":" "\n"
-	local old=$IFS
-	IFS=:
-	printf "%s\n" $PATH
-	IFS=$old
+	echo $PATH | tr -s ":" "\n"
+	# Or the more verbose equivalent:
+	# local old=$IFS
+	# IFS=:
+	# printf "%s\n" $PATH
+	# IFS=$old
 }
 
 pause() {
@@ -52,6 +53,9 @@ fullWidthLineUnicode(){
 	yes "$char" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
 }
 
+function locateFunc(){
+	(shopt -s extdebug; declare -F "$1";)
+}
 
 # Look, I forget things, okay?
 # function ls_symbols(){
@@ -66,19 +70,20 @@ function __showColor(){
 	if [ $# -ne 1 ]; then
 		printf "__showColor takes exactly 1 argument"; return 1;
 	fi
-	echo -en "\e[48;5;"$1"m $i \033[m"
+	echo -en "\e[48;5;${1}m $1 \033[m"
 }
 function showColorRange(){
 	if [ $# -ne 2 ]; then
-		printf "Usage: 'showColorRange START_NUM END_NUM'" && return 1
+		printf "Usage: 'showColorRange START_NUM END_NUM'\n\tSTART_NUM AND END_NUM must be an integer greater than or equal to 0, and less than 256." && return 1
 	fi
 	#for i in `seq 0 5`; do \echo -en "\e[48;5;"$i"m   ";done;echo -e "\033[m"
 	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do \echo -en "\e[48;5;"$i"m   \033[m";done;);done;
-	for i in `seq $1 $2`;
-	do
-		echo -en "\e[48;5;"$i"m $i "
+	# for i in `seq $1 $2`;
+	local i;
+	for ((i=$1; i <= $2; i++)); do
+		printf "\e[48;5;${i}m $i "
 	done
-	echo -e "\033[m"
+	printf "\e[0m\n"
 }
 
 function echoChar (){
@@ -86,7 +91,7 @@ function echoChar (){
 		printf "Usage: echoChar UNICODE_NUMBER\n" && return 1
 	fi
 	#echo -e '\\U\'$1\''
-	echo -e '\U'$1
+	printf "\U${1}"
 }
 
 function samplePrompt(){
@@ -108,11 +113,14 @@ setCursorColor(){
 	[[ $# -eq 1 ]] && echo -e "\e]12;$1\a" || echo "$0 only accepts a single color parameter."
 }
 function moveCursorTo(){
-	[[ $# -eq 2 || $# -eq 3 ]] || return -1
-	line=$1;	col=$2;	text=$3
-	echo -ne "$(tput sc)"
-	echo -ne '\033['$1';'$2'H'$3
-	echo -ne "$(tput rc)"
+	# This function name is something of a misnomer; it's actually more of an "insert at"
+	[ $# -lt 2 ] && return 1
+
+	local line="$1" col="$2"    # $1 is Line; $2 is Column
+	shift 2            # Remove the arguments for line and column positions
+	local text="$*"    # The text inserted is comprised of any remaining arguments
+
+	printf "$(tput sc)\033[${line};${col}H${text}$(tput rc)"
 }
 
 #Check if root user has root privelege. Remember that for bash, 0 is true
@@ -230,11 +238,13 @@ function strlen(){
 	echo "${#1}"
 	# Alternatively: expr length + "$1"
 }
+
 function strtail(){
 	[[ $# -ne 2 ]] && printf "Usage: strtail STRING N\t:\tget last N characters of STRING\n" && return 1
 	[[ "$2" -gt "${#1}" ]] && printf "Error: strtail: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1: ${#1}-$2}"
 }
+
 function strhead(){
 	[[ $# -ne 2 ]] && printf "Usage: strhead STRING N\t:\tget first N characters of STRING\n" && return 1
 	[[ "$2" -gt "${#1}" ]] && printf "Error: strhead: The number of characters to get cannot exceed length of the string.\n" && return 1
@@ -286,6 +296,13 @@ if [ -e "/etc/environment" ]; then
 	}
 fi
 
+if [[ "$OSTYPE" == 'msys' ]]; then
+	function incmd(){
+		echo "$@" | cmd; echo
+	}
+fi
+
+
 # if [ -n "$(type -t durt)" ]; then
 	# function durtDir(){
 		# [ -n "$1" ] && \
@@ -313,9 +330,6 @@ fi
 # "&>fileName" is equivalent to ">fileName 2>&1"
 # "&>>fileName" is equivalent to ">>fileName 2>&1"
 
-# local -	makes it so that shell options changed using the 'set' builtin inside the function are restored to their original values when the function returns
-# echo $-	to see the current flags applied by the 'set' command
-
 # "hash -p FILEPATH NAME" can be used to remember individual executables, as if they were included in PATH.
 # The caveat to this is that hashed functions ARE NOT FOUND BY "type -a" or tab-completion
 
@@ -324,6 +338,15 @@ fi
 # This allows here-documents within shell scripts to be indented in a natural fashion
 
 # set -u	treats attempts to expand previously unset variables/parameters as errors, and causes non-interactive shells to exit. Use this as part of making bash stricter.
+#
+# local -	makes it so that shell options changed using the 'set' builtin inside the function are restored to their original values when the function returns; does not effect 'shopt'
+# echo $-	to see the current flags applied by the 'set' command
+#
+# when debugging scripts, try adding this after handling positional parameters:
+# local -; set -uxv # strict mode; trace; print shell input as encountered
+
+# ${var1:+"$var1"}		if $var1 is unset or null, yield null; otherwise expand $var1
+# ${var1:-defaultValue} if $var1 is unset or null, yield defaultValue; otherwise expand $var1
 
 # xdg-open is your friend
 # bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'

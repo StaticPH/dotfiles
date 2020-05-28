@@ -7,6 +7,8 @@
 #[ -n "$(type -t thefuck)" ] && eval $(thefuck --alias)
 #[ -n "$(type -t direnv)" ] && eval "$(direnv hook bash)"		#Commented out while trying to figure out why \ls is call direnv
 
+# [ -n "$(type -t pipx)" ] && eval "$(register-python-argcomplete pipx)"
+
 # Try to enable the "Command not found" hook ("pacman -S pkgfile" to install it on Arch or msys2).
 # See also: https://wiki.archlinux.org/index.php/Bash#The_.22command_not_found.22_hook
 [ -r /usr/share/doc/pkgfile/command-not-found.bash ] && . /usr/share/doc/pkgfile/command-not-found.bash

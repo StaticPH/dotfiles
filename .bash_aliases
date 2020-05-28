@@ -162,8 +162,8 @@ fi
 alias infocmp="infocmp -1"
 alias infocmpl="infocmp -1L"
 
-alias termsettings="stty"
-alias thisterm="tty"
+# alias termsettings="stty"
+# alias thisterm="tty"
 
 #------------------
 # Link related
@@ -209,6 +209,7 @@ fi
 # Rust Program Aliases
 #--------------------------
 # I tried $(ripgrepExtraTypes) with said program echoing output, but bash seemed unable to locate it on load, so I resorted to exporting a new variable
+# At some point this will be replaced by actually using the .ripgreprc functionality that was implemented a few versions after I came up with this method.
 if [ -n "$(type -t rg)" ]; then
 	if [ -f "${HOME}/bin/ripgrepExtraTypes" ]; then
 		source ~/bin/ripgrepExtraTypes
@@ -231,14 +232,24 @@ alias curl="curl --create-dirs"
 # alias wget='wget --no-check-certificate'			# Disable sertificate check for wget.
 
 # IP addresses
-# [ -n "$(type -t dig)" ] && alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
-# alias localip="ipconfig getifaddr en0"
+# REMOVEME: apparently this 1st one no longer works for free users, may if you're a paying Cisco customer; see https://unix.stackexchange.com/questions/335371/how-does-dig-find-my-wan-ip-adress-what-is-myip-opendns-com-doing
+# [ -n "$(type -t dig)" ] && alias ip="dig +short myip.opendns.com @resolver1.opendns.com"		
+
+# Try this instead
+# [ -n "$(type -t dig)" ] && alias ip="dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com"
+
+# alias localip="ipconfig getifaddr en0"  sometimes en1, or some other interface...
 # if [ -n "$(type -t ifconfig)" ]; then
 	# alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
 	# [ -n "$(type -t pcregrep)" ] && alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'" # Show active network interfaces
 # fi
 
+alias globalip="curl -s http://checkip.dyndns.com/ | sed 's/[^0-9\.]//g'"
+
 # [ -n "$(type -t dscacheutil)" ] && alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder" # Flush Directory Service cache
+
+[ "$OSTYPE" == 'msys' ] && alias routetbl-show='netstat -r'
+# [ "$OSTYPE" == 'msys' ] && alias netcon-stats='netstat -es'
 
 #--------------------------------
 # Process Management Aliases
@@ -247,9 +258,11 @@ alias curl="curl --create-dirs"
 alias _ps="ps -a --format 'logname user pid jobc start command'"
 alias myps="ps -a --format 'logname user pid jobc start command'"
 
+alias ps='ps -l'
+[ "$OSTYPE" == 'msys' ] && alias psa='ps -lWa' || alias psa='ps -la'
 [ -n "$(type -t pgrep)" ] && alias pgrep="pgrep -afi"
 #[ -n "$(type -t pkill)" ] && alias pkill="pkill -fx" # Be careful what you kill
-[[ -n "$(type -t pkill)" && -z "$(type -t pk)" ]] && alias pk="pkill"
+[ -n "$(type -t pkill)" -a -z "$(type -t pk)" ] && alias pk="pkill"
 
 #---------------------------------
 # Development Related Aliases
@@ -288,8 +301,8 @@ if [ -n "$(type -t python)" ]; then
 	fi
 	alias pip36="$PY36/Scripts/pip"
 	alias pip37="$PY37/Scripts/pip"
-	[[ -f "$PY36/Scripts/pipenv" ]] && alias pipenv36="$PY36/Scripts/pipenv"
-	[[ -f "$PY37/Scripts/pipenv" ]] && alias pipenv37="$PY37/Scripts/pipenv"
+	[ -f "$PY36/Scripts/pipenv" ] && alias pipenv36="$PY36/Scripts/pipenv"
+	[ -f "$PY37/Scripts/pipenv" ] && alias pipenv37="$PY37/Scripts/pipenv"
 	alias py="python "
 
 	alias validjson="python -m json.tool"
@@ -342,8 +355,8 @@ alias less="less --ignore-case --LONG-PROMPT --shift .25 -F --status-column --ti
 # alias more="more -d"	# Make more provide useful feedback when an invalid key is pressed.
 alias more="less" # insert obligatory "less is more" pun here
 alias nano="nano -cA --nowrap --nonewlines -T 4"	# --zap?
-#alias lineCount="wc -l"  # Trying to encourage myself to remember the actual command for this one
 alias filetype="file" # Would alias as "ftype", but that already exists on Windows
+# alias dirs="dirs -v" # Display directory stack entries on separate lines, prefixed by their zero-based index in the stack
 
 # alias bd=". bd -si"
 alias ..="cd .."

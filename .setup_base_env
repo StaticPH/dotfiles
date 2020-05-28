@@ -29,7 +29,7 @@ TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
 
 # For filename expansion, ignore filename matches that match any of the colon-separated globs in 'GLOBIGNORE'. Honors the setting of the extglob shell options
 #-------------------------------------------------------------
-# GLOBIGNORE=""
+#GLOBIGNORE=".:.."  #How often do you REALLY want a glob to match . or .. ?
 
 
 # Don't auto-complete files with the following file extensions
@@ -46,6 +46,7 @@ FIGNORE=".dll:.DLL:.ax"
 # because I've accidentally'd my shell a few times too many when trying to send ctrl+D while suffering input delay
 #-------------------------------------------------------------
 IGNOREEOF="1"
+
 
 ##############################################################
 #-------------------------------------------------------------
@@ -85,7 +86,7 @@ function pathadd() {                                             # Append to pat
 
 function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe.
 	# Return 0 if the system appears to be WSL; return 1 otherwise
-	[[ -n $(command -v wsl) || -n $(command -v wsl.exe) ]] && \
+	[ -n $(command -v wsl) -o -n $(command -v wsl.exe) ] && \
 		return 0 || \
 		return 1
 }
@@ -113,7 +114,7 @@ fi
 
 # Don't add this clutter to the path if aliases have already been generated through generateAll.sh;
 # the aliases will be sourced in .bashrc if they exist in the user's home directory
-if [[ ! -r ~/.winAliases || ! -r ~/.sys32Aliases ]]; then
+if [ ! -r ~/.winAliases -o ! -r ~/.sys32Aliases ]; then
 # !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
 	if [[ $OSTYPE == 'msys' ]]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
