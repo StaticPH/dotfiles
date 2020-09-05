@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# windescribe: Using powershell, attempt to retrieve the descriptions of Windows executables located on the system path
+# ORIGINAL FORM:
+# powershell "echo $(for i in 'ARGUMENTS HERE'; do cygpath -aw $(type -p $i) | tr '\n' ' '; done | sed 's/ *$/\n/g') | foreach {(gi \$_).VersionInfo.FileDescription}"
+
+function usage(){
+	cat << EOF
+Usage:
+	$0 [OPTIONS] FILE ...
+Description:
+	Using powershell, attempt to retrieve the descriptions of Windows executables located on the system path
+Options:
+	-h|--help               Display this help text.
+EOF
+}
+
+[ "$#" -lt 1 ] && usage && exit 1
+case "$1" in
+	"--help|-h") usage && exit 0
+esac
+
+#TODO: cygpath/wslpath compat
+
+files=$(
+	for i in "$@"; do
+		cygpath -aw $(type -P $i)
+	done | tr '\n' ' '| sed 's/ *$/\n/g'
+)
+
+#TODO: Try to make this also work for aliases to things that are on the system path; may utilize 'type -a' and 'type -t'?
+powershell "echo $files | foreach {(gi \$_).VersionInfo.FileDescription}"

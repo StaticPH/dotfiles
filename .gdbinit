@@ -43,6 +43,9 @@ end
 
 set max-completions 100
 set history remove-duplicates 1
+# set history save
+# set history filename ~/.gdb_history
+
 #set exec-done-display
 #set debug overload
 #set debug timestamp

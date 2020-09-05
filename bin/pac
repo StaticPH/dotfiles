@@ -3,9 +3,11 @@
 # Honor the NO_COLOR environment variable
 if [ ! -v NO_COLOR ]; then
 	_RED_="\033[31m"
+	_YELLOW_="\033[33m"
 	_OFF_="\033[0m"
 else
 	_RED_=
+	_YELLOW_=
 	_OFF_=
 fi
 
@@ -29,19 +31,20 @@ SUBCOMMANDS (Valid package operations):
    removal : remove|autoremove
    sync    : install|update|download|upgrade|downgrade|
              info|show|cleanup|list|search|refresh
-   query   : package-changelog|search-installed|
+   query   : check|package-changelog|search-installed|
              owner-of|who-owns|list-package-owned|
              list-orphans|list-outdated|list-installed|
              list-explicitly-installed|list-dependencies
+   file    : provides-what
 EOF
 }
 
 function completion(){
 cat <<EOF
-#!/bin/bash
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
-search refresh package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
-list-outdated list-installed list-explicitly-installed list-dependencies help --completion" pac
+search refresh check package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
+list-outdated list-installed list-explicitly-installed list-dependencies provides-what \
+help --completion" pac
 EOF
 }
 
@@ -97,6 +100,22 @@ EOF
 				shift
 				pacman -Sy # refresh the local sync database
 				;;
+			check)
+				shift
+				if [ "$#" != 0 ];then
+					pacman -Qkq "$@" | sed -Ee 's#(.*)( .*)#\1 is missing \2#'
+				else
+					# pacman -Qk |
+					echo "TODO: support checking multiple specific packages at once"
+					for pkg in $(pacman -Qqs); do
+						# FIXME: I truly dont understand why this doesn't seem to work ( T.T)
+						# TODO: REPLACE $(tput setaf 3) with __YELLOW__
+						pacman -Qk "$pkg" | sed -E \
+						-e 's#(warning: )(.+?)(:)(.+?)( \(No such file or directory\))# printf "%s%s%s%s" "$(tput setaf 3)\1$(tput sgr0)" "\2" " is missing" "\4"#e' \
+						-e '/.*0 missing files$/!s/(.*total files, )(.*)/printf "%s%s" "\1" "$(tput setaf 3)\2$(tput sgr0)"/e'
+					done
+				fi
+				;;
 			package-changelog)
 				shift
 				pacman -Q --changelog $@
@@ -107,16 +126,16 @@ EOF
 				# TODO: See TODO on "search"
 				;;
 			owner-of | who-owns)
+				# This functionality is also available through pkgfile.
 				shift
 				pacman -Q --owns $*
-				# Not 100% sure how this differs from -F --owns, but it _sounds_ like -F --owns only works when you have the package installed,
-				# while -Q --owns works for all known packages, installed or not. May be totally wrong about that.
+				# TODO: for windows users, consider OR-ing || pacman -Q --owns (...something that tries again with ".exe" appended to every argument)
 				;;
-			list-package-owned)
+			list-package-owned) 	#TODO: May deprecate completely, since -Fl seems to give the same results for installed packages
 				shift
 				pacman -Q --list $*
-				# I don't fully understand the difference between -Ql and -Fl, because it _sounds_ like -F --list only works when you have the package installed,
-				# while -Q --list works for all known packages (installed or not), but -Ql sometimes shows files not listed by -Fl.
+				# I don't fully understand the difference between -Ql and -Fl, because it _sounds_ like -Q --list only works when you have the package installed,
+				# while -F --list works for all known packages (installed or not).
 				;;
 			list-explicitly-installed)
 				shift
@@ -140,6 +159,10 @@ EOF
 				shift
 				pacman -Q --search
 				;;
+			provides-what)
+				shift
+				pacman -F --list $@
+				;;
 			-h | --help | help)
 				usage
 				exit
@@ -154,8 +177,4 @@ EOF
 				exit 1
 				;;
 		esac
-		# Note: check installed packages for missing files using `pacman -Qk`, optionally piped into `grep "warning"`
 	fi
-
-unset -v _RED_ _OFF_
-unset -f usage completion pacman

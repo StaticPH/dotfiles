@@ -10,6 +10,9 @@
 #-------------------------------------------------------------
 ##############################################################
 
+# Set arguments to automatically pass to the less pager
+export LESS=" -PM'?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\: %x.:?pB%pB\%..   ?f(Press v to open with default editor).%t' "
+
 # Colored man pages: http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
 # Less Colors for Man Pages
 # Coloration seems to behave strangely at times, but oh well.
@@ -21,31 +24,42 @@
 #export LESS_TERMCAP_ue=$'\E[0m'           # end underline
 #export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 
-export EDITOR="/usr/bin/nano"
-# export VISUAL="/usr/bin/nano"
+# Allow different preferred editors for local and remote sessions
+if [ -n "$SSH_CONNECTION" ]; then
+	export EDITOR="/usr/bin/nano"
+	# export VISUAL="/usr/bin/nano"
+else
+	export EDITOR="/usr/bin/nano"
+	# export VISUAL="/usr/bin/nano"
+fi
 
-TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
+export TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
+# export LANG='en_US.UTF-8'
+export LESSCHARSET='utf-8'
 
+# Disallow pip from installing packages outside of a virtualenv
+#-------------------------------------------------------------
+#export PIP_REQUIRE_VIRTUALENV=true
 
 # For filename expansion, ignore filename matches that match any of the colon-separated globs in 'GLOBIGNORE'. Honors the setting of the extglob shell options
 #-------------------------------------------------------------
-#GLOBIGNORE=".:.."  #How often do you REALLY want a glob to match . or .. ?
+#export GLOBIGNORE=".:.."  #How often do you REALLY want a glob to match . or .. ?
 
 
 # Don't auto-complete files with the following file extensions
 #-------------------------------------------------------------
-FIGNORE=".dll:.DLL:.ax"
+export FIGNORE=".dll:.DLL:.ax" #:.DS_Store:.pyc:.pyd:
 
 
 # Treat files (with executable-bit set) matching these globs as not being on the PATH. Does not affect commands in hash
 #-------------------------------------------------------------
-# EXECIGNORE=""
+#export EXECIGNORE=""
 
 
 # Must press ctrl+D 1+$IGNOREEOF times to exit shell...
 # because I've accidentally'd my shell a few times too many when trying to send ctrl+D while suffering input delay
 #-------------------------------------------------------------
-IGNOREEOF="1"
+export IGNOREEOF="1"
 
 
 ##############################################################
@@ -57,38 +71,77 @@ IGNOREEOF="1"
 # Adds to the $PATH variable, if path not already present
 # Default is to prepend to $PATH
 # Add "after" to append to $PATH
-function pathmunge () {
-	if ! echo "$PATH" | $(/bin/grep -Eq "(^|:)$1($|:)") ; then	# try calling grep in subshell for potential slight performance boost
-		if [ "$2" = "after" ] ; then
-			PATH="$PATH:$1"
-		else
-			PATH="$1:$PATH"
-		fi
-	fi
-}
+# function pathmunge () {
+	# if ! echo "$PATH" | $(/bin/grep -Eq "(^|:)$1($|:)") ; then	# try calling grep in subshell for potential slight performance boost
+		# if [ "$2" = "after" ] ; then
+			# PATH="$PATH:$1"
+		# else
+			# PATH="$1:$PATH"
+		# fi
+	# fi
+# }
 
 # Does the same thing as pathmunge, but for MANPATH
-function manpathmunge () {
-	if ! echo "$MANPATH" | $(/bin/grep -Eq "(^|:)$1($|:)") ; then
-		if [ "$2" = "after" ] ; then
-			MANPATH="$MANPATH:$1"
-		else
-			MANPATH="$1:$MANPATH"
-		fi
-	fi
+# function manpathmunge () {
+# 	if ! echo "$MANPATH" | $(/bin/grep -Eq "(^|:)$1($|:)") ; then
+# 		if [ "$2" = "after" ] ; then
+# 			MANPATH="$MANPATH:$1"
+# 		else
+# 			MANPATH="$1:$MANPATH"
+# 		fi
+# 	fi
+# }
+
+# Hopefully faster alternative to pathmunge; appends by default
+function pathadd() {                                             # Prepend/append to path, without duplicates
+	case "$1" in
+		"--prepend")
+			shift # Clearly we don't want PATH to be "--prepend:$PATH"
+			[ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]] && \
+			export PATH="$1${PATH:+:${PATH}}"
+			;;
+		"--append")
+			shift
+			;& # Intentionally fall through to default case
+		*)
+			[ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]] && \
+			export PATH="${PATH:+${PATH}:}$1"
+			;;
+	esac
 }
 
-#Hopefully faster alternative to pathmunge
-function pathadd() {                                             # Append to path, without duplicates
-	[ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]] && \
-	export PATH="${PATH:+"$PATH:"}$1"
+# Hopefully faster alternative to manpathmunge; appends by default
+function manpathadd() {                                             # Prepend/append to manpath, without duplicates
+	case "$1" in
+		"--prepend")
+			shift # Clearly we don't want MANPATH to be "--prepend:$MANPATH"
+			[ -d "$1" ] && [[ ":$MANPATH:" != *":$1:"* ]] && \
+			export MANPATH="$1${MANPATH:+:${MANPATH}}"
+			;;
+		"--append")
+			shift
+			;& # Intentionally fall through to default case
+		*)
+			[ -d "$1" ] && [[ ":$MANPATH:" != *":$1:"* ]] && \
+			export MANPATH="${MANPATH:+${MANPATH}:}$1"
+			;;
+	esac
+}
+
+#Check if a particular directory is on the PATH
+function checkpath(){
+	case ":$PATH:" in
+	*:"$1":*) echo "'$1' is on the PATH";;
+	*) echo "'$1' is not on the PATH";;
+	esac
 }
 
 function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe.
 	# Return 0 if the system appears to be WSL; return 1 otherwise
-	[ -n $(command -v wsl) -o -n $(command -v wsl.exe) ] && \
-		return 0 || \
-		return 1
+	# [ -n $(command -v wsl) -o -n $(command -v wsl.exe) ] && \
+		# return 0 || \
+		# return 1
+	grep -q Microsoft /proc/version
 }
 
 ##############################################################
@@ -97,7 +150,7 @@ function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe
 #-------------------------------------------------------------
 ##############################################################
 
-# Try to use /env/environment for the default system path;
+# Try to use /env/environment for the default system path; Fully reconstruct PATH to prevent pollution by calls to `source`
 # NOTE: this might have been a typo for /etc/environment, and should be verified
 if [ -r "/env/environment" ]; then
 	PATH=$(/usr/bin/cat /env/environment)
@@ -110,7 +163,8 @@ else
 	fi
 fi
 
-[ -d ~/bin ] && PATH="~/bin:$PATH"
+[ -d "${HOME}/.local/bin" ] && PATH="${HOME}/.local/bin:$PATH"
+[ -d "$HOME/bin" ] && PATH="$HOME/bin:$PATH"
 
 # Don't add this clutter to the path if aliases have already been generated through generateAll.sh;
 # the aliases will be sourced in .bashrc if they exist in the user's home directory
@@ -125,10 +179,6 @@ if [ ! -r ~/.winAliases -o ! -r ~/.sys32Aliases ]; then
 fi
 
 [[ $OSTYPE == 'msys' ]] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
-
-# [ -d /usr/bin/site_perl ] && PATH="$PATH:/usr/bin/site_perl"
-# [ -d /usr/bin/vendor_perl ] && PATH="$PATH:/usr/bin/vendor_perl"
-# [ -d /usr/bin/core_perl ] && PATH="$PATH:/usr/bin/core_perl"
 
 ##############################################################
 #-------------------------------------------------------------
@@ -148,4 +198,4 @@ if [ -r "${HOME}/.setup_machine_env" ]; then
   source "${HOME}/.setup_machine_env"
 fi
 
-export PATH MANPATH
+export PATH #MANPATH

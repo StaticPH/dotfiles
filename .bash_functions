@@ -9,8 +9,8 @@
 
 #########################################################
 #########################################################
-# ALL FUNCTIONS CONTAINED HEREIN SHOULD EITHER BE 
-# OS-AGNOSTIC, OR WRAPPED IN AN OS CHECK 
+# ALL FUNCTIONS CONTAINED HEREIN SHOULD EITHER BE
+# OS-AGNOSTIC, OR WRAPPED IN AN OS CHECK
 #########################################################
 #########################################################
 
@@ -53,6 +53,12 @@ fullWidthLineUnicode(){
 	yes "$char" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
 }
 
+spacer(){
+	fullWidthLineUnicode
+	printf "%s\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" ' ' " " ' ' " "
+	fullWidthLineUnicode
+}
+
 function locateFunc(){
 	(shopt -s extdebug; declare -F "$1";)
 }
@@ -68,13 +74,14 @@ function locateFunc(){
 
 function __showColor(){
 	if [ $# -ne 1 ]; then
-		printf "__showColor takes exactly 1 argument"; return 1;
+		printf "$FUNCNAME takes exactly 1 argument\n"; return 1;
 	fi
-	echo -en "\e[48;5;${1}m $1 \033[m"
+	printf "\e[48;5;${1}m $1 \033[m"
 }
+
 function showColorRange(){
 	if [ $# -ne 2 ]; then
-		printf "Usage: 'showColorRange START_NUM END_NUM'\n\tSTART_NUM AND END_NUM must be an integer greater than or equal to 0, and less than 256." && return 1
+		printf "Usage: '$FUNCNAME START_NUM END_NUM'\n\tSTART_NUM AND END_NUM must be an integer greater than or equal to 0, and less than 256." && return 1
 	fi
 	#for i in `seq 0 5`; do \echo -en "\e[48;5;"$i"m   ";done;echo -e "\033[m"
 	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do \echo -en "\e[48;5;"$i"m   \033[m";done;);done;
@@ -88,7 +95,7 @@ function showColorRange(){
 
 function echoChar (){
 	if [ $# -ne 1 ]; then
-		printf "Usage: echoChar UNICODE_NUMBER\n" && return 1
+		printf "Usage: $FUNCNAME UNICODE_NUMBER\n" && return 1
 	fi
 	#echo -e '\\U\'$1\''
 	printf "\U${1}"
@@ -99,18 +106,18 @@ function samplePrompt(){
 }
 
 setTitle(){
-	[[ $# -ge 1 ]] && echo -e "\e]2;$@\a"
+	[ $# -ge 1 ] && echo -e "\e]2;$@\a"
 	#echo -e '\[\033]0;$@\007\]' #set maximized title
 	#echo -e '\[\033]1;$@\007\]' #set minimized title
 }
 setTextColor(){
-	[[ $# -eq 1 ]] && echo -e "\e]10;$1\a" || echo "$0 only accepts a single color parameter."
+	[ $# -eq 1 ] && echo -e "\e]10;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
 }
 setBackgroundColor(){
-	[[ $# -eq 1 ]] && echo -e "\e]11;$1\a" || echo "$0 only accepts a single color parameter."	#seagreen is pretty
+	[ $# -eq 1 ] && echo -e "\e]11;$1\a" || echo "$FUNCNAME only accepts a single color parameter."	#seagreen is pretty
 }
 setCursorColor(){
-	[[ $# -eq 1 ]] && echo -e "\e]12;$1\a" || echo "$0 only accepts a single color parameter."
+	[ $# -eq 1 ] && echo -e "\e]12;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
 }
 function moveCursorTo(){
 	# This function name is something of a misnomer; it's actually more of an "insert at"
@@ -121,6 +128,12 @@ function moveCursorTo(){
 	local text="$*"    # The text inserted is comprised of any remaining arguments
 
 	printf "$(tput sc)\033[${line};${col}H${text}$(tput rc)"
+}
+useAltScreenBuf(){
+	printf "\e[?1049h"
+}
+useMainScreenBuf(){
+	printf "\e[?1049l"
 }
 
 #Check if root user has root privelege. Remember that for bash, 0 is true
@@ -152,6 +165,7 @@ isRoot(){
 function sendToClipboard(){
 	(echo $@) >> /dev/clipboard
 }
+
 # Clear the system clipboard by explicitly writing an empty string to it
 alias clearClipboard="sendToClipboard ''"
 
@@ -165,10 +179,10 @@ function findByName(){
 		printf "Equivalent to 'find PATH -name PATTERN'\n"
 		printf "If only 1 arguement is provided, PATH defaults to the current directory\n"
 		printf "Only supports up to two arguments.\n"
-		printf "Usage: '$0 [PATH] -name PATTERN'\n"
+		printf "Usage: '$FUNCNAME [PATH] -name PATTERN'\n"
 		return 1
 	elif [ $# -eq 1 ]; then
-		find $(pwd) -name $1
+		find "$PWD" -name $1
 	else
 		find $1 -name $2
 	fi
@@ -176,18 +190,18 @@ function findByName(){
 
 function curlup(){
 	echo "NOTE: This function is WIP."
-	if [[ $# == 0 ]]; then
-		echo "curlup is a wrapper around the curl command for uploading local files to a remote url."
-		# echo "Usage: curlup --file <file> --dest <url> [--non-blocking]"
-		echo "Usage: curlup --dest URL [--file FILE]" #dont bother with the non-blocking case for now
+	if [ $# -eq 0 ]; then
+		echo "$FUNCNAME is a wrapper around the curl command for uploading local files to a remote url."
+		# echo "Usage: $FUNCNAME --file <file> --dest <url> [--non-blocking]"
+		echo "Usage: $FUNCNAME --dest URL [--file FILE]" #dont bother with the non-blocking case for now
 		#might eventually decide to ditch the --dest and --file in favor of just requiring the parameters in a specific order
 		return
 	fi
 
 	#something to get options
-	#for now, erroneously assume that i know what i want when i use this command		
+	#for now, erroneously assume that i know what i want when i use this command
 
-	if [[ $# == 2 ]]; then	# if only a url was provided, read from stdin instead of a file
+	if [ $# -eq 2 ]; then	# if only a url was provided, read from stdin instead of a file
 		curl --upload-file - $2
 	else
 		curl --upload-file $4 $2
@@ -196,25 +210,23 @@ function curlup(){
 
 function epochTime(){
 	if [[ "${1,,}" == "-h" || "${1,,}" == "--help" ]]; then
-		printf "Usage: $FUNCNAME [-h|--help] [TIME STRING]\n"
-		printf "  A convenience function for converting a human-readable time to the equivalent unixepoch time.\n" | fold -s
-		printf "  Without a parameter, converts the current time to unixepoch form.\n"
+		printf "Usage: $FUNCNAME [-h|--help] [TIME_STRING]\n"
+		printf "  A convenience function for converting a human-readable time to the equivalent unix epoch time.\n" | fold -s
+		printf "  Without a parameter, converts the current time to unix epoch form.\n"
 		return 0
 	elif [ "$#" -gt 1 ]; then
 		printf "$FUNCNAME accepts at most 1 argument.\n"
 		return 1
 	fi
 
-	[ -n "$1" ] && \
-		local now="$1" || \
-		local now="now" # This could have just been left blank, but this has the same outcome and is clearer
-	date -d "$now" "+%s"
+	# date explicitly defaults to "now" if not provided	(or provided empty string)
+	date -d "${1:-now}" "+%s"
 }
 
 function fromEpoch(){
 	if [[ "${1,,}" == "-h" || "${1,,}" == "--help" ]]; then
-		printf "Usage: $FUNCNAME [-h|--help] [UNIXEPOCH]\n"
-		printf "  A convenience function for converting a unixepoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
+		printf "Usage: $FUNCNAME [-h|--help] [UNIX_EPOCH]\n"
+		printf "  A convenience function for converting a unix epoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
 		# printf "  Output format is determined by the values of LC_TIME and TIME_STYLE.\n"	# Determine order of precedence
 		# printf "  Time zone rules are indicated by the TZ environment variable, or by the system default rules if TZ is not set.\n"
 		return 0
@@ -240,32 +252,32 @@ function strlen(){
 }
 
 function strtail(){
-	[[ $# -ne 2 ]] && printf "Usage: strtail STRING N\t:\tget last N characters of STRING\n" && return 1
-	[[ "$2" -gt "${#1}" ]] && printf "Error: strtail: The number of characters to get cannot exceed length of the string.\n" && return 1
+	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tget last N characters of STRING\n" && return 1
+	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1: ${#1}-$2}"
 }
 
 function strhead(){
-	[[ $# -ne 2 ]] && printf "Usage: strhead STRING N\t:\tget first N characters of STRING\n" && return 1
-	[[ "$2" -gt "${#1}" ]] && printf "Error: strhead: The number of characters to get cannot exceed length of the string.\n" && return 1
+	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tget first N characters of STRING\n" && return 1
+	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1:0:$2}"
 }
 
 function skipNchars(){
-	[[ $# -ne 2 ]] && printf "Usage: skipNchars STRING N\t:\tTrim the first N characters of STRING, and return the rest\n" && return 1
-	[[ "$2" -gt "${#1}" ]] && printf "Error: skipNchars: The number of characters to skip cannot exceed length of the string.\n" && return 1
+	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tTrim the first N characters of STRING, and return the rest\n" && return 1
+	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to skip cannot exceed length of the string.\n" && return 1
 	echo "${1:$2:${#1}}"
 }
 
 function excuse(){
-	local str=$(curl -s developerexcuses.com | egrep -o '<a href.*>.*<\/a>') 
+	local str=$(curl -s developerexcuses.com | egrep -o '<a href.*>.*<\/a>')
 	local str2="${str:71:${#str}}"
 	echo "${str2:0:${#str2}-4}"
 }
 
 if [ $(seemsLikeWSL) ]; then
 	function wslpath(){
-		if [ "$#" = "0" ]; then
+		if [ $# -eq 0 ]; then
 			### https://github.com/Microsoft/WSL/issues/2715
 cat << '__EOF__'
 Usage: wslpath [-a] [-u|-w|-m] path
@@ -296,27 +308,42 @@ if [ -e "/etc/environment" ]; then
 	}
 fi
 
-if [[ "$OSTYPE" == 'msys' ]]; then
+if [ "$OSTYPE" == 'msys' ]; then
 	function incmd(){
 		echo "$@" | cmd; echo
 	}
 fi
 
+if [ -n "$(type -t durt)" ]; then
+	# durt should really just operate on the current directory if I don't specify one
+	function durt(){
+		command durt "${@:-$PWD}"
+	}
+fi
 
-# if [ -n "$(type -t durt)" ]; then
-	# function durtDir(){
-		# [ -n "$1" ] && \
-			# local fd="$1" || \
-			# local fd="."
-		# pushd $fd
-		# for d in $(*); do
-			# command durt $d
-		# done
-		# [ -t $fd } && command durt $fd
-		# popd
-	# }
-# fi
+if [ -n "$(type -t pip)" ]; then
+	piphelp(){
+		# If I want to see the general help, I'll ask for it.
+		case $1 in
+			help|-h|--help|'')	pip --help; echo ;;
+			*)	COLUMNS=$(tput cols) pip $@ --help | sed -n '/General Options:/q;p' ;;
+		esac
+	}
+fi
 
+rl-cfg-dump(){
+	if [ -n "$(type -t tabulate)" ]; then
+		# big sad: tabulate v1.1.1 does not seem to support ANSI escape codes in its input; it just displays them as plain text.
+		# So this method, which looks nicer overall, wont use --byte-subst='\033[37;40m<%X>\033[m' for iconv, which matched the
+		# coloring that is otherwise used on the hex value of potentially troublesome characters
+		printf "%s\n" "$(bind -pv)" "$(bind -sX| sort -bu)" | \
+			sed -Ee '/self-insert$/!s/(^.*?)(\s*)(: )(.*)(\s*)/\4 \3\1/' -e 's/(^# )(.*?\w)(\s*)(\(.*?\))(\s*)/\2 : \4/' | \
+			iconv -t "utf-8" --byte-subst='<%X>' | tabulate -c 0 -d ':'
+	else
+		printf "%s\n" "$(bind -pv)" "$(bind -sX| sort -bu)" | \
+		sed -Ee '/self-insert$/!s/(^.*?)(\s*)(: )(.*)(\s*)/\4 \3\1/' -e 's/(^# )(.*?\w)(\s*)(\(.*?\))(\s*)/\2 : \4/'
+	fi
+}
 
 # reminder, $@ is an array of arguments, while $* is a single string containing all the arguments.
 # $# is the number of arguments after the program call
@@ -333,8 +360,8 @@ fi
 # "hash -p FILEPATH NAME" can be used to remember individual executables, as if they were included in PATH.
 # The caveat to this is that hashed functions ARE NOT FOUND BY "type -a" or tab-completion
 
-# In here-documents, if the redirection operator is ‘<<-’, 
-# then all leading tab characters are stripped from input lines and the line containing delimiter. 
+# In here-documents, if the redirection operator is ‘<<-’,
+# then all leading tab characters are stripped from input lines and the line containing delimiter.
 # This allows here-documents within shell scripts to be indented in a natural fashion
 
 # set -u	treats attempts to expand previously unset variables/parameters as errors, and causes non-interactive shells to exit. Use this as part of making bash stricter.

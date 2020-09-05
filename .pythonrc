@@ -1,6 +1,20 @@
+import sys
+sys.ps1="\033[31m>>> "
+
 import platform
+#print("THINGS ARE HAPPENING")
 if platform.system() == 'Windows':
 	import rlcompleter, readline
+
+	#try:
+	#    import readline
+	#except ImportError:
+    	# Silently ignore missing readline module
+	#	print('Unable to import readline; module not found')
+	#    pass
+	#else:
+	#    import rlcompleter
+
 	readline.parse_and_bind( 'tab:complete' )
 
 #function __pyreadline(){

@@ -35,21 +35,6 @@ alias exec="exec " 			# Should allow calling exec on an alias
 alias nohup="nohup "
 [ -n "$(type -t winpty)" ] && alias winpty="winpty "
 
-# case "$TERM" in
-# xterm*)
-	# # The following programs are known to require a Win32 Console
-	# # for interactive usage, therefore let's launch them through winpty
-	# # when run inside `mintty`.
-	# for name in node ipython php php5 psql python2.7
-	# do
-		# case "$(type -p "$name".exe 2>/dev/null)" in
-		# ''|/usr/bin/*) continue;;
-		# esac
-		# alias $name="winpty $name.exe"
-	# done
-	# ;;
-# esac
-
 #-------------------------------
 # Safety (Stupid Proofing®)
 #-------------------------------
@@ -102,6 +87,7 @@ alias findManPage="man -w"
 
 # Add colors for filetype, file hide patterns, and human-readable sizes by default on 'ls'
 # I typically don't need to see dll files, and some directories have lots.
+# in environments other than msys2 with mintty, I may want to consider --hyperlink=auto
 alias ls="ls --hide='*.dll' --hide='*.DLL' -hF --group-directories-first --color=auto --dereference-command-line-symlink-to-dir"
 # alias ls='ls -hF --color=tty'                 # classify files in colour
 # to always show year on long listing, use --time-style="long-iso"
@@ -181,13 +167,16 @@ alias findBrokenLinks='find . -maxdepth 1 -type l ! -exec test -e {} \; -printf 
 
 if [ -n "$(type -t tar)" ]; then
 	alias untar="tar --extract --file"
-	alias tarball="tar --create --file --verbose" # --totals
-	alias tarzip="tar --create --file --gzip"
+	alias tarzip="tar --create --gzip --file"
+	alias tarball="tar --create --verbose --file" # --totals
+	alias untz="tar --extract --gzip --verbose --file"
 fi
 
 #--------------------------
 # Diff Related Aliases
 #--------------------------
+
+[ -n "$(type -t icdiff)" ] && alias icdiff='icdiff --cols=$(tput cols)'
 
 if [ -n "$(type -t colordiff)" ]; then
 	#For some reason, i had both -s and --report-identical-files. Removed -s, but will re-add if it turns out to have been portability related.
@@ -202,7 +191,7 @@ else
     alias diffcol="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side"
     alias diffcol2="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side|grep -n \|"
 fi
-[ -n "$(type -t diff-so-fancy)" ] && alias fancydiff="diff-so-fancy"
+# [ -n "$(type -t diff-so-fancy)" ] && alias fancydiff="diff-so-fancy" # It turns out fancydiff is another program, and I haven't tried it to know if I'd ever want to use it
 [ -n "$(type -t bcompare)" ] && alias beyondcompare="bcompare"
 
 #--------------------------
@@ -221,6 +210,7 @@ if [ -n "$(type -t rg)" ]; then
 	unset extraRipgrep		# BEGONE no-longer-needed environment variable!
 fi
 [ -n "$(type -t fd)" ] && alias fd="fd -HaL"
+[ -n "$(type -t desed)" ] && alias desed="desed --sed-path /usr/bin/sed"
 #--------------------------------
 # Network Related Aliases
 #--------------------------------
@@ -233,7 +223,7 @@ alias curl="curl --create-dirs"
 
 # IP addresses
 # REMOVEME: apparently this 1st one no longer works for free users, may if you're a paying Cisco customer; see https://unix.stackexchange.com/questions/335371/how-does-dig-find-my-wan-ip-adress-what-is-myip-opendns-com-doing
-# [ -n "$(type -t dig)" ] && alias ip="dig +short myip.opendns.com @resolver1.opendns.com"		
+# [ -n "$(type -t dig)" ] && alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 
 # Try this instead
 # [ -n "$(type -t dig)" ] && alias ip="dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com"
@@ -282,55 +272,49 @@ fi
 [ -n "$(type -t python2)" ] && alias py2="python2"
 
 if [ -n "$(type -t python)" ]; then
+	#TODO: Find out a way to disable these while ANY virtual environment is activated; already found a way that needs to be manually set up for each venv
 	if [[ "$OSTYPE" == 'msys' ]]; then
+		alias dumbpy="$PY38/python"
+		alias dumpy="$PY38/python"
+		alias python38="winpty $PY38/python"
+
 		alias dumbpy="$PY37/python"
 		alias dumpy="$PY37/python"
-		alias python37="winpty $PY37/python"	#TODO: Find out a way to disable this while a virtual environment is activated
+		alias python37="winpty $PY37/python"
 
 		alias dumbpy36="$PY36/python"
 		alias dumpy36="$PY36/python"
-		alias python36="winpty $PY36/python"	#TODO: Find out a way to disable this while a virtual environment is activated
+		alias python36="winpty $PY36/python"
 
-		alias python="winpty $PY37/python"	#TODO: Find out a way to disable this while a virtual environment is activated
+		alias python="winpty $PY37/python"
 
 		# alias pip="$PY36/Scripts/pip"		# For inexplicable reasons, this alias completely breaks any attempts at bash completion for pip
 	else
-		[ -n "$(type -t python3.6)" ] && alias python36="python3.6"	#TODO: Find out a way to disable this while a virtual environment is activated
-		[ -n "$(type -t python3.7)" ] && alias python37="python3.7"	#TODO: Find out a way to disable this while a virtual environment is activated
-		[ -n "$(type -t python3)" ]   && alias python="python3"	#TODO: Find out a way to disable this while a virtual environment is activated
+		[ -n "$(type -t python3.6)" ] && alias python36="python3.6"
+		[ -n "$(type -t python3.7)" ] && alias python37="python3.7"
+		[ -n "$(type -t python3.8)" ] && alias python38="python3.8"
+		[ -n "$(type -t python3)" ]   && alias python="python3"
 	fi
 	alias pip36="$PY36/Scripts/pip"
 	alias pip37="$PY37/Scripts/pip"
+	alias pip38="$PY38/Scripts/pip"
 	[ -f "$PY36/Scripts/pipenv" ] && alias pipenv36="$PY36/Scripts/pipenv"
 	[ -f "$PY37/Scripts/pipenv" ] && alias pipenv37="$PY37/Scripts/pipenv"
+	[ -f "$PY38/Scripts/pipenv" ] && alias pipenv38="$PY38/Scripts/pipenv"
 	alias py="python "
 
 	alias validjson="python -m json.tool"
 	alias printjson="validjson"
 
 	# And for ipython specifically...
-	if [ -n "$(type -t ipython3)" ]; then
-		[[ $OSTYPE == 'msys' ]] && \
-			alias ipython="winpty ipython3" || \
-			alias ipython="ipython3"
-	elif [ -n "$(type -t ipython)" ] ; then
-		[[ $OSTYPE == 'msys' ]] && alias ipython="winpty ipython"
-	fi
+	[ -n "$(type -t ipython3)" ] && alias ipython="ipython3"
 	[ -n "$(type -t ipython)" ] && alias ipy="ipython"
 
+	alias webserv="py -m http.server"
 fi
 
-# TODO:
-# if [ "$VIRTUAL_ENV" ]; then
-	# #if windows
-	# alias python="winpty $VIRTUAL_ENV\Scripts\python"
-	# alias py="python"
-	# #else
-	# #non-winpty
-# else
-	# #do normal aliases
-
 [ -n "$(type -t sqlite3)" ] && alias sqlite="sqlite3"
+[ -n "$(type -t sqliterepl)" ] && alias sqliterepl="sqliterepl -t fancy_grid -s fruity"
 
 #------------------------
 # Package Management
@@ -344,17 +328,33 @@ fi
 [ -n "$(type -t pnpm)" ] && alias npm="pnpm"
 [ -n "$(type -t pnpx)" ] && alias npx="pnpx"
 
+#------------------------
+# Winpty Wrapping
+#------------------------
+if [ "$OSTYPE" == 'msys' ]; then
+# if [ "$TERM_PROGRAM" == 'mintty' ]; then
+	for name in sqliterepl node php php5 psql ipython; do
+		[ -n "$(type -t $name)" ] && alias "$name"="winpty $name"
+	done
+fi
+
+#---------------------------
+# Pager Aliases
+#---------------------------
+
+# lessm and less are aliased to the same thing, with the exception that lessm wont exit less automatically if the output fits on the first screen.
+alias lessm='command -p less --ignore-case --status-column --RAW-CONTROL-CHARS --LONG-PROMPT --tilde --shift .25 --wheel-lines=3' # --use-backslash ?  --mouse ?
+alias less="less -iJRM --tilde --shift .25 --wheel-lines=3 --quit-if-one-screen"
+
+# alias more="more -d"	# Make more provide useful feedback when an invalid key is pressed.
+alias more="less" # insert obligatory "less is more" pun here
+
 #---------------------------
 # Miscellaneous Aliases
 #---------------------------
 
 alias j='jobs -l'
 alias who="who -H"
-# alias less='less -r'                          # raw control characters
-alias less="less --ignore-case --LONG-PROMPT --shift .25 -F --status-column --tilde --" # --use-backslash ?
-# alias more="more -d"	# Make more provide useful feedback when an invalid key is pressed.
-alias more="less" # insert obligatory "less is more" pun here
-alias nano="nano -cA --nowrap --nonewlines -T 4"	# --zap?
 alias filetype="file" # Would alias as "ftype", but that already exists on Windows
 # alias dirs="dirs -v" # Display directory stack entries on separate lines, prefixed by their zero-based index in the stack
 

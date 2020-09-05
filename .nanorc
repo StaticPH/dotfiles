@@ -47,11 +47,17 @@
 ###############################################################
 ## Set flags
 ###############################################################
-#### Flags have not been set here, and are instead part of an alias to nano
-# set constantshow
-# set smarthome
-# set smooth  -- this is now the default behavior; when needed, use 'unset jumpyscrolling' instead
 
+set constantshow 				# command line flag -c
+set smarthome					# command line flag -A
+unset nohelp					#
+unset breaklonglines			# command line flag --nowrap
+# set smooth  -- this is now the default behavior; when needed, use 'unset jumpyscrolling' instead
+unset jumpyscrolling			#
+#set nonewlines					# command line flag --nonewlines
+set tabsize 4					# command line flag -T 4
+set atblanks					#
+set trimblanks					#
 # set matchbrackets "(<[{)>]}"
 
 ###############################################################
@@ -109,7 +115,7 @@ color normal "\\\\<|\\\\>"
 
 #Colors
 color white "\<white\>"
-color normal "\<black\> #color black "\<black\>"
+color normal "\<black\>" #color black "\<black\>"
 color blue "\<blue\>"
 color green "\<green\>"
 color red "\<red\>"
@@ -142,6 +148,7 @@ color brightnormal "\<brightnormal\>"
 # set statuscolor brightwhite,green
 # set errorcolor brightwhite,red
 # set selectedcolor brightwhite,magenta
+# set stripecolor ,yellow
 # set numbercolor cyan
 set keycolor cyan
 # set functioncolor green
@@ -168,7 +175,7 @@ set keycolor cyan
 ## keycode, which is hard-bound to the backspace function.  So, if you
 ## normally use <Backspace> for backspacing and not ^H, you can make
 ## <Ctrl+Backspace> delete the word to the left of the cursor with:
-# bind ^H cutwordleft main
+# bind ^H cutwordleft main	OR	bind ^H chopwordleft main	depending on your version of nano
 
 ## If you would like nano to have keybindings that are more "usual",
 ## such as ^O for Open, ^F for Find, ^H for Help, and ^Q for Quit,
@@ -201,3 +208,24 @@ set keycolor cyan
 #unbind M-J main
 #unbind M-T main
 #set multibuffer
+
+unbind M-E main # stop using Alt/Meta+E to redo actions
+unbind M-X all # prevent disabling nohelp everywhere; it should really be enabled at all times
+unbind M-C main # prevent disabling constantshow in the main view; it should really be enabled at all times
+unbind M-H main # prevent disabling smarthome in the main view; it should really be enabled at all times
+unbind ^B main # free up Ctrl+b for use of findbracket action
+
+bind ^H chopwordleft all # delete word to left of cursor with Ctrl+H (Ctrl+Backspace)
+bind ^B findbracket main # Find a matching bracket with Ctrl+B
+bind M-Y redo main # use Alt/Meta+Y to redo actions
+bind M-U undo main # use Alt/Meta+U to undo actions
+
+##### I wish these worked :(
+# bind ^Space complete all # attempt word completion with Ctrl+Space
+# bind ^Enter complete all # attempt word completion with Ctrl+Enter
+# bind Sh-space pageup help # press shift+Space to scroll up a page in the help view
+# bind ^PgUp prevbuf main # switch to the previous file passed to nano with Ctrl+PageUp
+# bind ^PgDn nextbuf main # switch to the next file passed to nano with Ctrl+PageUp
+
+# bind ^{ prevblock main	# move up a text-block with Ctrl+]		may also work with Ctrl+Up
+# bind ^} nextblock main	# move down a text-block with Ctrl+[	may also work with Ctrl+Down

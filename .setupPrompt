@@ -21,8 +21,31 @@ function isInGitBranch(){
 	git symbolic-ref --short HEAD >/dev/null 2>&1
 }
 
-function parse_git_branch() {
-	git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+# If passed an argument, prepend the output with it, followed by 3 spaces
+parse_git_branch(){
+	local branch="$(git branch 2>/dev/null)"
+	#TODO: compare above to $(git rev-parse --abbrev-ref HEAD)
+	if [ -n "$branch" ]; then
+		# The final sed replacement shouldn't lead to any strangeness, but if it does, I can just do something like ${1:-SOMETHING} instead of just $1; I'll have to wait and see if I missed any loopholes
+		echo "${branch}" | sed -e '/^[^*]/d' -e 's/\* \(.*\)/(\1)/' -e "s/^/$1   /"
+	fi
+}
+
+# TODO BEFORE THIS IS USEFUL: Think of a good way to remove the prompt prefix from virtualenv only AFTER determining name
+function __getVenvName(){
+	[ ! -v VIRTUAL_ENV ] && return
+
+	#If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, but the normal prompt change is disabled, just return the unicode snake emoji 🐍
+	if [ ! -v VIRTUAL_ENV_DISABLE_PROMPT ]; then		
+		#If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, remove it from the prompt and return the name of the active virtualenv
+		local norm="${PS1#(*)}" #"${PS1/\(venv\)/}"
+		local namelen=$(( "${#PS1}-${#norm}" ))
+		local name="${PS1:1:$((namelen-2))}"
+		PS1="$norm"
+		echo " ($name)"
+	else
+		echo " 🐍"
+	fi
 }
 
 function prunePromptFuncs(){
@@ -40,7 +63,7 @@ function subtlePrompt(){
 	### This prompt only separates the command from the static information with a "$ "
 	### Completely ignorant of VCS repositories
 
-	prunePromptFuncs
+	prunePromptFuncs 2>/dev/null
 	local RED='\[\033[0;31m\]'
 	local LRED='\[\033[1;31m\]'
 	local GREEN='\[\033[0;32m\]'
@@ -75,7 +98,7 @@ function colorfulPrompt(){
 	### If the current user is root, the second line starts with an uppercase omega (Ω), and with a lowercase lambda (λ) otherwise
 	### If the current directory is part of a git repository, the current branch name will be appended to the first line; still does not include status information
 
-	prunePromptFuncs
+	prunePromptFuncs 2>/dev/null
 	local RED='\[\033[0;31m\]'
 	local GREEN='\[\033[0;32m\]'
 	local YELLOW='\[\033[0;33m\]'
@@ -103,13 +126,14 @@ function colorfulPrompt(){
 		local cmdMarker="${LPURPLE}λ${RST} "
 	fi
 
-	local gitBranch="  ${branchColor}"'$(parse_git_branch)'"${RST}"
+	local gitBranch="\$(parse_git_branch '${branchColor}')${RST}"
 	local delim="${delimColor}\$>"
 	local host="${GREEN}@${hostStyle}\H"
 	local exval="${RST}\[\033[7;31m\]"'$(getexitcode)'"${RST}"
 	local here="${YELLOW}\w"
+#	local tmpVenvSeg='$(__getVenvName)'
 	
-	PS1="${exval}${usr}${host} ${here} ${delim}${gitBranch}"$'\n'"${delimColor}${cmdMarker}"
+	PS1="${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}"
 }
 
 # Main prompt setup
@@ -117,19 +141,20 @@ function colorfulPrompt(){
 #-------------------------------------------------------------
 function setupPrompt(){
 	### The value of this variable is used as the prompt for the select command.
-	### If this variable is not set, the select command prompts with ‘#? ’
+	### If this variable is not set, the select command prompts with `#? '
 	# export PS3=''
 
 	### When running scripts in debug mode (-x), give the name of the file,
 	### followed by the current line number within it
 	### NOTE:
 	###	     The first character of the expanded value is replicated multiple times,
-	###      as necessary, to indicate multiple levels of indirection. The default is ‘+ ’
+	###      as necessary, to indicate multiple levels of indirection. The default is `+ '
 	export PS4='$0  line: $LINENO     '
+	# TODO: validate intended behavior of PS4
 
 	### The value of this parameter is expanded like PS1 and displayed by interactive
 	### shells after reading a command and before the command is executed.
-	### ex: PS0="$(fullWidthLineUnicode ─)"
+	### ex: PS0="$(printf '\r'; fullWidthLineUnicode ─; echo)"
 	# export PS0=''
 
 		# Common PS1 details
@@ -175,7 +200,9 @@ setupPrompt
 
  # Whenever displaying the prompt, write the previous line to disk
  # Always occurs BEFORE $PS1 is applied
- # export PROMPT_COMMAND="history -a"
+ # Normally there is no reason to export this variable, as it is only (normally) used by interactive bash sessions,
+ # and doing so can apparently cause issues with some programs, like Gentoo's `emerge`
+ # PROMPT_COMMAND="history -a"
 
  # Set the number of trailing directory components to show when expanding \w or \W in the prompt string
  # export PROMPT_DIRTRIM=3

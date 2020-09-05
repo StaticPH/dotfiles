@@ -1,4 +1,4 @@
-#! /bin/bash
+##! /bin/bash
 
 [ -n "$(type -t vmware-crap-ctrl)" ] && \
 complete -W "toggle start stop disableInterfaces enableInterfaces" vmware-crap-ctrl

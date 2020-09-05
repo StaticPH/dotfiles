@@ -40,14 +40,14 @@
 # set output-meta on
 #$if Bash
   # Don't ring bell on completion
-  set bell-style none
+  #set bell-style none
 
   # or, don't beep at me - show me
   #set bell-style visible
 
   # Show all instead of beeping first
   # If enabled, lists all matches in case multiple possible completions are possible.
-  set show-all-if-ambiguous off
+  #set show-all-if-ambiguous off
 
   # Filename completion/expansion
   #set completion-ignore-case on
@@ -63,7 +63,7 @@
   # visible-stats
   # Append a mark according to the file type in a listing
   #set visible-stats off
-  set mark-directories on
+  #set mark-directories on
 
   # Match all files
   #set match-hidden-files on
@@ -119,49 +119,59 @@ $endif
 ###################################################################
 ###							ADDITIONS BELOW
 ###################################################################
+### NOTE:
+##	The following symbolic character names are recognized while  processing
+##	key bindings of the form 'keyname: function-name/macro':
+##	DEL, ESC, ESCAPE, LFD, NEWLINE, RET, RETURN, RUBOUT, SPACE, SPC, and TAB.
 
 					###################################
 					###	More intelligent completion ###
 					###################################
-# Try to be slightly more intelligent with Up/Down behavior, by attempting to use the text already on the line as a prefix for searching through command history.
-#"\e[B": history-search-forward
-#"\e[A": history-search-backward
+## Try to be slightly more intelligent with Up/Down behavior, by attempting to use
+## the text already on the line as a prefix for searching through command history.
+"\e[B": history-search-forward
+"\e[A": history-search-backward
 
-## skip-completed-text (Default: )
-# Be more intelligent when autocompleting by also looking at the text after
-# the cursor. For example, when the current line is "cd ~/src/mozil", and
-# the cursor is on the "z", pressing Tab will not autocomplete it to "cd
-# ~/src/mozillail", but to "cd ~/src/mozilla". (This is supported by the
-# Readline used by Bash 4.)
-set skip-completed-text on
-
-## given show-all-if-ambiguous, The following line will allow you to tab through the expansion options (note: this will replace the default tab-complete behavior)
+## given show-all-if-ambiguous, The following line will allow you to tab through the expansion options
+## (note: this will replace the default tab-complete behavior)
 # TAB: menu-complete
 ## and the following line will allow you to do so in reverse with shift+tab
 #"\e[Z": "\e-1\C-i"		#alternatively, "\e[Z": menu-complete-backward
 					###################################
 
 # add ctrl+end for end of file
+#     ctrl+home for beginning of file
+#     ctrl+F5 for re-read-init-file
 $if mode=emacs
 	$if term=msys # RXVT
 		#"\C[7~": beginning-of-line      # Home Key
 		#"\C[8~": end-of-file            # End Key
+		#"\C[15~": re-read-init-file     # Ctrl+F5
 	$else
 		#"\C[1~": beginning-of-line      # Home Key
 		#"\C[4~": end-of-file            # End Key
+		";5~": re-read-init-file         # Ctrl+F5...somehow
 	$endif
 $endif
 
 # "\M(numpad insert)": overwrite-mode    # toggle overwrite-mode
 
 
+## bell-style (Default: audible)
+##		If set to audible, allows readline to (attempt to) ring an audible bell
+##		If set to visible, allows readline to use a visible "bell" if one is available (often a quick flash in the terminal window)
+##		If set to none, prevents readline from ever ringing any kind of bell
+# Don't ring bell on completion
+set bell-style none
+
 ## blink-matching-paren (Default: off)
-##      If set to On, readline attempts to briefly move the cursor to an opening parenthesis when a closing parenthesis is inserted.
+##      If set to On, readline attempts to briefly move the cursor to an
+##		opening parenthesis when a closing parenthesis is inserted.
 # set blink-matching-paren on
 
 ## colored-completion-prefix (Default: off)
-##      If set to On, when listing completions, readline displays the common prefix of the set of possible completions using a different color.
-##		The color definitions are taken from the value of the LS_COLORS environment variable.
+##      If set to On, when listing completions, readline displays the common prefix of the set of possible completions
+##		using a different color. The color definitions are taken from the value of the LS_COLORS environment variable.
 set colored-completion-prefix on
 
 ## colored-stats (Default: off)
@@ -169,51 +179,83 @@ set colored-completion-prefix on
 ##		The color definitions are taken from the value of the LS_COLORS environment variable.
 set colored-stats on
 
+## completion-ignore-case (Default: off)
+##		Make Tab autocomplete regardless of filename case
+set completion-ignore-case on
+
+## completion-map-case (Default: off)
+##		If set to On, and if completion-ignore-case is set to On, treat
+##		underscore ('_') and hyphen ('-') as equivalent when performing completion.
+#set completion-map-case on
+
 ## completion-prefix-display-length (Default: 0)
-##      The length in characters of the common prefix of a list of possible completions that is displayed without modification.
-##		When set to a value greater than zero, common prefixes longer than this value are replaced with an ellipsis when displaying possible completions.
+##      The length in characters of the common prefix of a list of possible completions that is
+##		displayed without modification. If set to a value greater than zero, common prefixes
+##		longer than this value are replaced with an ellipsis when displaying possible completions.
 set completion-prefix-display-length 10
+
+## completion-query-items (Default: 100)
+##		If there are at least this many possible completions for a word, ask to show them all.
+##		A value of 0 will cause readline to always ask before showing any completions.
+##		A negative value will always show all completions.
+set completion-query-items 100
+
+## enable-bracketed-paste (Default: off)
+##		Enable/Disable bracketed paste mode
+set enable-bracketed-paste off
+
+## enable-keypad (Default: off)
+##      When set to On, readline will try to enable the application keypad when it is called.
+##		Some systems need this to enable the arrow keys.
+# set enable-keypad on
+
+## mark-directories (Default: on)
+##		If set to On, completed directory names will have a slash ('/') appended
+set mark-directories on
 
 ## mark-modified-lines (Default: off)
 ##      If set to On, history lines that have been modified are displayed with a preceding asterisk (*).
 # set mark-modified-lines off
 
-## menu-complete-display-prefix (Default: off)
-##      If set to On, menu completion displays the common prefix of the list of possible completions (which may be empty) before cycling through the list.
-set menu-complete-display-prefix on
-
-## enable-keypad (Default: off)
-##      When set to On, readline will try to enable the application keypad when it is called.  Some systems need this to enable the arrow keys.
-# set enable-keypad on
+## mark-symlinked-directories (Default: off)
+##		If set to On, and if mark-directories is set to On, immediately
+##		add a trailing slash when autocompleting symlinks to directories.
+set mark-symlinked-directories on
 
 ## match-hidden-files (Default: on)
-##		Match files whose names begin with '.' when performing file name completion, even without the user providing the leading '.'
+##		Match files whose names begin with '.' when performing file name
+##		name completion, even without the user providing the leading '.'
 set match-hidden-files on
 
-## visible-stats (Default: )
-##		Show extra file information when completing, like `ls -F` does
-set visible-stats on
+## menu-complete-display-prefix (Default: off)
+##      If set to On, menu completion displays the common prefix of the list of possible
+##		completions (which may be empty) before cycling through the list.
+set menu-complete-display-prefix on
 
-## page-completions (Default: )
+## page-completions (Default: on)
 ##		Show all autocomplete results at once
 ##		"If set to On, readline uses an internal more-like pager to display a screenful of possible completions at a time."
 #set page-completions off
 
-## completion-query-items (Default: 100)
-##		If there are more than 100 possible completions for a word, ask to show them all
-set completion-query-items 100
+## show-all-if-ambiguous (Default: off)
+##		If enabled, immediately lists all matches in a case where multiple completions are possible.
+set show-all-if-ambiguous off
 
-## completion-ignore-case (Default: off)
-##		Make Tab autocomplete regardless of filename case
-set completion-ignore-case on
+## show-all-if-unmodified (Default: off)
+##		If set to On, immediately list all matches for words with multiple possible completions but without any possible partial completions
+##		(that is, where none of the possible completions share a common prefix following the cursor position)
+#set show-all-if-unmodified on
 
-## mark-symlinked-directories (Default: )
-##		Immediately add a trailing slash when autocompleting symlinks to directories
-set mark-symlinked-directories on
+## skip-completed-text (Default: off)
+#		Be more intelligent when autocompleting by also looking at the text after the cursor. For example,
+#		when the current line is "cd ~/src/mozil", and the cursor is on the "z", pressing Tab will not
+#		autocomplete it to "cd ~/src/mozillail", but to "cd ~/src/mozilla".
+#		(This is supported by the Readline used by Bash 4.)
+set skip-completed-text on
 
-## enable-bracketed-paste (Default: )
-##		Enable/Disable bracketed paste mode
-set enable-bracketed-paste off
+## visible-stats (Default: off)
+##		Show extra file information when completing, like `ls -F` does by appending a mark according to the file type
+set visible-stats on
 
 # see https://www.xfree86.org/current/ctlseqs.html for some helpful information
 # also review infocmp results side-by-side with man user_caps. and stty

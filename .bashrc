@@ -19,7 +19,7 @@
 [[ "$-" != *i* ]] && return
 
 # Shell Options
-# See man bash for more options...  specifically the sections on the builtins set and shopt 
+# See man bash for more options...  specifically the sections on the builtins set and shopt
 #-------------------------------------------------------------
 #
 # When changing directory small typos can be ignored by bash
@@ -63,15 +63,18 @@ shopt -s histappend
 # Make glob patterns with no matches (after filename expansion) result in an expansion error.
 # shopt -s failglob
 #
-# Disable completion when the input buffer is empty.  i.e. Hitting tab 
-# and waiting a long time for bash to expand all of $PATH. 
+# Disable completion when the input buffer is empty.  i.e. Hitting tab
+# and waiting a long time for bash to expand all of $PATH.
 shopt -s no_empty_cmd_completion
 #
 # Don't wait for job termination notification
 # set -o notify
 #
+# Use the TARGET of symbolic links when performing commands such as 'cd' which change the current directory
+# set -o physical
+#
 # Aliases can use the programmable completion for the command they alias
-shopt -s progcomp_alias >/dev/null 2>&1 
+shopt -s progcomp_alias >/dev/null 2>&1
 #
 # If this is set, the shift builtin prints an error message when the shift count exceeds the number of positional parameters.
 # shopt -s shift_verbose
@@ -79,9 +82,7 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # Expand backslash-escape sequences in echo by default
 # shopt -s xpg_echo
 #
-# Use the TARGET of symbolic links when performing commands such as 'cd' which change the current directory
-# set -o physical
-#
+
 
 # force_fignore? extglob? direxpand? promptvars? extdebug? checkjobs? checkwinsize? hostcomplete?
 
@@ -120,9 +121,8 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls:which:pwd:clear:cls' # Ignore some other commands as well
 #
 HISTIGNORE=$'[ \t]*:&:[fb]g:exit:clear:cls:history:history -a'
-HISTIGNORE=$HISTIGNORE':npp:explorer:pacDump:path:la:ls:env'
+HISTIGNORE=$HISTIGNORE':path:la:ll:ls:env'
 HISTIGNORE=$HISTIGNORE':svn status:git status:git log'
-#:privateIron:extensionsPrivateIron:privateBatch'
 export HISTIGNORE
 # export HISTFILESIZE=-1 # Enable this for unlimited history file length
 
@@ -153,6 +153,11 @@ fi
     # printf "\e[?2004l"
 # fi
 
+## If started from sshd, make sure profile is sourced
+#if [[ -n "$SSH_CONNECTION" ]] && [[ "$PATH" != *:/usr/bin* ]]; then
+#    source /etc/profile
+#fi
+
 
 # Aliases
 ### Some people use a different file for aliases
@@ -182,10 +187,10 @@ if [ "$OS" == 'Windows_NT' ]; then
 		source ~/.winAliases
 		source ~/.sys32Aliases
 	# else # TODO: Decide how to handle using my generateAll.sh script
-		
+
 	fi
 fi
-	
+
 
 # Machine Specific
 ### Import functions and aliases that may only be relevant to a specific machine
@@ -217,7 +222,7 @@ fi
 # See https://unix.stackexchange.com/questions/104018/set-dynamic-window-title-based-on-command-input for explanation
 
 [ -v CHERE_INVOKING_VISIBLE_FOR_USER ] && unset CHERE_INVOKING_VISIBLE_FOR_USER # set by my registry tweak that allows me to open the current directory in msys2 from Windows Explorer.
-
+[ "$OSTYPE" == 'msys' ] && [ "$TERM_PROGRAM" == 'mintty' ] && COLORTERM="truecolor"
 
 ##############################################################
 #-------------------------------------------------------------
