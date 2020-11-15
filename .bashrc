@@ -5,7 +5,7 @@
 # with this software.
 # If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
-# ~/.bashrc: executed by bash(1) for interactive shells.
+# ~/.bashrc: executed by bash(1) for interactive (non-login) shells.
 
 # The copy in your home directory (~/.bashrc) is yours, please
 # feel free to customise it to create a shell
@@ -47,6 +47,8 @@ shopt -s cmdhist
 # Make bash append rather than overwrite the history on disk
 shopt -s histappend
 #
+# Don't automatically execute history expansions; expand them on a new line for review first
+shopt -s histverify
 #
 # Don't use ^D to exit on the first try
 # set -o ignoreeof
