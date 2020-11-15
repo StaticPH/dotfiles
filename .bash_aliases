@@ -50,13 +50,17 @@ alias rm='rm --preserve-root --one-file-system' # Try and stop total system anni
 #------------------
 
 alias grep='grep --color=auto'                     # show results in color
-[ -n "$(type -t egrep)" ] && \
-	alias egrep='egrep --color=auto' ||\
+if [ -n "$(type -t egrep)" ]; then
+	alias egrep='egrep --color=auto'
+else
 	alias egrep='grep -E --color=auto'
+fi
 
-[ -n "$(type -t fgrep)" ] && \
-	alias fgrep='fgrep --color=auto' || \
+if [ -n "$(type -t fgrep)" ]; then
+	alias fgrep='fgrep --color=auto'
+else
 	alias fgrep='grep -F --color=auto'
+fi
 
 [ -n "$(type -t dmesg)" ]  && alias dmesg='dmesg --color=auto -T'
 alias dir="dir --color=auto -Fh --group-directories-first --hide='*.dll' --hide='*.DLL'"
@@ -126,7 +130,7 @@ alias multicp="cp -t"				#copy multiple things to the directory passed as the fi
 alias take="chown -hR $USER:$USER"
 alias gimme="chown -hR $USER:$USER"
 
-alias reloadbash="source ~/.bashrc"		#Reload bashrc without restarting bash
+alias reloadbash="source ${HOME}/.bashrc"		#Reload bashrc without restarting bash
 
 alias listBuiltins="enable -pa"
 alias disable="enable -n"				#Shortcut for disabling a shell builtin
@@ -167,8 +171,8 @@ alias findBrokenLinks='find . -maxdepth 1 -type l ! -exec test -e {} \; -printf 
 
 if [ -n "$(type -t tar)" ]; then
 	alias untar="tar --extract --file"
-	alias tarzip="tar --create --gzip --file"
-	alias tarball="tar --create --verbose --file" # --totals
+	alias tarzip="tar --create --gzip --file" # 1st argument is the resulting tarfile
+	alias tarball="tar --create --verbose --file" # 1st argument is the resulting tarfile
 	alias untz="tar --extract --gzip --verbose --file"
 fi
 
@@ -199,14 +203,16 @@ fi
 #--------------------------
 # I tried $(ripgrepExtraTypes) with said program echoing output, but bash seemed unable to locate it on load, so I resorted to exporting a new variable
 # At some point this will be replaced by actually using the .ripgreprc functionality that was implemented a few versions after I came up with this method.
+
+# shellcheck disable=SC2154,SC1090
 if [ -n "$(type -t rg)" ]; then
 	if [ -f "${HOME}/bin/ripgrepExtraTypes" ]; then
-		source ~/bin/ripgrepExtraTypes
+		source "${HOME}/bin/ripgrepExtraTypes"
 	fi
-	alias rg="rg --hidden --color=auto --max-columns 500 --smart-case --follow $extraRipgrep"
+	alias rg="rg --hidden --color=auto --max-columns 500 --smart-case --follow $extraRipgrep" # --no-messages
 	alias ripgrep="rg"
 
-	alias genRipgrepTypeList="rg --type-list > ~/txts/.ripgrepTypeList && echo 'List saved at ~/txts/.ripgrepTypeList' || echo 'List failed to generate'"
+	alias genRipgrepTypeList="rg --type-list > ${HOME}/txts/.ripgrepTypeList && echo 'List saved at ${HOME}/txts/.ripgrepTypeList' || echo 'List failed to generate'"
 	unset extraRipgrep		# BEGONE no-longer-needed environment variable!
 fi
 [ -n "$(type -t fd)" ] && alias fd="fd -HaL"
@@ -249,10 +255,15 @@ alias _ps="ps -a --format 'logname user pid jobc start command'"
 alias myps="ps -a --format 'logname user pid jobc start command'"
 
 alias ps='ps -l'
-[ "$OSTYPE" == 'msys' ] && alias psa='ps -lWa' || alias psa='ps -la'
+if [ "$OSTYPE" == 'msys' ]; then
+	alias psa='ps -lWa'
+else
+	alias psa='ps -la'
+fi
+
 [ -n "$(type -t pgrep)" ] && alias pgrep="pgrep -afi"
 #[ -n "$(type -t pkill)" ] && alias pkill="pkill -fx" # Be careful what you kill
-[ -n "$(type -t pkill)" -a -z "$(type -t pk)" ] && alias pk="pkill"
+[ -n "$(type -t pkill)" ] && [ -z "$(type -t pk)" ] && alias pk="pkill"
 
 #---------------------------------
 # Development Related Aliases
@@ -331,9 +342,10 @@ fi
 #------------------------
 # Winpty Wrapping
 #------------------------
+# shellcheck disable=SC2140
 if [ "$OSTYPE" == 'msys' ]; then
 # if [ "$TERM_PROGRAM" == 'mintty' ]; then
-	for name in sqliterepl node php php5 psql ipython; do
+	for name in sqliterepl node php php5 psql ipython litecli; do
 		[ -n "$(type -t $name)" ] && alias "$name"="winpty $name"
 	done
 fi
@@ -362,7 +374,7 @@ alias filetype="file" # Would alias as "ftype", but that already exists on Windo
 alias ..="cd .."
 alias cls="clear"
 
-alias dec2hex='printf "%x\n" $1'	# print decimal as hex
+alias dec2hex='printf "%x\n"'	# print decimal as hex
 # alias hexdump='hexdump --color=auto' -x    -C    --format
 alias odHex='od -t xz'
 alias odx='od -t x2z'

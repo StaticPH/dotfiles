@@ -13,7 +13,7 @@
 # OS-AGNOSTIC, OR WRAPPED IN AN OS CHECK
 #########################################################
 #########################################################
-
+# shellcheck disable=SC2059
 
 function getexitcode {
 	# if [ $? -eq 0 ]; then
@@ -25,8 +25,8 @@ function getexitcode {
 }
 
 # Better PATH printout
-function path(){
-	echo $PATH | tr -s ":" "\n"
+path(){
+	echo "$PATH" | tr -s ":" "\n"
 	# Or the more verbose equivalent:
 	# local old=$IFS
 	# IFS=:
@@ -34,25 +34,21 @@ function path(){
 	# IFS=$old
 }
 
-pause() {
+# shellcheck disable=SC2034
+function pause() {
 	local dummy
 	read -s -r -p "Press any key to continue..." -n 1 dummy
 }
 
 fullWidthLine(){
-	[ -n "$1" ] && \
-		local char="$1" || \
-		local char="-"
-	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "$char"
+	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "${1:--}"
 }
 
 fullWidthLineUnicode(){
-	[ -n "$1" ] && \
-		local char="$1" || \
-		local char="-"
-	yes "$char" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
+	yes "${1:--}" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
 }
 
+# shellcheck disable=SC2119
 spacer(){
 	fullWidthLineUnicode
 	printf "%s\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" ' ' " " ' ' " "
@@ -64,7 +60,7 @@ function locateFunc(){
 }
 
 # Look, I forget things, okay?
-# function ls_symbols(){
+# ls_symbols(){
 	# printf "╔═════╤═════════════╦═════╤══════════╗\n"
 	# printf "║ '*' │ executables ║ '@' │ symlinks ║\n"
 	# printf "║ '|' │ FIFOs       ║ '=' │ sockets  ║\n"
@@ -72,16 +68,21 @@ function locateFunc(){
 	# printf "╚═════╧═════════════╩═════╧══════════╝\n"
 # }
 
-function __showColor(){
+__showColor(){
 	if [ $# -ne 1 ]; then
-		printf "$FUNCNAME takes exactly 1 argument\n"; return 1;
+		# shellcheck disable=SC2128
+		printf "$FUNCNAME takes exactly 1 argument\n";
+		return 1;
 	fi
 	printf "\e[48;5;${1}m $1 \033[m"
 }
 
 function showColorRange(){
 	if [ $# -ne 2 ]; then
-		printf "Usage: '$FUNCNAME START_NUM END_NUM'\n\tSTART_NUM AND END_NUM must be an integer greater than or equal to 0, and less than 256." && return 1
+		# shellcheck disable=SC2128
+		printf "Usage: '$FUNCNAME START_NUM END_NUM'\n"
+		printf "\tSTART_NUM AND END_NUM must be integers in the range of [0,256).\n"
+		return 1
 	fi
 	#for i in `seq 0 5`; do \echo -en "\e[48;5;"$i"m   ";done;echo -e "\033[m"
 	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do \echo -en "\e[48;5;"$i"m   \033[m";done;);done;
@@ -93,7 +94,8 @@ function showColorRange(){
 	printf "\e[0m\n"
 }
 
-function echoChar (){
+# shellcheck disable=SC2128
+echoChar (){
 	if [ $# -ne 1 ]; then
 		printf "Usage: $FUNCNAME UNICODE_NUMBER\n" && return 1
 	fi
@@ -101,7 +103,7 @@ function echoChar (){
 	printf "\U${1}"
 }
 
-function samplePrompt(){
+samplePrompt(){
 	echo "${PS1@P}"
 }
 
@@ -110,15 +112,22 @@ setTitle(){
 	#echo -e '\[\033]0;$@\007\]' #set maximized title
 	#echo -e '\[\033]1;$@\007\]' #set minimized title
 }
+
+# shellcheck disable=SC2128
 setTextColor(){
 	[ $# -eq 1 ] && echo -e "\e]10;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
 }
+
+# shellcheck disable=SC2128
 setBackgroundColor(){
 	[ $# -eq 1 ] && echo -e "\e]11;$1\a" || echo "$FUNCNAME only accepts a single color parameter."	#seagreen is pretty
 }
+
+# shellcheck disable=SC2128
 setCursorColor(){
 	[ $# -eq 1 ] && echo -e "\e]12;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
 }
+
 function moveCursorTo(){
 	# This function name is something of a misnomer; it's actually more of an "insert at"
 	[ $# -lt 2 ] && return 1
@@ -129,9 +138,11 @@ function moveCursorTo(){
 
 	printf "$(tput sc)\033[${line};${col}H${text}$(tput rc)"
 }
+
 useAltScreenBuf(){
 	printf "\e[?1049h"
 }
+
 useMainScreenBuf(){
 	printf "\e[?1049l"
 }
@@ -162,8 +173,8 @@ isRoot(){
 # }
 
 # Send text to the system clipboard
-function sendToClipboard(){
-	(echo $@) >> /dev/clipboard
+sendToClipboard(){
+	(echo "$@") >> /dev/clipboard
 }
 
 # Clear the system clipboard by explicitly writing an empty string to it
@@ -174,7 +185,8 @@ function filecount() {
 	find "${1-.}" -type f | wc -l
 }
 
-function findByName(){
+# shellcheck disable=SC2128
+findByName(){
 	if [ $# -lt 1 ]; then
 		printf "Equivalent to 'find PATH -name PATTERN'\n"
 		printf "If only 1 arguement is provided, PATH defaults to the current directory\n"
@@ -182,13 +194,14 @@ function findByName(){
 		printf "Usage: '$FUNCNAME [PATH] -name PATTERN'\n"
 		return 1
 	elif [ $# -eq 1 ]; then
-		find "$PWD" -name $1
+		find "$PWD" -name "$1"
 	else
-		find $1 -name $2
+		find "$1" -name "$2"
 	fi
 }
 
-function curlup(){
+# shellcheck disable=SC2128
+curlup(){
 	echo "NOTE: This function is WIP."
 	if [ $# -eq 0 ]; then
 		echo "$FUNCNAME is a wrapper around the curl command for uploading local files to a remote url."
@@ -202,14 +215,15 @@ function curlup(){
 	#for now, erroneously assume that i know what i want when i use this command
 
 	if [ $# -eq 2 ]; then	# if only a url was provided, read from stdin instead of a file
-		curl --upload-file - $2
+		curl --upload-file - "$2"
 	else
-		curl --upload-file $4 $2
+		curl --upload-file "$4" "$2"
 	fi
 }
 
-function epochTime(){
-	if [[ "${1,,}" == "-h" || "${1,,}" == "--help" ]]; then
+# shellcheck disable=SC2128
+epochTime(){
+	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
 		printf "Usage: $FUNCNAME [-h|--help] [TIME_STRING]\n"
 		printf "  A convenience function for converting a human-readable time to the equivalent unix epoch time.\n" | fold -s
 		printf "  Without a parameter, converts the current time to unix epoch form.\n"
@@ -223,8 +237,9 @@ function epochTime(){
 	date -d "${1:-now}" "+%s"
 }
 
-function fromEpoch(){
-	if [[ "${1,,}" == "-h" || "${1,,}" == "--help" ]]; then
+# shellcheck disable=SC2128
+fromEpoch(){
+	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
 		printf "Usage: $FUNCNAME [-h|--help] [UNIX_EPOCH]\n"
 		printf "  A convenience function for converting a unix epoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
 		# printf "  Output format is determined by the values of LC_TIME and TIME_STYLE.\n"	# Determine order of precedence
@@ -251,18 +266,21 @@ function strlen(){
 	# Alternatively: expr length + "$1"
 }
 
+# shellcheck disable=SC2128
 function strtail(){
 	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tget last N characters of STRING\n" && return 1
 	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1: ${#1}-$2}"
 }
 
+# shellcheck disable=SC2128
 function strhead(){
 	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tget first N characters of STRING\n" && return 1
 	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1:0:$2}"
 }
 
+# shellcheck disable=SC2128
 function skipNchars(){
 	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tTrim the first N characters of STRING, and return the rest\n" && return 1
 	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to skip cannot exceed length of the string.\n" && return 1
@@ -270,11 +288,13 @@ function skipNchars(){
 }
 
 function excuse(){
-	local str=$(curl -s developerexcuses.com | egrep -o '<a href.*>.*<\/a>')
+	# shellcheck disable=SC2155
+	local str=$(curl -s developerexcuses.com | grep -Eo '<a href.*>.*<\/a>')
 	local str2="${str:71:${#str}}"
 	echo "${str2:0:${#str2}-4}"
 }
 
+# shellcheck disable=SC2046
 if [ $(seemsLikeWSL) ]; then
 	function wslpath(){
 		if [ $# -eq 0 ]; then
@@ -293,23 +313,23 @@ __EOF__
 fi
 
 if [ -n "$(type -t apt)" ]; then
-	function listinstalled(){
+	listinstalled(){
 		apt list --installed | grep -o ".*/" | tr -d '/' | column
 	}
 
-	function lessinstalled(){
+	lessinstalled(){
 		apt list --installed | grep -o ".*/" | grep -ve "^lib" -e "^python3-" -e "^perl-" -e "^xserver-" -e "^x11-" -e"^gedit-" -e "^python2-" | tr -d "/" | column
 	}
 fi
 
 if [ -e "/etc/environment" ]; then
-	function getbasepath(){
-		cat /etc/environment | grep -o "=.*" | tr -d "="
+	getbasepath(){
+		grep -o "=.*" /etc/environment | tr -d "="
 	}
 fi
 
 if [ "$OSTYPE" == 'msys' ]; then
-	function incmd(){
+	incmd(){
 		echo "$@" | cmd; echo
 	}
 fi
@@ -326,7 +346,7 @@ if [ -n "$(type -t pip)" ]; then
 		# If I want to see the general help, I'll ask for it.
 		case $1 in
 			help|-h|--help|'')	pip --help; echo ;;
-			*)	COLUMNS=$(tput cols) pip $@ --help | sed -n '/General Options:/q;p' ;;
+			*)	COLUMNS=$(tput cols) pip "$@" --help | sed -n '/General Options:/q;p' ;;
 		esac
 	}
 fi
