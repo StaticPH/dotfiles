@@ -1,13 +1,14 @@
-#!/bin/bash
+#! /bin/bash
 
 limit=10	# Maximum number of files to open at once. Can be overriden with --limit
+__PROGNAME__="$(basename $0)"
 
-function usage(){
+usage(){
 cat << EOF
-Usage: wpv [--help | -h | --limit NUM] FILEPATHS...
+Usage: $__PROGNAME__ [--help | -h | --limit NUM] FILEPATHS...
     Attempt to open up to $limit FILEPATHS in Windows Photo Viewer.
     This limit can be overriden using the --limit option.
-	
+
     Options:
       -h, --help        Display this help and exit.
           --limit NUM   Override the default limit of files which can be opened at once with NUM (Default limit is $limit).
@@ -32,20 +33,11 @@ case "$1" in
 		;;
 esac
 
-function view(){
-	# printf "arg(s)=\033[31m$@\033[0m"
+view(){
 	rundll32 "C:\Program Files\Windows Photo Viewer\PhotoViewer.dll" ImageView_Fullscreen $1 &
-	# disown
 }
-# if [ -n "$(type -t cygpath)" ]; then
-	# echo path is "$(cygpath --windows -a "$1")"
-	# view "$(cygpath --windows -a "$1")"
-# fi
-# elif [ -n "$(type -t wslpath)" ]; then
-	# echo path is "$(wslpath -wa "$1")"
-	# view "$(wslpath -wa "$1")"
-# fi
 
+# Attempt path conversion (already Windows-like paths should remain unchanged), and fatally error if unable to find a tool for doing so.
 if [ -n "$(type -t cygpath)" ]; then
 	winPath="$(cygpath --windows -a "$@")"
 elif [ -n "$(type -t wslpath)" ]; then
@@ -55,13 +47,11 @@ else
 	exit 1
 fi
 
-
-# echo -e "\033[34m$winPath\033[0m"
-
-# By default, there is a limit to how many files can be opened by running this script once. This is to prevent a user from accidentally opening tens of files at once using globbing.
+# By default, there is a limit to how many files can be opened by running this script once.
+# This is to prevent a user from accidentally opening tens of files at once using globbing.
 i=0
 while read -r foo; do
-	# echo -e "\033[1;34m$foo\033[0m"
+	# echo -e "\033[1;34mDisplaying $foo\033[0m"
 	view "$foo"
 	let i++
 	if [[ $i == $limit ]]; then

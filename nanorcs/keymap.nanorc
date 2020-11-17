@@ -6,5 +6,7 @@ color blue   "\<[0-9]+\>"
 color red "="
 color yellow ""(\\.|[^"])*"|'(\\.|[^'])*'"
 color brightblack  "^!.*$"
+
+# Set only the background color
 color ,green "[[:space:]]+$"
 color ,red "	+ +| +	+"

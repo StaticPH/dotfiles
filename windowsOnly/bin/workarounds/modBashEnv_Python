@@ -1,6 +1,6 @@
 HISTFILE="$HOME/dev/.pycharm_bash_history"
 if [ ! -e "$HISTFILE" ]; then
-	[ ! -d $(dirname $HISTFILE) ] && mkdir -p $(dirname $HISTFILE)
+	[ ! -d "$(dirname $HISTFILE)" ] && mkdir -p "$(dirname $HISTFILE)"
 	/bin/touch "$HISTFILE"
 fi
 export HISTFILE

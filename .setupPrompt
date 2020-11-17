@@ -33,10 +33,11 @@ parse_git_branch(){
 
 # TODO BEFORE THIS IS USEFUL: Think of a good way to remove the prompt prefix from virtualenv only AFTER determining name
 function __getVenvName(){
+	# This function is intended for eventually replacing the default python venv prompt
 	[ ! -v VIRTUAL_ENV ] && return
 
 	#If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, but the normal prompt change is disabled, just return the unicode snake emoji 🐍
-	if [ ! -v VIRTUAL_ENV_DISABLE_PROMPT ]; then		
+	if [ ! -v VIRTUAL_ENV_DISABLE_PROMPT ]; then
 		#If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, remove it from the prompt and return the name of the active virtualenv
 		local norm="${PS1#(*)}" #"${PS1/\(venv\)/}"
 		local namelen=$(( "${#PS1}-${#norm}" ))
@@ -68,11 +69,11 @@ function subtlePrompt(){
 	local LRED='\[\033[1;31m\]'
 	local GREEN='\[\033[0;32m\]'
 	local LGREEN='\[\033[1;32m\]'
-	
+
 	local BOLD='\[\033[1m\]'
 	local UNDERLINE='\[\033[4m\]'
 	local RST='\[\033[0m\]' # Reset formatting
-	
+
 	# Display the username and hostname underlined and in bold when connected via SSH.
 	([ -v SSH_TTY ] && local hostStyle="${BOLD}${UNDERLINE}") || local hostStyle=''
 
@@ -112,15 +113,15 @@ function colorfulPrompt(){
 	local branchColor='\[\033[38;2;29;194;164m\]'  #currently hardcoded to an almost-teal blue-green color (29;194;164)
 
 	# Display the username and hostname underlined and in bold when connected via SSH.
-	([ -v SSH_TTY ] && local hostStyle="${BOLD}${UNDERLINE}") || local hostStyle=''
-	
+	([ -v SSH_TTY ] && local hostStyle="${BOLD}${UNDERLINE}") || local hostStyle='' #Not sure if this should also accept SSH_CLIENT or not
+
 	# Display the current branch when in a directory that is part of a git repository
-	
+
 	if [ $EUID == 0 ]; then
-		local usr="${RED}\u" 
-		local delimColor="${RED}" 
+		local usr="${RED}\u"
+		local delimColor="${RED}"
 		local cmdMarker="${RED}Ω${RST} "
-	else 
+	else
 		local usr="${CYAN}\u"
 		local delimColor="${LPURPLE}"
 		local cmdMarker="${LPURPLE}λ${RST} "
@@ -129,10 +130,11 @@ function colorfulPrompt(){
 	local gitBranch="\$(parse_git_branch '${branchColor}')${RST}"
 	local delim="${delimColor}\$>"
 	local host="${GREEN}@${hostStyle}\H"
+	# shellcheck disable=SC2016
 	local exval="${RST}\[\033[7;31m\]"'$(getexitcode)'"${RST}"
 	local here="${YELLOW}\w"
 #	local tmpVenvSeg='$(__getVenvName)'
-	
+
 	PS1="${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}"
 }
 
@@ -157,7 +159,7 @@ function setupPrompt(){
 	### ex: PS0="$(printf '\r'; fullWidthLineUnicode ─; echo)"
 	# export PS0=''
 
-		# Common PS1 details
+	# Common PS1 details
 	#-------------------------------------------------------------
 	### Both options for PS1 display:
 	### The current user's name
@@ -187,10 +189,10 @@ function setupPrompt(){
 			PS1="\s-\v\$ "
 			;;
 		*)
-			# echo "Unknown prompt mode '${promptMode}' specified"		
+			# echo "Unknown prompt mode '${promptMode}' specified"
 			;;
 	esac
-			
+
 	# Apparently you can prepend PS1 with something to set the terminal window title in xterm-based terminal emulators.
 	# see:   https://stackoverflow.com/questions/1687642/set-screen-title-from-shellscript
 	#PS1="${PS1}"
@@ -198,11 +200,20 @@ function setupPrompt(){
 }
 setupPrompt
 
- # Whenever displaying the prompt, write the previous line to disk
- # Always occurs BEFORE $PS1 is applied
- # Normally there is no reason to export this variable, as it is only (normally) used by interactive bash sessions,
- # and doing so can apparently cause issues with some programs, like Gentoo's `emerge`
- # PROMPT_COMMAND="history -a"
+### If this is an xterm, set the title to pwd, replacing the value of $HOME with the ~ character
+# case "$TERM" in
+# xterm*|rxvt*)
+# 	PROMPT_COMMAND='printf "\033]0;${PWD/$HOME/\~}\007"'
+# 	;;
+# *)
+# 	;;
+# esac
+
+ ## Whenever displaying the prompt, write the previous line to disk
+ ## Always occurs BEFORE $PS1 is applied
+ ## Normally there is no reason to export this variable, as it is only (normally) used by interactive bash sessions,
+ ## and doing so can apparently cause issues with some programs, like Gentoo's `emerge`
+ ## PROMPT_COMMAND="history -a"
 
  # Set the number of trailing directory components to show when expanding \w or \W in the prompt string
  # export PROMPT_DIRTRIM=3

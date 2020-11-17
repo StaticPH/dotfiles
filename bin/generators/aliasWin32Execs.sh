@@ -9,7 +9,7 @@ function yn(){
 	select yn in Yes No; do
 		[[ $yn == 'Yes' ]] && return 0
 		[[ $yn == 'No' ]] && return 1
-    done
+	done
 }
 
 if [[ ! -d "$__DESTDIR" ]]; then
@@ -21,7 +21,7 @@ if [[ ! -d "$__DESTDIR" ]]; then
 fi
 
 endsWithExe(){
-    [[ "${1: -4}" == '.exe' || "${1: -4}" == '.EXE' ]] && echo '0' || echo '1'
+	[[ "${1: -4}" == '.exe' || "${1: -4}" == '.EXE' ]] && echo '0' || echo '1'
 }
 
 function addDescription(){
@@ -42,24 +42,24 @@ function makeAlias(){
 
 	local store
 	declare -i foundASpace=1 # declare is implicitly local, and -i forces integer evaluation
-	
+
 	let local done=0
 	let local total="$#"
 	for item in $@; do
 		printf "\rprogress=${done}/${total}"	# Clear the current line and return to column 0, then indicate the degree of progress
-		if [ -n "$store" ]; then # if the last item appears to have been a segment of an executable name
+		if [ -n "$store" ]; then # If the last item appears to have been a segment of an executable name
 			item="$store $item"
 		fi
 
-        if [[ $(endsWithExe "$item") -ne '0' ]]; then # Upon encountering what appears to be an executable containing a space in its name
-            store="$item"	# temporarily store the segment you have
+		if [[ $(endsWithExe "$item") -ne '0' ]]; then # Upon encountering what appears to be an executable containing a space in its name
+			store="$item"	# Temporarily store the segment you have
 			# printf "\nFound troublesome item fragment. Attempting restoration.\n"
-            foundASpace=0
+			foundASpace=0
 			let done++
-            continue
-        elif [ $foundASpace -ne 1 ]; then
-            # printf "\nFixed to \"$item\"\n"
-            store=
+			continue
+		elif [ $foundASpace -ne 1 ]; then
+			# printf "\nFixed to \"$item\"\n"
+			store=
 			foundASpace=1
 		fi
 
@@ -71,7 +71,7 @@ function makeAlias(){
 		# Strip the directory path to the file.
 		# If you somehow have a file with a '/' in its name, you can probably blame Microsoft.
 		local exeName="${sansExe##*/}"
-		
+
 
 		printf '# ' >> "$__DESTDIR/.sys32Aliases" # Disable all aliases by default
 
@@ -104,5 +104,3 @@ makeAlias $(printf "%s\n" /c/Windows/System32/*.exe)
 fixCursor 0 # Unhide the cursor
 
 printf "\nCreated file: $__DESTDIR/.sys32Aliases\n"
-
-unset yn endsWithExe makeAlias fixCursor addDescription __DESTDIR

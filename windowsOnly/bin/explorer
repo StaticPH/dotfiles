@@ -1,8 +1,8 @@
-#!/bin/bash
+#! /bin/bash
 #-xv
 
 # Realistically, this script will take precedence over an executable with the same name situated on the system path, but will be superseded by an alias or function. As such, it is fairly safe to assume that when this script tries to run "explorer", it is trying to run the file "explorer.exe", located in $SYSTEMROOT, where $SYSTEMROOT is typically "C:\Windows"(/c/Windows)
-# While there ARE a handful of documented (and probably many more undocumented) command line switches for explorer.exe, most of them likely wont be used, so this script lacks any special handling for them. 
+# While there ARE a handful of documented (and probably many more undocumented) command line switches for explorer.exe, most of them likely wont be used, so this script lacks any special handling for them.
 # NOTE: This has worked surprisingly well with unix-style paths so far, but it hasn't seen much use from WSL, so it may yet require some modifications for compatability that msys or mintty already has builtin.
 
 
@@ -10,7 +10,7 @@
 # # Recycle bin can be opened with `explorer.exe "shell:RecycleBinFolder"` or `start "" "shell:RecycleBinFolder"`
 
 if [[ $# == 0 ]]; then
-	$SYSTEMROOT/explorer.exe .
+	"$SYSTEMROOT/explorer.exe" .
 	exit 0
 fi
 
@@ -50,7 +50,7 @@ fi
 	# fi
 	# return 1
 # }
-	
+
 # Not viable; returns 1 for everything
 # function goto(){
 	# [[ -d "$1" ]] && ($SYSTEMROOT/explorer.exe "$1" && return 0) || return 1
@@ -58,10 +58,10 @@ fi
 
 # Not ideal that it uses the directory stack, but otherwise no issues with this one
 function goto(){
-	pushd "$1" >/dev/null 2>&1 || return 1	
-	$SYSTEMROOT/explorer.exe . >/dev/null 2>&1
+	pushd "$1" >/dev/null 2>&1 || return 1
+	"$SYSTEMROOT/explorer.exe" . >/dev/null 2>&1
 	popd >/dev/null 2>&1
-	return 0	
+	return 0
 }
 
 for loc in "$@"; do

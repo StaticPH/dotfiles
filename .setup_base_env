@@ -1,4 +1,4 @@
-#!/bin/bash
+##!/bin/bash
 
 # ~/.setup_basic_env
 # Basic environment setup, including PATH
@@ -30,6 +30,8 @@ if [ -n "$SSH_CONNECTION" ]; then
 	# export VISUAL="/usr/bin/nano"
 else
 	export EDITOR="/usr/bin/nano"
+	# Example of dynamically selecting VISUAL according to availability of a graphic environment:
+	#	"$(if [ -n $DISPLAY ]; then echo GRAPHICAL_TEXT_EDITOR; else echo '/usr/bin/nano'; fi)"
 	# export VISUAL="/usr/bin/nano"
 fi
 
@@ -50,8 +52,8 @@ export LESSCHARSET='utf-8'
 #-------------------------------------------------------------
 export FIGNORE=".dll:.DLL:.ax" #:.DS_Store:.pyc:.pyd:
 
-
-# Treat files (with executable-bit set) matching these globs as not being on the PATH. Does not affect commands in hash
+# Treat files (with executable-bit set) matching these globs as not being on the PATH.
+# Does not affect commands already in the hash, or bash's `[` `[[` and `test` commands.
 #-------------------------------------------------------------
 #export EXECIGNORE=""
 
@@ -93,7 +95,9 @@ export IGNOREEOF="1"
 # }
 
 # Hopefully faster alternative to pathmunge; appends by default
-function pathadd() {                                             # Prepend/append to path, without duplicates
+function pathadd() {
+	# Prepend/append to path, without duplicates
+	# NOTE: be careful of path strings which are still valid if a variable in it is null or unset.
 	case "$1" in
 		"--prepend")
 			shift # Clearly we don't want PATH to be "--prepend:$PATH"
@@ -111,7 +115,9 @@ function pathadd() {                                             # Prepend/appen
 }
 
 # Hopefully faster alternative to manpathmunge; appends by default
-function manpathadd() {                                             # Prepend/append to manpath, without duplicates
+function manpathadd() {
+	# Prepend/append to manpath, without duplicates
+	# NOTE: be careful of path strings which are still valid if a variable in it is null or unset.
 	case "$1" in
 		"--prepend")
 			shift # Clearly we don't want MANPATH to be "--prepend:$MANPATH"
@@ -151,6 +157,7 @@ function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe
 ##############################################################
 
 # Try to use /env/environment for the default system path; Fully reconstruct PATH to prevent pollution by calls to `source`
+# This is most likely a very less-than-ideal method of doing so, but it's worked for several months, and I lack better ideas.
 # NOTE: this might have been a typo for /etc/environment, and should be verified
 if [ -r "/env/environment" ]; then
 	PATH=$(/usr/bin/cat /env/environment)
@@ -168,7 +175,7 @@ fi
 
 # Don't add this clutter to the path if aliases have already been generated through generateAll.sh;
 # the aliases will be sourced in .bashrc if they exist in the user's home directory
-if [ ! -r ~/.winAliases -o ! -r ~/.sys32Aliases ]; then
+if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
 # !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
 	if [[ $OSTYPE == 'msys' ]]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
@@ -186,6 +193,10 @@ fi
 #-------------------------------------------------------------
 ##############################################################
 
+# In general, try to avoid using this if possible. Man tends to do a better job at this than we users do,
+# and packages installed through the system package manager especially tend to put their manpages somewhere
+# that man has no trouble finding them.
+#
 # I don't currently install anything that would have me adding to MANPATH with both msys and unix/linux systems
 
 ##############################################################

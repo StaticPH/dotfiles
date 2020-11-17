@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 #
 #   This file echoes a bunch of color codes to the
 #   terminal to demonstrate what's available.  Each
@@ -8,7 +8,7 @@
 #   colors (default + 8 escapes).
 #
 
-# Disclaimer: I did not write this. 
+# Disclaimer: I did not write this.
 # I think I grabbed it from the Arch Wiki, but I can't remember for certain.
 
 T='gYw'   # The test text

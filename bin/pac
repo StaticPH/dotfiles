@@ -1,17 +1,17 @@
-#!/bin/bash
+#! /bin/bash
 
 # Honor the NO_COLOR environment variable
 if [ ! -v NO_COLOR ]; then
 	_RED_="\033[31m"
-	_YELLOW_="\033[33m"
+	# _YELLOW_="\033[33m"
 	_OFF_="\033[0m"
 else
 	_RED_=
-	_YELLOW_=
+	# _YELLOW_=
 	_OFF_=
 fi
 
-function pacman(){
+pacman(){
 	if [ ! -v NO_COLOR ]; then
 		command pacman --color=auto $@
 	else
@@ -19,7 +19,7 @@ function pacman(){
 	fi
 }
 
-function usage(){
+usage(){
 cat <<EOF
 FLAGS:
    --completions  : output bash completion for pac to stdout.
@@ -39,7 +39,7 @@ SUBCOMMANDS (Valid package operations):
 EOF
 }
 
-function completion(){
+completion(){
 cat <<EOF
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
 search refresh check package-changelog search-installed owner-of who-owns list-package-owned list-orphans \

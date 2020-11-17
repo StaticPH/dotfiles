@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 for file in `ls | grep -e .[1-9]$`; do
 	#echo $file

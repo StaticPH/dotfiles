@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 [ "$EUID" -eq 0 ] || exec sudo "$0" "$@"
 

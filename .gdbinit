@@ -46,7 +46,13 @@ set history remove-duplicates 1
 # set history save
 # set history filename ~/.gdb_history
 
+# set print pretty on
+
+# set logging overwrite off
+# set logging on
+
 #set exec-done-display
 #set debug overload
 #set debug timestamp
 #set debug varobj	????
+#set height 0

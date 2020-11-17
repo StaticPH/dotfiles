@@ -140,8 +140,8 @@ $endif
 					###################################
 
 # add ctrl+end for end of file
-#     ctrl+home for beginning of file
-#     ctrl+F5 for re-read-init-file
+#   + ctrl+home for beginning of file
+#   + ctrl+F5 for re-read-init-file
 $if mode=emacs
 	$if term=msys # RXVT
 		#"\C[7~": beginning-of-line      # Home Key
@@ -156,7 +156,6 @@ $endif
 
 # "\M(numpad insert)": overwrite-mode    # toggle overwrite-mode
 
-
 ## bell-style (Default: audible)
 ##		If set to audible, allows readline to (attempt to) ring an audible bell
 ##		If set to visible, allows readline to use a visible "bell" if one is available (often a quick flash in the terminal window)
@@ -168,7 +167,6 @@ set bell-style none
 ##      If set to On, readline attempts to briefly move the cursor to an
 ##		opening parenthesis when a closing parenthesis is inserted.
 # set blink-matching-paren on
-
 ## colored-completion-prefix (Default: off)
 ##      If set to On, when listing completions, readline displays the common prefix of the set of possible completions
 ##		using a different color. The color definitions are taken from the value of the LS_COLORS environment variable.
@@ -182,7 +180,6 @@ set colored-stats on
 ## completion-ignore-case (Default: off)
 ##		Make Tab autocomplete regardless of filename case
 set completion-ignore-case on
-
 ## completion-map-case (Default: off)
 ##		If set to On, and if completion-ignore-case is set to On, treat
 ##		underscore ('_') and hyphen ('-') as equivalent when performing completion.
@@ -236,16 +233,13 @@ set menu-complete-display-prefix on
 ##		Show all autocomplete results at once
 ##		"If set to On, readline uses an internal more-like pager to display a screenful of possible completions at a time."
 #set page-completions off
-
 ## show-all-if-ambiguous (Default: off)
 ##		If enabled, immediately lists all matches in a case where multiple completions are possible.
 set show-all-if-ambiguous off
-
 ## show-all-if-unmodified (Default: off)
 ##		If set to On, immediately list all matches for words with multiple possible completions but without any possible partial completions
 ##		(that is, where none of the possible completions share a common prefix following the cursor position)
 #set show-all-if-unmodified on
-
 ## skip-completed-text (Default: off)
 #		Be more intelligent when autocompleting by also looking at the text after the cursor. For example,
 #		when the current line is "cd ~/src/mozil", and the cursor is on the "z", pressing Tab will not
@@ -256,6 +250,5 @@ set skip-completed-text on
 ## visible-stats (Default: off)
 ##		Show extra file information when completing, like `ls -F` does by appending a mark according to the file type
 set visible-stats on
-
 # see https://www.xfree86.org/current/ctlseqs.html for some helpful information
 # also review infocmp results side-by-side with man user_caps. and stty
