@@ -1,19 +1,28 @@
-#!/bin/bash
+#! /bin/bash
+
+__PROGNAME__="$(basename $0)"
 
 # Download a Google Chrome extension from the Chrome Web Store using its extension ID, but DON'T add it to Chrome.
 function _dlChromeExtension(){
-	if [ "$#" -ne 1 ]; then
-		printf "Usage: '$(basename $0) TARGET_EXTENSION_ID'\n" && exit 1
+	local fmtVal='acceptformat=crx3&';
+	if [ "$#" == '2' ]; then
+		if [ "$1" != '-2' ]; then # fall through to usage
+			:
+		else
+			fmtVal='' # Don't add the crx3 format requirement
+			shift # Discard the '-2' argument, leaving just the extension hash
+		fi
 	fi
-	
+	if [ "$#" != '1' ]; then
+		printf "Usage: '$__PROGNAME__ [-2] TARGET_EXTENSION_ID'\n"
+		printf "    Use the -2 flag to request the extension in crx2 format instead of crx3.\n" && exit 1
+	fi
+
 	local extensionID="$1"
 
-	# --show-progress --progress=bar 
-	wget -v --execute "background = off" -o /dev/stderr --https-only --no-cache \
-	--user-agent "Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3750.0 Iron Safari/537.36" --referer "https://chrome.google.com/" \
-	-EO "${extensionID}.crx" 'https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&x=id%3D'"$extensionID"'%26installsource%3Dondemand%26uc'
+	wget --no-verbose --execute "background = off" -o /dev/stderr --https-only --no-cache --show-progress --progress=bar \
+	--user-agent 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36' --referer 'https://chrome.google.com/' \
+	-EO "${extensionID}.crx" 'https://clients2.google.com/service/update2/crx?response=redirect&prodversion=49.0&'"${fmtVal}x=id%3D${extensionID}"'%26installsource%3Dondemand%26uc'
 }
 
 _dlChromeExtension "$@"
-
-unset _dlChromeExtension

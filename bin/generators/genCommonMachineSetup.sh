@@ -1,9 +1,9 @@
-#!/bin/bash
+#! /bin/bash
 
 ## put single quotes around opening EOF string to prevent variable expansion within a heredoc
 
 function baseMachineSpecific(){
-cat << 'EOF' > ${HOME}/.machine_specific
+cat << 'EOF' > "${HOME}/.machine_specific"
 # NOTE: CURRENTLY THE BASE CONTENTS OF THIS FILE ARE ONLY RELEVANT ON WINDOWS.
 #       THIS WILL LIKELY CHANGE IN THE FUTURE.
 
@@ -63,7 +63,7 @@ EOF
 }
 
 function baseMachineEnv(){
-cat << 'EOF' > ${HOME}/.setup_machine_env
+cat << 'EOF' > "${HOME}/.setup_machine_env"
 #! /bin/bash
 
 # ~/.setup_machine_env
@@ -132,26 +132,22 @@ fi
 # ex:  PATH="$PATH:/Projects/Python/envgroups/ipython/Scripts"
 
 # Conditionally add the user's Cargo bin directory to the path
-[ -v CARGO_HOME ] && PATH="$PATH:$CARGO_HOME/bin"
+[ -v CARGO_HOME ] && pathadd --append "$CARGO_HOME/bin"
 
-# Conditionally add bins for MULTIPLE versions of ruby
-if [ -d ~/.gem/ruby/*/bin ]; then
-	function __rubyBins(){
-		local rubyBinGlob=(~/.gem/ruby/*/bin)
-		echo $(printf ":%s" "${rubyBinGlob[@]}")
-	}
-	PATH="${PATH}$(__rubyBins)"
-	unset __rubyBins
+for __ruby_pathadd_ver in 2.{7,6}.0; do
+	if [ -d "${HOME}/.gem/ruby/$__ruby_pathadd_ver/bin" ];then
+		pathadd --append "${HOME}/.gem/ruby/$__ruby_pathadd_ver/bin"
+	fi
+done
+unset __ruby_pathadd_ver
+
+# Conditionally add other assorted tools to the path
+if [ -v ANDROID_HOME ]; then
+	pathadd --append "$ANDROID_HOME/tools"
+	pathadd --append "$ANDROID_HOME/platform-tools"
 fi
-
-# Conditionally add Android tools to the path
-[ -v ANDROID_HOME ] && PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
-
-# Conditionally add Go tools to the path
-[ -v GOPATH ] && PATH="$PATH:${GOPATH}/bin"
-
-# Can't actually remember if this is normally included by default or not
-# [ -d "${HOME}/.local/bin" ] && PATH="$PATH:${HOME}/.local/bin"
+[ -v JAVA_HOME ] && pathadd --append "$JAVA_HOME/bin"
+[ -v GOPATH ] && pathadd --append "${GOPATH}/bin"
 
 ##############################################################
 #-------------------------------------------------------------
@@ -162,8 +158,8 @@ fi
 EOF
 }
 
-[ ! -e ${HOME}/.setup_machine_env ] && baseMachineEnv
-[ ! -e ${HOME}/.machine_specific ] && baseMachineSpecific
+[ -e "${HOME}/.setup_machine_env" ] || baseMachineEnv
+[ -e "${HOME}/.machine_specific" ] || baseMachineSpecific
 
 unset baseMachineEnv baseMachineSpecific
 exit 0
