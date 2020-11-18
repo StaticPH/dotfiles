@@ -1,19 +1,20 @@
 #! /bin/bash
 # -efx
 
-function usage(){
-	echo "serviceKill (bluetooth|bt)|adobe|nvidia|apple"
+__PROGNAME__="$(basename $0)"
+
+usage(){
+	echo "Usage: $__PROGNAME__ (bluetooth|bt)|adobe|nvidia|apple"
 }
 
-function ifExistsThenToggle(){
-	#=$(sed -s s/\r\n// <<< `sc query VMnetDHCasasaP`)
-	# eval 'n=\""$*\""'
-	# service=$(sed -s s/\r\n// <<< `sc query \""$1\""`)
-	service=$(sed -s s/\r\n// <<< `sc query "$*"`)
-	if [[ ! $(grep "does not exist" <<< "$service") ]]; then
-		[[ $(grep "STATE\s*:.*STOPPED" <<< "$service") ]] && \
-			net start "$*" || \
+ifExistsThenToggle(){
+	service=$(sc query "$*" | tr -d "\r\n")
+	if ! (echo "$service" | grep -q "does not exist"); then
+		if (echo "$service" | grep -q "STATE\s*:.*STOPPED"); then
+			net start "$*"
+		else
 			net stop "$*"
+		fi
 	else
 		echo 'No service named "'"$1"'" exists.'
 	fi
@@ -21,24 +22,22 @@ function ifExistsThenToggle(){
 }
 
 # I changed my mind; I dont care what state the service is in, or even if it exists at all. Just TRY to do stuff to it and disregard any failures.
-function killBt(){
+killBt(){
 	net stop "Bluetooth Device Monitor" 2>/dev/null #2>&1		#Bluetooth Device Monitor
 	net stop "Bluetooth OBEX Service" 2>/dev/null #2>&1			#Bluetooth OBEX Service
 	net stop "bthserv" 2>/dev/null #2>&1						#Bluetooth Support Service
-	net stop "iBtSiva" 2>/dev/null #2>&1						# Intel Bluetooth Service
-	# net stop "$*" 2>/dev/null #2>&1	
+	net stop "iBtSiva" 2>/dev/null #2>&1						#Intel Bluetooth Service
 }
-function killAdobe(){
+killAdobe(){
 	net stop "AdobeARMservice" 2>/dev/null #2>&1				#Adobe Acrobat Update Service
 	net stop "AGSService" 2>/dev/null #2>&1						#Adobe Genuine Software Integrity Service
 	net stop "AdobeFlashPlayerUpdateSvc" 2>/dev/null #2>&1		#Adobe Flash Player Update Service
 }
-function killNvidia(){
+killNvidia(){
 	net stop "nvsvc" 2>/dev/null #2>&1				#NVIDIA Display Driver Service
 	net stop "NvNetworkService" 2>/dev/null #2>&1	#NVIDIA Network Service
-	# net stop "$*" 2>/dev/null #2>&1	
 }
-function killApple(){
+killApple(){
 	net stop "Apple Mobile Device Service" 2>/dev/null #2>&1	#Apple Mobile Device Service
 	net stop "Bonjour Service" 2>/dev/null #2>&1				#Bonjour Service
 	net stop "iPod Service" 2>/dev/null #2>&1					#iPod Service
@@ -125,7 +124,7 @@ function killApple(){
 # "seclogon"	#Secondary Logon
 
 
-
+[ $# -ne 1 ] && usage && exit 1
 
 case "$1" in
 	# toggle)
@@ -136,7 +135,7 @@ case "$1" in
 	apple)				killApple	;;
 	nvidia)				killNvidia		;;
 	*)
-		echo 'Inavlid arguement "$1"'
+		echo Invalid arguement "$1"
 		usage
 		exit 1
 		;;

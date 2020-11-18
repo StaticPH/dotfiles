@@ -1,6 +1,6 @@
-#! /bin/bash
+#! /bin/sh
 
-function usage(){
+usage(){
 	printf 'This program is a wrapper around the Windows commands for listing, enabling, and disabling network interfaces.\n'
 	printf 'Valid commands:\n'
 	printf '    nwk-iface-ctrl show                          Lists available network interfaces\n'
@@ -13,30 +13,30 @@ function usage(){
 
 # Well, technically it should be -eq 2, but bash can occasionally be strange about how it
 # treats quoted strings containing spaces that have been passed as arguments to something...
-[[ $# -lt 1 ]] && usage && exit 1
+[ $# -lt 1 ] && usage && exit 1
 
-function enable(){
+enableInterface(){
 	netsh interface set interface "$*" enable
 }
 
-function disable(){
+disableInterface(){
 	netsh interface set interface "$*" disable
 }
 
-function show(){
+show(){
 	netsh interface show interface
 }
 
 case $1 in
 	show)
-		[[ $# -gt 1 ]] && usage && exit 1
+		[ $# -gt 1 ] && usage && exit 1
 		show
 		;;
 	enable)
-		enable "$*"
+		enableInterface "$*"
 		;;
 	disable)
-		disable "$*"
+		disableInterface "$*"
 		;;
 	*)
 		usage

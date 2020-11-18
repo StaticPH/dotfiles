@@ -1,25 +1,28 @@
-#!/bin/bash
+#! /bin/bash
 
-function __usage(){
-	local cmd="$(basename $0)"
-	printf "$cmd is a wrapper around a small subset of the Windows \'Tasklist.exe\' command.\n"
+# shellcheck disable=SC2059
+
+__PROGNAME__="$(basename $0)"
+
+__usage(){
+	printf "$__PROGNAME__ is a wrapper around a small subset of the Windows \'Tasklist.exe\' command.\n"
 	printf "Note that all globs are case-sensitive.\n"
 	printf "Usage:\n"
-	printf "      List all                        \'$cmd [ -a | --all ]\'\n"
-	printf "      List glob matches               \'$cmd [ -g | --glob ] NAME_GLOB\'\n"
-	printf "      List services by process        \'$cmd [ -s | --svc ] [SERVICE_GLOB]\'\n"
-	printf "      List services by process        \'$cmd [ --all-services ]\'\n"
-	printf "      Show this help text             \'$cmd [ -h | --help ]\'\n"
-	printf "      Show help for tasklist          \'$cmd --internal\'\n"
+	printf "      List all                        \'$__PROGNAME__ [ -a | --all ]\'\n"
+	printf "      List glob matches               \'$__PROGNAME__ [ -g | --glob ] NAME_GLOB\'\n"
+	printf "      List services by process        \'$__PROGNAME__ [ -s | --svc ] [SERVICE_GLOB]\'\n"
+	printf "      List services by process        \'$__PROGNAME__ [ --all-services ]\'\n"
+	printf "      Show this help text             \'$__PROGNAME__ [ -h | --help ]\'\n"
+	printf "      Show help for tasklist          \'$__PROGNAME__ --internal\'\n"
 }
 
-function __unknown(){
+__unknown(){
 	printf "Error: Unknown operation \'$1\'\n"
 	__usage
 	exit 1
 }
 
-function winps(){
+__winps(){
 	case "$#" in
 		0)
 			__usage
@@ -40,7 +43,7 @@ function winps(){
 					printf 'tasklist /?\n' | cmd; echo  # directly calling `tasklist //\?` would also work here
 					;;
 				*)
-					__unknown
+					__unknown "$1"
 					;;
 			esac
 			;;
@@ -53,7 +56,7 @@ function winps(){
 					printf 'tasklist /SVC /FI "SERVICES eq %s"' "$2" | cmd; echo
 					;;
 				*)
-					__unknown
+					__unknown "$1"
 					;;
 			esac
 			;;
@@ -64,4 +67,4 @@ function winps(){
 			;;
 	esac
 }
-winps "$@"
+__winps "$@"

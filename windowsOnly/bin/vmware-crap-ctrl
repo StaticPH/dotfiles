@@ -1,45 +1,47 @@
 #! /bin/bash
 # -efx
 
-function usage(){
-	echo "vmware-service-ctrl toggle|start|stop|disableInterfaces|enableInterfaces"
+__PROGNAME__="$(basename $0)"
+
+usage(){
+	echo "Usage: $__PROGNAME__ toggle|start|stop|disableInterfaces|enableInterfaces"
 }
 
-function ifExistsThenToggle(){
-	#=$(sed -s s/\r\n// <<< `sc query VMnetDHCasasaP`)
-	# eval 'n=\""$*\""'
-	# service=$(sed -s s/\r\n// <<< `sc query \""$1\""`)
-	service=$(sed -s s/\r\n// <<< `sc query "$*"`)
-	if [[ ! $(grep "does not exist" <<< "$service") ]]; then
-		[[ $(grep "STATE\s*:.*STOPPED" <<< "$service") ]] && \
-			net start "$*" || \
+ifExistsThenToggle(){
+	service=$(sc query "$*" | tr -d "\r\n")
+	if ! (echo "$service" | grep -q "does not exist"); then
+		if (echo "$service" | grep -q "STATE\s*:.*STOPPED"); then
+			net start "$*"
+		else
 			net stop "$*"
+		fi
 	else
 		echo 'No service named "'"$1"'" exists.'
 	fi
 	pkill "sc query"
 }
+
 # ifExistsThenToggle VMUSBArbService
 # # eval 'ifExistsThenToggle ""VMware NAT Service""'
 # ifExistsThenToggle "VMware NAT Service"
 
 # I changed my mind; I dont care what state the service is in, or even if it exists at all. Just TRY to do stuff to it and disregard any failures.
-function start(){
+start(){
 	net start "$*" 2>/dev/null #2>&1
 }
-function stop(){
+stop(){
 	net stop "$*" 2>/dev/null #2>&1
 }
 
-function enableAdapter(){
+enableAdapter(){
 	netsh interface set interface "$*" enable
 }
 
-function disableAdapter(){
+disableAdapter(){
 	netsh interface set interface "$*" disable
 }
 
-function doForAll(){
+doForAll(){
 	$1 VMUSBArbService				# VMware USB Arbitration Service
 	$1 "VMware NAT Service"			# VMware NAT Service
 	$1 VMnetDHCP					# VMware DHCP Service
@@ -51,6 +53,8 @@ function doForAll(){
 	$1 ftnlsv3hv					# VMware Netlink Supervisor Service
 
 }
+
+[ $# -ne 1 ] && usage && exit 1
 
 case "$1" in
 	toggle)
@@ -72,7 +76,7 @@ case "$1" in
 		enableAdapter "VMware Network Adapter VMnet8"
 		;;
 	*)
-		echo "Inavlid arguement \"$1\""
+		echo "Invalid arguement \"$1\""
 		usage
 		exit 1
 		;;
