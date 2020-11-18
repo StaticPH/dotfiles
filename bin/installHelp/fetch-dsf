@@ -1,0 +1,17 @@
+#! /bin/sh
+
+if [ "$#" -ne 0 ]; then
+	echo "$0 : download the latest version of diff-so-fancy to the current directory."
+	exit 1
+fi
+
+if [ "$1" = '--slim' ]; then
+	curl 'https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy' | \
+		csplit --silent --suppress-matched --prefix __dsf_dl__ - '%# END OF FATPACK CODE%+1'
+	echo '#! /usr/bin/env perl' > diff-so-fancy
+	cat __dsf_dl__* >> diff-so-fancy
+	rm __dsf_dl__*
+else
+	curl 'https://raw.githubusercontent.com/so-fancy/diff-so-fancy/master/third_party/build_fatpack/diff-so-fancy' > diff-so-fancy
+fi
+chmod +x diff-so-fancy
