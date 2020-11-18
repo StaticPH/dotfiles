@@ -28,8 +28,7 @@
 ## to set the background color to black or white.
 ##
 ## If you wish, you may put your syntaxes in separate files.  You can
-## make use of such files (which can only include "syntax", "color", and
-## "icolor" commands) as follows:
+## make use of such files as follows:
 ##
 ## include "/path/to/syntax_file.nanorc"
 ##
@@ -39,29 +38,34 @@
 ## them easier to remember and faster to type using nano's -Y option.
 ##
 ## All regexes should be extended regular expressions.
-#
+## Lookahead and lookbehind are not supported.
 #
 #
 #
 #
 ###############################################################
-## Set flags
+### Set behavioral flags
 ###############################################################
 
+set atblanks					# command line flag -a
 set constantshow 				# command line flag -c
-set smarthome					# command line flag -A
-unset nohelp					#
-unset breaklonglines			# command line flag --nowrap
-# set smooth  -- this is now the default behavior; when needed, use 'unset jumpyscrolling' instead
-unset jumpyscrolling			#
+#set multibuffer				# command line flag -F
 #set nonewlines					# command line flag --nonewlines
+set smarthome					# command line flag -A
+#set stateflags					# command line flag -%
+set suspendable					# command line flag -z
 set tabsize 4					# command line flag -T 4
-set atblanks					#
-set trimblanks					#
-# set matchbrackets "(<[{)>]}"
+set trimblanks					# command line flag -M
+set zap							# command line flag -Z
+
+## Explicitly enforced behavior
+unset breaklonglines			# command line flag -w (or '--nowrap'); explicitly prohibit automatic hard-wrapping long lines; opposite of '-b'
+# set smooth  -- this is now the default behavior as of nano v4.0; when needed, use 'unset jumpyscrolling' or command line flag '-j' instead
+unset jumpyscrolling			# command line flag N/A; explicitly enforce smooth scrolling; opposite of 'unset jumpyscrolling' and command line flag '-j'
+unset nohelp					# command line flag N/A; explicitly enforce display of help lines; opposite of command line flag -x
 
 ###############################################################
-## Include syntax-specific nanorc files
+### Include syntax-specific nanorc files
 ###############################################################
 
 include "/opt/nanorcs/asm.nanorc"
@@ -97,43 +101,103 @@ include "/opt/nanorcs/verilog.nanorc"
 include "/opt/nanorcs/xml.nanorc"
 include "/opt/nanorcs/yaml.nanorc"
 
-
 ############## Nanorc syntax highlighting
-## It's far from perfect, but it's plenty enough for my needs
-syntax "nanorc" "\.nanor[c]?$"
+### It's far from perfect, but it's plenty enough for my needs. Consider moving this to my own nanorc.nanorc
+syntax "nanorc" "\.?nanorc$"
+comment "#"
+
+###Attributes
+## unclear if order of attributes is significant, but documentation uses bold,italic,fgcolor,bgcolor
+color bold,normal "<\bold\>"
+color italic,normal "\<italic\>"
+
+### Keystroke formats
+color bold,cyan "\<\^([a-zA-Z]|@|\]|\\|\^|\_)\>"
+color bold,cyan "\<(Ins|Del|\^Space|M-Space)\>"
+color bold,cyan "\<M-([][!"#$%&'()*+,./0-9:;<=>?@\^_`{|}~-]|Space)\>"
+color bold,cyan "\<Sh-M-[a-zA-Z]\>"
+color bold,cyan "\<F([1-9]|1[0-9]|2[0-4])\>"
+
+### Options
+color italic,brightblue "\<(afterends|allow_insecure_backup|atblanks|autoindent|backup|boldtext|breaklonglines|casesensitive|constantshow|cutfromcursor|emptyline|historylog|indicator|jumpyscrolling|linenumbers|locking|magic|mouse|multibuffer|noconvert|nohelp|nonewlines|positionlog|preserve|quickblank|rawsequences|rebinddelete|regexp|saveonexit|showcursor|smarthome|softwrap|stateflags|suspendable|tabstospaces|trimblanks|unix|view|wordbounds|zap)\>"
+# Options which accept parameters
+color italic,brightblue "\<(fill\s+(-)?[[:digit:]]+)\>"
+color italic,brightblue "\<(guidestripe|tabsize)\s+[1-9][0-9]*\>"
+color italic,brightblue "\<(backupdir|brackets|errorcolor|functioncolor|keycolor|matchbrackets|numbercolor|operatingdir|punct|quotestr|scrollercolor|selectedcolor|speller|statuscolor|stripecolor|titlecolor|whitespace|wordchars)\>"
+
+### Functions
+color magenta "\<((no)?help|cancel|exit|writeout|savefile|insert|where(wa|i)s|find(previous|next|bracket)|chopword(left|right)|replace|copy|paste|zap|cut(restoffile|fromcursor)?|mark|location|wordcount|execute|speller|formatter|linter|(full)?justify|(un|auto)?indent|comment|complete|(scroll|page)?(up|down)|center|(prev|next)(word|block|buf)|(smart)?(home|end)|(begin|end)para|(first|last|goto)line|(prev|next)?anchor|verbatim|tab|enter|delete|backspace|(record|run)macro|(un|re)do|refresh|suspend|casesens|regexp|backwards|older|newer|flip(replace|goto|execute|pipe|newbuffer|convert)|(dos|mac)format|(ap|pre)pend|backup|discardbuffer|browser|gotodir|(first|last)file|constantshow|(soft|no)wrap|linenumbers|whitespacedisplay|nosyntax|tabstospaces|mouse|suspendable)\>"
+
+### Menu sections
+color green "\<(main|help|search|replace(with)?|yesno|goto(line|dir)|writeout|insert|browser|whereisfile|execute|spell|linter|all)\>"
+
+### Interface element color keywords
+color cyan "\<((error|function|key|number|scroller|selected|status|stripe|title)color)\>"
+
+### Other keywords
 color blue "^(\<((un|)(set|bind))\>)"
 color yellow "\\<|\\>"
-color magenta "^(\<(extend|)syntax|header|magic|include\>)"
+color magenta "^(\<((extend|)syntax|header|magic|include)\>)"
 color brightred "[|]"
 color brightgreen "#.*$"
-color brightblue "^[i]?color "
+color brightblue "^i?color\s+"
 color cyan "\<(start|end)\>="
 color brightblack "^(\<comment|tabgives\>)"
 color green "^(\<formatter|linter\>)"
 color normal "\\\\<|\\\\>"
 
+# Trailing whitespace
+color ,red "[[:space:]]+$"
 
-#Colors
+###Colors
 color white "\<white\>"
-color normal "\<black\>" #color black "\<black\>"
+color black,white "\<black\>"
+color red "\<red\>"
 color blue "\<blue\>"
 color green "\<green\>"
-color red "\<red\>"
-color cyan "\<cyan\>"
 color yellow "\<yellow\>"
 color magenta "\<magenta\>"
+color cyan "\<cyan\>"
 color normal "\<normal\>"
+color pink "\<pink\>"
+color purple "\<purple\>"
+color mauve "\<mauve\>"
+color lagoon "\<lagoon\>"
+color mint "\<mint\>"
+color lime "\<lime\>"
+color peach "\<peach\>"
+color orange "\<orange\>"
+color latte "\<latte\>"
 
 color brightwhite "\<brightwhite\>"
 color brightblack "\<brightblack\>"
+color brightred "\<brightred\>"
 color brightblue "\<brightblue\>"
 color brightgreen "\<brightgreen\>"
-color brightred "\<brightred\>"
-color brightcyan "\<brightcyan\>"
 color brightyellow "\<brightyellow\>"
 color brightmagenta "\<brightmagenta\>"
-color brightnormal "\<brightnormal\>"
+color brightcyan "\<brightcyan\>"
+#TODO: WTH IS THE DIFFERENCE BETWEEN BRIGHT AND LIGHT PREFIXES??
+color lightwhite "\<lightwhite\>"
+color lightblack "\<lightblack\>"
+color lightred "\<lightred\>"
+color lightblue "\<lightblue\>"
+color lightgreen "\<lightgreen\>"
+color lightyellow "\<lightyellow\>"
+color lightmagenta "\<lightmagenta\>"
+color lightcyan "\<lightcyan\>"
 
+## These colors cannot be prefixed; unclear if that will change in the future
+# color brightnormal "\<brightnormal\>"
+# color brightpink "\<brightpink\>"
+# color brightpurple "\<brightpurple\>"
+# color brightmauve "\<brightmauve\>"
+# color brightlagoon "\<brightlagoon\>"
+# color brightmint "\<brightmint\>"
+# color brightlime "\<brightlime\>"
+# color brightpeach "\<brightpeach\>"
+# color brightorange "\<brightorange\>"
+# color brightlatte "\<brightlatte\>"
 
 ############## No syntax highlighting for txt files
 ##
@@ -149,6 +213,7 @@ color brightnormal "\<brightnormal\>"
 # set errorcolor brightwhite,red
 # set selectedcolor brightwhite,magenta
 # set stripecolor ,yellow
+# set scrollercolor cyan
 # set numbercolor cyan
 set keycolor cyan
 # set functioncolor green
@@ -158,6 +223,8 @@ set keycolor cyan
 # set statuscolor brightwhite,magenta
 # set errorcolor brightwhite,red
 # set selectedcolor brightwhite,cyan
+# set stripecolor ,yellow
+# set scrollercolor magenta
 # set numbercolor magenta
 # set keycolor brightmagenta
 # set functioncolor magenta
@@ -165,7 +232,7 @@ set keycolor cyan
 
 ###############################################################
 ## Key bindings.
-## See nanorc(5) (section REBINDING KEYS) for more details on this.
+## For more details, see nanorc(5) (section REBINDING KEYS)
 ###############################################################
 
 ## The <Ctrl+Delete> keystroke deletes the word to the right of the cursor.
@@ -175,12 +242,18 @@ set keycolor cyan
 ## keycode, which is hard-bound to the backspace function.  So, if you
 ## normally use <Backspace> for backspacing and not ^H, you can make
 ## <Ctrl+Backspace> delete the word to the left of the cursor with:
-# bind ^H cutwordleft main	OR	bind ^H chopwordleft main	depending on your version of nano
+# OLD binding:
+# bind ^H cutwordleft main
+# CURRENT binding:
+# bind ^H chopwordleft main
 
 ## If you would like nano to have keybindings that are more "usual",
 ## such as ^O for Open, ^F for Find, ^H for Help, and ^Q for Quit,
 ## then uncomment these:
 #bind ^Q exit all
+#bind ^S savefile main
+#bind ^W writeout main
+#bind ^O insert main
 #bind ^H help all
 #bind ^H exit help
 #bind ^F whereis all
@@ -188,44 +261,59 @@ set keycolor cyan
 #bind ^B wherewas all
 #bind ^D findprevious all
 #bind ^R replace main
-#bind ^W writeout main
-#bind ^O insert main
-#unbind ^V all
-#unbind ^Y all
 #bind M-X flipnewbuffer all
 #bind ^X cut all
-#bind ^C copy all
+#bind ^C copy main
 #bind ^V paste all
-#bind ^P curpos main
+#bind ^P location main
+#bind ^A mark main
+#unbind ^K all
+#unbind ^U all
+#unbind ^N main
+#unbind ^Y all
+#unbind M-J main
+#unbind M-T main
 #bind ^T gotoline main
 #bind ^T gotodir browser
 #bind ^Y speller main
-#unbind ^K all
-#unbind ^U all
+#bind M-U undo main
 #bind M-R redo main
 #bind ^U undo main
 #bind ^E redo main
-#unbind M-J main
-#unbind M-T main
 #set multibuffer
 
-unbind M-E main # stop using Alt/Meta+E to redo actions
-unbind M-X all # prevent disabling nohelp everywhere; it should really be enabled at all times
-unbind M-C main # prevent disabling constantshow in the main view; it should really be enabled at all times
-unbind M-H main # prevent disabling smarthome in the main view; it should really be enabled at all times
-unbind ^B main # free up Ctrl+b for use of findbracket action
+unbind M-E main	# stop using Alt/Meta+E to redo actions
+unbind M-X all	# prevent disabling nohelp everywhere; it should really be enabled at all times
+unbind M-C main	# prevent disabling constantshow in the main view; it should really be enabled at all times
+unbind M-H main	# prevent disabling smarthome in the main view; it should really be enabled at all times
+unbind ^B  main	# free up Ctrl+b for use of findbracket action
+unbind ^_  all	# free up Ctrl+Shift+-, keeping Alt+g for the Go To Position command
+unbind ^j  main	# I pretty much never WANT to justify text, and I reflexively press this when I want to join lines, so this is an annoyance; keeping F4 for the rare instance.
 
-bind ^H chopwordleft all # delete word to left of cursor with Ctrl+H (Ctrl+Backspace)
-bind ^B findbracket main # Find a matching bracket with Ctrl+B
-bind M-Y redo main # use Alt/Meta+Y to redo actions
-bind M-U undo main # use Alt/Meta+U to undo actions
+# Delete word to left of cursor with Ctrl+H (Ctrl+Backspace)
+bind ^H chopwordleft main	#TODO: may actually want to disable this for my main machine; further use required
+
+# My current main computer simply insists that backspace always be either ^_ or ^? (depending on modifier keys)
+# Delete still does everything it should be doing, and backspace works as it should when no modifier keys are pressed
+# As such, what happens if we bind ^_ to chopwordleft? Suddenly backspace starts behaving correctly when Control is held!
+# Huzzah! Now if only I could figure out why this was necessary to begin with.
+bind ^_ chopwordleft main
+
+bind ^Space complete all	# attempt word completion with Ctrl+Space
+bind ^B findbracket main	# Find a matching bracket with Ctrl+B
+bind M-Y redo main			# use Alt/Meta+Y to redo actions
+bind M-U undo main			# use Alt/Meta+U to undo actions
 
 ##### I wish these worked :(
-# bind ^Space complete all # attempt word completion with Ctrl+Space
-# bind ^Enter complete all # attempt word completion with Ctrl+Enter
-# bind Sh-space pageup help # press shift+Space to scroll up a page in the help view
-# bind ^PgUp prevbuf main # switch to the previous file passed to nano with Ctrl+PageUp
-# bind ^PgDn nextbuf main # switch to the next file passed to nano with Ctrl+PageUp
+# bind ^Enter complete all	# attempt word completion with Ctrl+Enter
+# bind Sh-space pageup help	# press shift+Space to scroll up a page in the help view
+# bind ^PgUp prevbuf main	# switch to the previous file passed to nano with Ctrl+PageUp
+# bind ^PgDn nextbuf main	# switch to the next file passed to nano with Ctrl+PageUp
 
-# bind ^{ prevblock main	# move up a text-block with Ctrl+]		may also work with Ctrl+Up
-# bind ^} nextblock main	# move down a text-block with Ctrl+[	may also work with Ctrl+Down
+# bind ^{ prevblock main	# move up a text-block with Ctrl+]
+# bind ^} nextblock main	# move down a text-block with Ctrl+[
+
+# bind ^Up scrollup main	# Ctrl+Up is supposed to move the view without moving the caret, who decided to make it do Alt+Up's job?
+# bind ^Dn scrolldown main	# Ctrl+Dn is supposed to move the view without moving the caret, who decided to make it do Alt+Dn's job?
+# bind M-Up prevblock main	# Alt+Up is supposed to move the caret to the start of the previous block, so why has it been switched with Ctrl+Up?
+# bind M-Dn nextblock main	# Alt+Dn is supposed to move the caret to the start of the next block, so why has it been switched with Ctrl+Dn?
