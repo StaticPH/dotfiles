@@ -1,7 +1,15 @@
+# This is Git's per-user configuration file.
+[user]
+
+	# Please adapt and uncomment the following lines:
+	#	name =
+	#	email =
+
 [alias]
+
 	# Show verbose output about tags, branches or remotes
 	tags = tag -l
-	# branches = branch -a --sort=-committerdate
+
 	remotes = remote -v
 
 	# List aliases
@@ -21,21 +29,51 @@
 	#  %(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)	:  Color the current branch green, and all other branches red
 	branches = for-each-ref --sort=-committerdate --format=\"%(color:blue bold)%(authordate:format:%Y-%m-%d %I:%M %p)    %(align:10,right)%(if)%(HEAD)%(then)* %(else)  %(end)%(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)%(end)\"
 
-	# Undo the last commit
-	undo = reset --soft HEAD~1
-	
-	# Unstage a file from commit
-	unstage = reset HEAD --
-	
+	# More simplistic "branches"
+	# branches = branch -a --sort=-committerdate
+
+	# Undo the effects of the last commit
+	undo-hard = reset --soft HEAD~1
+
+	# Uncommit the last commit, but retain all changes made in the committed files.
+	undo = reset --soft HEAD^
+
+	# Unstage one or more files from commit
+	unstage = restore --staged
+
+	# Print the path of the repository root
 	root = rev-parse --show-toplevel
 
-[core]
-	# Speed up commands involving untracked files such as `git status`.
-	# https://git-scm.com/docs/git-update-index#_untracked_cache
-	untrackedCache = true
+	diff = diff -w --ignore-blank-lines
 
-	# I hate when a git command brings up vim, because I can never remember how to do that, and end up having to look it up >.<
-	editor = "/usr/bin/nano"
+	# Fetch changes to all submodules
+	# fullFetch = submodule foreach 'git fetch — all’
+
+	# Pull in remote changes for the current repo AND all its submodules
+	fullPull = pull --recurse-submodules
+
+	# Clone a remote repo AND all its submodules
+	fullClone = clone --recursive
+
+	# Show the user email for the current repository.
+	whoami = config user.email
+
+	# Show the git log for the last N commits
+	log-last = log -n # <N>
+
+	# Show git log, with a summary of each commit, list which files a commit touched
+	# and classify the change using one (or more?) characters according to the following:
+	#     Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R),
+	#     have their type (i.e. regular file, symlink, submodule, etc) changed (T),
+	#     are Unmerged (U), are Unknown (X), or have had their pairing Broken (B)
+	log-files = log --name-status
+
+	# Stash all files, including files ignored or not yet tracked by git 
+	stash-all = stash push --all
+	
+	clean = clean -i
+
+	local-only-branch = branch --no-track
 
 [color]
 
@@ -43,18 +81,53 @@
 	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
 	ui = auto
 
-	# status = auto
-	# branch = auto
-	
 # [color "status"]
+#
 #	changed = 214
 #	untracked = 009
 #	unmerged = 203
+
+
+#[commit]
+#
+#	# https://help.github.com/articles/signing-commits-using-gpg/
+#	gpgsign = true
+
+[core]
+
+	# Speed up commands involving untracked files such as `git status`.
+	# https://git-scm.com/docs/git-update-index#_untracked_cache
+	untrackedCache = true
+
+	# I hate when a git command brings up vim, because I can never remember how to exit that, and end up having to look it up >.<
+	editor = "nano"
 	
+	whitespace = blank-at-eol
+#[credential]
+#
+#	# Specify an external helper to be called when a username or password credential is needed;
+#	# the helper may consult external storage to avoid prompting the user for the credentials.
+#	# Note that multiple helpers may be defined. See gitcredentials(7) for details.
+#	# If using git-for-windows, prefer the newer credential-manager, (manager-core) "git-credential-manager-core"
+#	# If using the git-credential-manager from git-for-windows, set helper to the full WINDOWS path to the executable, 
+#	# i.e.	"C:/Program Files (x86)/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
+#	helper = 
+
+[delta]
+	features = side-by-side line-numbers
+	syntax-theme = Monokai Extended
+
+[delta "line-numbers"]
+	line-numbers = true
+
 [diff]
 
+	# Restrict changes shown to files inside the current directory, and show pathnames relative to that location
+	relative = true
 	# Detect copies as well as renames
 	renames = copies
+
+	wsErrorHighlight = all
 
 [diff "bin"]
 
@@ -62,11 +135,107 @@
 	textconv = hexdump -v -C
 
 # [difftool]
+#
+#	# Prompt before each invocation of the(any) diff tool, default behavior is true
 #	prompt = false
+
+[difftool "icdiff"]
+	# Assumes that icdiff is available in PATH
+	# icdiff provides colorized side-by-side diffs on the command line
+	cmd = icdiff 
+	#-s --is-git-diff --cols=$(tput cols) --line-numbers $LOCAL $REMOTE
+
+	# Still somewhat broken on Windows, sadly. Good news is that the following command does exactly what the cmd SHOULD do:
+	# git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd="icdiff --is-git-diff -Ns --cols=$(tput cols) --strip-trailing-cr"
+
+	prompt = false # I hope this actually works...
+
+[grep]
+	lineNumber = true
+
+#[help]
+#
+#	# Automatically correct and execute mistyped commands
+#	autocorrect = 1
+
+[http]
+	sslVersion = tlsv1.2
+
+[icdiff]
+	options = -sN --strip-trailing-cr --cols="$(tput cols)" $LOCAL $REMOTE
+
+#[interactive]
+#	diffFilter = delta --color-only
+
+[log]
+	# Infuriatingly, I am unable to get the date format string to work with any sort of padding
+	# So even though I have confirmed that strftime can handle (prefixed with a '+') '%b %_2d, %_Y %_2I:%02M %p',
+	# I am unable to use my preferred date/time format.
+	#date=format-local:"%b %_2d, %_Y %_2I:%02M %p"
+	# I suppose I'll have to settle for default-local then
+	date=default-local
 
 [merge]
 
-	# Include summaries of merged commits in newly created merge commit messages
+	# Include summaries of merged commits in newly created merge commit messages; true = 20, false = 0
 	log = true
 
-	# tool = 
+	# In the event of a conflict, normal behavior is to show 2 sections, one for each of the changes in conflict.
+	# diff3 changes that behavior to show 3 sections, inserting between the original 2 an additional section showing the content before either of the conflicting changes is applied
+	conflictStyle = diff3
+
+	# Throw errors on merges that aren't fast-forwards; for those cases, you probably want to use 'git rebase -i' to avoid creating a merge commit.
+	# If you really want to create a merge commit, use 'git merge --ff' explicitly
+	ff = only
+
+	# tool =
+
+
+
+#[pager]
+#
+#	# If the value is boolean, turns on or off pagination of the output of a particular Git subcommand when writing to a tty.
+#	# Otherwise, turns on pagination for the subcommand using the pager specified by the value of pager.<cmd>
+#	log = less	# paginate the output of the 'log' subcommand using 'less'
+#	diff = delta # paginate the output of the 'diff' subcommand using 'delta' WAITING ON FIX
+
+#[pretty]
+#	# Sadly this cannot be used with any of the special field names available for for-each-ref
+#	# also note that unlike in for-each-ref, colors are applied in the format of %C(colorName [styling]), as opposed to %(color:colorName [styling])
+
+[push]
+
+#	# https://git-scm.com/docs/git-config#git-config-pushdefault
+#	default = simple
+
+	# Make `git push` push relevant annotated tags when pushing branches out. Generally speaking, you create tags locally with the intention of including them in subsequent pushes.
+	followTags = true
+
+[status]
+	showStash = true
+
+## URL shorthands
+
+#[url "git@github.com:"]
+#
+#	insteadOf = "gh:"
+#	pushInsteadOf = "github:"
+#	pushInsteadOf = "git://github.com/"
+
+#[url "git://github.com/"]
+#
+#	insteadOf = "github:"
+
+#[url "git@gist.github.com:"]
+#
+#	insteadOf = "gst:"
+#	pushInsteadOf = "gist:"
+#	pushInsteadOf = "git://gist.github.com/"
+
+#[url "git://gist.github.com/"]
+#
+#	insteadOf = "gist:"
+
+# If using git-for-windows, this may help; I can't quite remember HOW though
+[winUpdater]
+	recentlySeenVersion = 2.29.2.windows.2
