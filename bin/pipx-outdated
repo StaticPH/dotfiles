@@ -1,0 +1,21 @@
+#! /bin/bash
+# List outdated (application-like) packages installed using pipx
+
+_pipx_outdated(){
+	let local hasOutdated;
+	while read -sr pyPkgName pyPkyVersion; do
+		local pypi_latest="$(curl -sS https://pypi.org/simple/${pyPkgName}/ | grep -o '>.*</' | tail -n 1 | grep -o -E '[0-9]([0-9]|[-._])*[0-9]')"
+		if [ "$pyPkyVersion" != "$pypi_latest" ]; then
+			[ ! -v hasOutdated ] && printf "An update is available for the following package(s):\n" && hasOutdated=0
+			printf "%s\n\tCurrent: %s\tLatest: %s\n" "$pyPkgName" "$pyPkyVersion" "$pypi_latest"
+		fi
+	done < <( pipx list | grep -o 'package.*,' | tr -d ',' | cut -d ' ' -f 2- )
+
+	if [ "${hasOutdated:-1}" -eq 1 ]; then
+		printf "All top-level packages are currently up to date.\n"
+	else
+		printf "\n\n"
+	fi
+}
+
+_pipx_outdated
