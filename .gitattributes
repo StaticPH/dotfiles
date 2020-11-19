@@ -1,0 +1,105 @@
+# `GLOB text` to set the text attribute with no value for files matching GLOB
+# `GLOB -text` to unset any existing text attribute value for files matching GLOB
+# `GLOB text=auto` to explicitly set the text attribute to auto for files matching GLOB
+# `GLOB !text` to set the text attribute to unspecified
+# `GLOB binary` is equivalent to `GLOB -text -diff` which disables any end-of-line conversion and does not produce textual diffs
+# The 'eol' attribute controls which line-ending files should use in your working directory; 
+# 	that is, your LOCAL COPY of the repository. This is APPLIED TO FILES UPON CHECKOUT.
+# The 'text' attribute controls whether crlf->lf end-of-line normalization should APPLY UPON COMMIT; 
+#	that is, if `text` is set, the REMOTE COPY of the matching files will always have its line endings normalized to the unix-style lf.
+
+### Don't muck with binary files by default; unless explicitly specified otherwise below, 
+### only modify files automatically detected as text, normalizing line-endings upon commit.
+### This also deals with files that often dont have extensions, 
+*                  text=auto eol=lf
+
+
+### Force local copies to use lf on files like these
+## Scripts
+*.sh               text eol=lf
+*.csh              text eol=lf
+*.tcsh             text eol=lf
+*.fish             text eol=lf
+*.bash*            text eol=lf
+*.zsh*             text eol=lf
+*.cshrc            text eol=lf
+*.tcshrc           text eol=lf
+*.py               text eol=lf diff=python
+*.pyi              text eol=lf diff=python
+
+## RC Files
+.sqliterc          text eol=lf
+.pythonrc          text eol=lf
+.inputrc           text eol=lf
+.minttyrc          text eol=lf
+*.nanorc           text eol=lf
+.gemrc             text eol=lf
+# gemrc            text eol=lf
+
+## Serialized and Configs
+*.ini              text eol=lf
+*.json             text eol=lf
+*.yml              text eol=lf
+*.yaml             text eol=lf
+*.toml             text eol=lf
+*.properties       text eol=lf
+*.xml              text eol=lf
+*.cfg              text eol=lf
+*.conf             text eol=lf
+*.config           text eol=lf
+
+## Markup, Markdown, Formatting, Styling, and a partridge in a pear tree
+*.md               text eol=lf diff=markdown
+*.markdown         text eol=lf diff=markdown
+*.css              text eol=lf diff=css
+*.htm              text eol=lf diff=html
+*.html             text eol=lf diff=html
+
+## Other
+*.git*             text eol=lf
+*.env              text eol=lf
+.infokey           text eol=lf
+.profile           text eol=lf
+.editorconfig      text eol=lf
+.gdbinit           text eol=lf
+# gdbinit          text eol=lf
+# .*ignore         text eol=lf
+Dockerfile         text eol=lf
+*.mk               text eol=lf
+*.Makefile         text eol=lf
+Makefile           text eol=lf
+
+
+### Force local copies to use crlf on files like these
+*.cmd              text eol=crlf
+*.bat              text eol=crlf
+*.reg              text eol=crlf
+*.ps1              text eol=crlf
+
+# /.idea/* text    text eol=crlf
+
+
+
+### For files like these, never touch the line endings, but continue to generate textual diffs
+*.patch            -text
+
+### Treat files like these as binary files; never touch line endings, never generate textual diffs
+*.lock             binary
+*.png              binary
+*.jpg              binary
+*.jpeg             binary
+*.gif              binary
+*.ico              binary
+
+# I assume this is considered a binary file by git, and should normally be in .gitignore, but better safe than sorry.
+desktop.ini        binary 
+
+### Don't do anything to these files
+# LICENSE          text eol=lf
+# CONTRIBUTING     text eol=lf
+# CHANGELOG        text eol=lf
+# COPYING          text eol=lf
+# INSTALL          text eol=lf
+# NEWS             text eol=lf
+# *README*         text eol=lf
+# TODO             text eol=lf
