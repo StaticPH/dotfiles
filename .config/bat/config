@@ -1,0 +1,40 @@
+# This is `bat`s configuration file. Each line either contains a comment or
+# a command-line option that you want to pass to `bat` by default. You can
+# run `bat --help` to get a list of all possible configuration options.
+
+# Specify desired highlighting theme (e.g. "TwoDark"). Run `bat --list-themes`
+# for a list of all available themes
+#--theme="TwoDark"
+
+# Enable this to use italic text on the terminal. This is not supported on all
+# terminal emulators (like tmux, by default):
+#--italic-text=always
+
+# Uncomment the following line to disable automatic paging:
+#--paging=never
+
+# Uncomment the following line if you are using less version >= 551 and want to
+# enable mouse scrolling support in `bat` when running inside tmux. This might
+# disable text selection, unless you press shift.
+#--pager="--RAW-CONTROL-CHARS --quit-if-one-screen --mouse"
+
+
+# -m, --map-syntax <glob-pattern:syntax-name>...
+# 	  Map  a glob pattern to an existing syntax name. The glob pattern
+# 	  is matched on the full path and the filename.  For  example,  to
+# 	  highlight   *.build   files  with  the  Python  syntax,  use  -m
+# 	  '*.build:Python'. To highlight files named '.myignore' with  the
+# 	  Git Ignore syntax, use -m '.myignore:Git Ignore'.
+# 
+# Syntax mappings: map a certain filename pattern to a language.
+#   Example 1: use the C++ syntax for .ino files
+#--map-syntax "*.ino:C++"
+
+# Use ".gitignore"-style highlighting for ".ignore" files
+--map-syntax ".ignore:Git Ignore"
+
+# Apply bash syntax to lots of things
+--map-syntax ".bash*:Bourne Again Shell (bash)"
+--map-syntax ".setup_base_env:Bourne Again Shell (bash)"
+--map-syntax ".setup_machine_env:Bourne Again Shell (bash)"
+--map-syntax ".setupPrompt:Bourne Again Shell (bash)"

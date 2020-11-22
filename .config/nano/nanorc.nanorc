@@ -1,0 +1,134 @@
+## Color setup
+##
+## Format:
+##
+## syntax "short description" ["filename regex" ...]
+##
+## The "none" syntax is reserved; specifying it on the command line is
+## the same as not having a syntax at all.  The "default" syntax is
+## special: it takes no filename regexes, and applies to files that
+## don't match any other syntax's filename regexes.
+##
+## color foreground,background "regex" ["regex"...]
+## or
+## icolor foreground,background "regex" ["regex"...]
+##
+## "color" will do case sensitive matches, while "icolor" will do case
+## insensitive matches.
+##
+## Valid colors: white, black, red, blue, green, yellow, magenta, cyan.
+## For foreground colors, you may use the prefix "bright" to get a
+## stronger highlight.
+##
+## To use multi-line regexes, use the start="regex" end="regex"
+## [start="regex" end="regex"...] format.
+##
+## If your system supports transparency, not specifying a background
+## color will use a transparent color.  If you don't want this, be sure
+## to set the background color to black or white.
+##
+##
+## All regexes should be extended regular expressions.
+## Lookahead and lookbehind are not supported.
+#
+#
+#
+#
+############## Nanorc syntax highlighting
+### It's far from perfect, but it's plenty enough for my needs.
+syntax "nanorc" "\.?nanorc$"
+comment "#"
+
+###Attributes
+## Unclear if order of attributes is significant, but documentation uses bold,italic,fgcolor,bgcolor
+## Note that not all terminal emulators support bold and/or italics, and bold in particular may have the same effect as applying the bright/light prefix.
+color bold,normal "<\bold\>"
+color italic,normal "\<italic\>"
+
+### Keystroke formats
+color bold,cyan "[[:space:]]+\^([a-zA-Z]|@|\]|\\|\^|\_|Space)\>"
+color bold,cyan "[[:space:]]+(Ins|Del)\>"
+color bold,cyan "[[:space:]]+[Mm]-([][!"#$%&'()*+,./0-9:;<=>?@\^_`{|}~-]|Space)\>"
+color bold,cyan "[[:space:]]+(S[Hh]-)?[Mm]-[a-zA-Z]\>"
+color bold,cyan "[[:space:]]+F([1-9]|1[0-9]|2[0-4])\>"
+
+### Options
+color italic,brightblue "\<(afterends|allow_insecure_backup|atblanks|autoindent|backup|boldtext|breaklonglines|casesensitive|constantshow|cutfromcursor|emptyline|historylog|indicator|jumpyscrolling|linenumbers|locking|magic|mouse|multibuffer|noconvert|nohelp|nonewlines|positionlog|preserve|quickblank|rawsequences|rebinddelete|regexp|saveonexit|showcursor|smarthome|softwrap|stateflags|suspendable|tabstospaces|trimblanks|unix|view|wordbounds|zap)\>"
+# Options which accept parameters
+color italic,brightblue "\<(fill\s+(-)?[[:digit:]]+)\>"
+color italic,brightblue "\<(guidestripe|tabsize)\s+[1-9][0-9]*\>"
+color italic,brightblue "\<(backupdir|brackets|errorcolor|functioncolor|keycolor|matchbrackets|numbercolor|operatingdir|punct|quotestr|scrollercolor|selectedcolor|speller|statuscolor|stripecolor|titlecolor|whitespace|wordchars)\>"
+
+### Functions
+color magenta "\<((no)?help|cancel|exit|writeout|savefile|insert|where(wa|i)s|find(previous|next|bracket)|chopword(left|right)|replace|copy|paste|zap|cut(restoffile|fromcursor)?|mark|location|wordcount|execute|speller|formatter|linter|(full)?justify|(un|auto)?indent|comment|complete|(scroll|page)?(up|down)|center|(prev|next)(word|block|buf)|(smart)?(home|end)|(begin|end)para|(first|last|goto)line|(prev|next)?anchor|verbatim|tab|enter|delete|backspace|(record|run)macro|(un|re)do|refresh|suspend|casesens|regexp|backwards|older|newer|flip(replace|goto|execute|pipe|newbuffer|convert)|(dos|mac)format|(ap|pre)pend|backup|discardbuffer|browser|gotodir|(first|last)file|constantshow|(soft|no)wrap|linenumbers|whitespacedisplay|nosyntax|tabstospaces|mouse|suspendable)\>"
+
+### Menu sections
+color green "\<(main|help|search|replace(with)?|yesno|goto(line|dir)|writeout|insert|browser|whereisfile|execute|spell|linter|all)\>"
+
+### Interface element color keywords
+color cyan "\<((error|function|key|number|scroller|selected|status|stripe|title)color)\>"
+
+### Other keywords
+color blue "^(\<((un|)(set|bind))\>)"
+color yellow "\\<|\\>"
+color magenta "^(\<((extend|)syntax|header|magic|include)\>)"
+color brightred "[|]"
+color brightgreen "#.*$"
+color brightblue "^i?color\s+"
+color cyan "\<(start|end)\>="
+color brightblack "^(\<comment|tabgives\>)"
+color green "^(\<formatter|linter\>)"
+color normal "\\\\<|\\\\>"
+
+# Trailing whitespace
+color ,red "[[:space:]]+$"
+
+###Colors
+color white "\<white\>"
+color black,white "\<black\>"
+color red "\<red\>"
+color blue "\<blue\>"
+color green "\<green\>"
+color yellow "\<yellow\>"
+color magenta "\<magenta\>"
+color cyan "\<cyan\>"
+color normal "\<normal\>"
+color pink "\<pink\>"
+color purple "\<purple\>"
+color mauve "\<mauve\>"
+color lagoon "\<lagoon\>"
+color mint "\<mint\>"
+color lime "\<lime\>"
+color peach "\<peach\>"
+color orange "\<orange\>"
+color latte "\<latte\>"
+
+color brightwhite "\<brightwhite\>"
+color brightblack "\<brightblack\>"
+color brightred "\<brightred\>"
+color brightblue "\<brightblue\>"
+color brightgreen "\<brightgreen\>"
+color brightyellow "\<brightyellow\>"
+color brightmagenta "\<brightmagenta\>"
+color brightcyan "\<brightcyan\>"
+#TODO: WTH IS THE DIFFERENCE BETWEEN BRIGHT AND LIGHT PREFIXES??
+color lightwhite "\<lightwhite\>"
+color lightblack "\<lightblack\>"
+color lightred "\<lightred\>"
+color lightblue "\<lightblue\>"
+color lightgreen "\<lightgreen\>"
+color lightyellow "\<lightyellow\>"
+color lightmagenta "\<lightmagenta\>"
+color lightcyan "\<lightcyan\>"
+
+## These colors cannot be prefixed; unclear if that will change in the future
+# color brightnormal "\<brightnormal\>"
+# color brightpink "\<brightpink\>"
+# color brightpurple "\<brightpurple\>"
+# color brightmauve "\<brightmauve\>"
+# color brightlagoon "\<brightlagoon\>"
+# color brightmint "\<brightmint\>"
+# color brightlime "\<brightlime\>"
+# color brightpeach "\<brightpeach\>"
+# color brightorange "\<brightorange\>"
+# color brightlatte "\<brightlatte\>"
