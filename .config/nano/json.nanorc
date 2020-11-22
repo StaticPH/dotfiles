@@ -9,9 +9,9 @@ color brightcyan "\<(true|false)\>"
 color yellow ""(\\.|[^"])*"|'(\\.|[^'])*'"
 color brightyellow "\"(\\"|[^"])*\"[[:space:]]*:"  "'(\'|[^'])*'[[:space:]]*:"
 color magenta   "\\u[0-9a-fA-F]{4}|\\[bfnrt'"/\\]"
-														#"# this weird comment is just to un-bork syntax highlighting
-color ,green "[[:space:]]+$"
-color ,red "	+ +| +	+"
+color brightmagenta ";" "," ":"
+color green "\[" "\]"
+color brightgreen "\{" "\}"
 
-# color yellow ""(\\.|[^"])*"|'(\\.|[^'])*'"
-# color magenta   "\\u[0-9a-fA-F]{4}|\\[bfnrt'"/\\]"
+color ,red "[[:space:]]+$"
+#color ,red "	+ +| +	+"	# ZERO clues what I ever had this line for

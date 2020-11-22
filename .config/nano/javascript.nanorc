@@ -1,16 +1,137 @@
-#PARTIAL!!
-############## Javascript example
-##
-syntax "JavaScript" "\.js(on)?$"
-color brightblue "new|var"
-color blue "function|switch|case|default|break|return|if|else"
-#switch|case|default|break|return
-#if else
-color brightblack "'([^'\]|(\\["'abfnrtv\\]))'" "'\\(([0-3]?[0-7]{1,2}))'" "'\\x[0-9A-Fa-f]{1,2}'"
+############## Javascript Syntax Highlighting ##############
+# It may seem like overkill, but I assure you, I could have been far nire thorough.
+###
+syntax "JavaScript" "\.(js|jsx|mjs)$"
+comment "//"
+
+# TODO: Consider also highlighting a hashbang, but only if it is the very first line of the file.
+
+##### Flow Control #####
+# General flow control blocks
+color blue "\<(if|else|for|each|in|do|while|switch|case|default|of)\>"
+
+# Flow control exit keywords
+color brightcyan "\<(return|break|continue|yield)\>"
+
+# Error handling flow control blocks
+color brightmagenta "\<(try|catch|finally|throw)\>"
+
+##### Keywords #####
+# Keyword constants
+color italic,cyan "\<(true|false|null|undefined)\>"
+
+# Try to avoid using these keywords, as they have been deprecated, but may still work
+color red "\<with\>"
+
+# Other keywords
+color brightblue "\<(function|arguments|var|let|const|this|typeof|instanceof|void|class|extends|super|static|constructor|async)\>"
+color blue "\<(new|delete|import|export|await|debugger)\>"
+
+# implements|interface|package|private|protected|public
+
+##### Builtin objects #####
+## Primitive data types
+# "\<(Boolean|Number|String|BigInt|Symbol)\>"
+
+## Structural types
+# "\<(Object|Function)\>"
+
+## Control abstraction objects
+# "\<(Promise|Generator(Function)?|Async(Function|Generator(Function)?))\>"
+
+## Structured Data
+# "\<(Shared)?ArrayBuffer|JSON|DataView|Atomics)\>"
+
+### Reflection
+# "\<(Reflect|Proxy)\>"
+
+### Indexed Collections
+# "\<Array\>" "\<(((Int|Uint)(8|16|32))Array)\>" "\<Uint8Array\>" "\<(Float(32|64)Array)\>" "\<(Big(Int|Uint)64Array)\>" 
+
+### Keyed Collections
+# "\<(Weak)?(Map|Set)\>"
+
+### Other text
+# "\<(String|RegExp)\>"
+
+### Other numbers and dates
+# "\<(Math|Date)\>"
+# Int, Float, Option
+
+##### Symbols #####
+# Parenthetical symbols
+color brightcyan "[(){}]" "\[" "\]"
+
+## Other symbols and operator characters
+color green,brightblack ";"
+color brightred "\\"
+color brightblack "\."
+color brightred "\.\.\."
+
+color brightred "[!$%^&*=+|:<>,?/]" "-"
+# valid combinations of the above:
+# = == ===
+# ! != !== 
+# + += ++ 
+# - -= -- 
+# * *= ** **=
+# / /= 
+# % %=
+# ^ ^=
+# & &= && &&=
+# | |= || ||=
+# < <= << <<=     
+# > >= >> >>= >>> >>>= =>		note that => is NOT an operator, but the notation for an arrow function
+#   ??= ??
+# ? :
+# ~ ,
+
+# Future use
+color lagoon "|>" "?."
+
+# Block labels
+color italic,brightcyan "^[0-9a-zA-Z_]+\s*\:"
+
+##### Numbers #####
+# Decimal, (legacy) octal, and hexadecimal numbers.
+color magenta "\<([0-9]+|0[xX][0-9A-Fa-f]+)\>"
+# Preferred octal format for numbers since ECMA2015
+color magenta "\<(0[oO][0-7]+)\>"
+# Floating point numbers
+color magenta "\<([0-9]*\.[0-9]+)\>"
+# Exponential literals; octals are syntax errors, but decimal, hexadecimal, and floating point numbers are allowed
+color magenta "\<((0|[1-9][0-9]*|0x[0-9A-Fa-f]+|[0-9]*\.[0-9]+)e[-+]?[0-9]+)\>"
+# Binary
+color magenta "\<(0[bB][10]+)\>"
+# BigInt literals; as the name would suggest, floating point values are syntax errors; also octals without the 0[oO] prefix
+color magenta "\<((0|[1-9][0-9]*|0[xX][0-9a-fA-F]+|0[oO][0-7]+||0[bB][10]+)n)\>"
+# Built-in symbolic numerics
+color magenta "\<(NaN|[-+]?Infinity)\>"
+
+##### Strings #####
+# Strings
+color yellow ""(\\.|[^"])*"" "'(\\.|[^'])*'" "`(\\.|[^`])*`"
+
+# regex blocks, like /.+?[rR]egexMatch$/
+# may possible be followed by any combination of gmiyu, and maybe s
+
+# Chars?
+# color brightblack "'([^'\]|(\\["'abfnrtv\\]))'" "'\\(([0-3]?[0-7]{1,2}))'" "'\\x[0-9A-Fa-f]{1,2}'"
 														#"# this weird comment is just to un-bork syntax highlighting
 #color brightblack start="'\'" end="'"
-color yellow ";"
 
+# Use strict
+color italic,mint "\"use strict\";" "'use strict';"
+
+##### Comments #####
+# Line comments
+color brightblack "(^|[[:space:]])//.*"
+# Block comments
+color brightblack start="/\*" end="\*/"
+
+##### Whitespace #####
+# Trailing whitespace.
+color ,red "[[:space:]]+$"
 
 #https://github.com/scopatz/nanorc/blob/master/js.nanorc
 #https://github.com/scopatz/nanorc/blob/master/javascript.nanorc

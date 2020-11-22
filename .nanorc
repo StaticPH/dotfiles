@@ -15,22 +15,22 @@
 ### Set behavioral flags
 ###############################################################
 
-set atblanks					# command line flag -a
-set constantshow 				# command line flag -c
-#set multibuffer				# command line flag -F
-#set nonewlines					# command line flag --nonewlines
-set smarthome					# command line flag -A
-#set stateflags					# command line flag -%
-set suspendable					# command line flag -z
-set tabsize 4					# command line flag -T 4
-set trimblanks					# command line flag -M
-set zap							# command line flag -Z
+set atblanks					# Command line flag -a
+set constantshow 				# Command line flag -c
+#set multibuffer				# Command line flag -F
+#set nonewlines					# Command line flag --nonewlines
+set smarthome					# Command line flag -A
+#set stateflags					# Command line flag -%
+set suspendable					# Command line flag -z
+set tabsize 4					# Command line flag -T 4
+set trimblanks					# Command line flag -M
+set zap							# Command line flag -Z
 
 ## Explicitly enforced behavior
-unset breaklonglines			# command line flag -w (or '--nowrap'); explicitly prohibit automatic hard-wrapping long lines; opposite of '-b'
-# set smooth  -- this is now the default behavior as of nano v4.0; when needed, use 'unset jumpyscrolling' or command line flag '-j' instead
-unset jumpyscrolling			# command line flag N/A; explicitly enforce smooth scrolling; opposite of 'unset jumpyscrolling' and command line flag '-j'
-unset nohelp					# command line flag N/A; explicitly enforce display of help lines; opposite of command line flag -x
+unset breaklonglines			# Command line flag -w (or '--nowrap'); explicitly prohibit automatic hard-wrapping long lines; opposite of '-b'
+# set smooth  -- This is now the default behavior as of nano v4.0; when needed, use 'unset jumpyscrolling' or command line flag '-j' instead
+unset jumpyscrolling			# Command line flag N/A; explicitly enforce smooth scrolling; opposite of 'unset jumpyscrolling' and command line flag '-j'
+unset nohelp					# Command line flag N/A; explicitly enforce display of help lines; opposite of command line flag -x
 
 ###############################################################
 ### Include syntax-specific nanorc files
@@ -154,13 +154,13 @@ set keycolor cyan
 #bind ^E redo main
 #set multibuffer
 
-unbind M-E main	# stop using Alt/Meta+E to redo actions
-unbind M-X all	# prevent disabling nohelp everywhere; it should really be enabled at all times
-unbind M-C main	# prevent disabling constantshow in the main view; it should really be enabled at all times
-unbind M-H main	# prevent disabling smarthome in the main view; it should really be enabled at all times
-unbind ^B  main	# free up Ctrl+b for use of findbracket action
-unbind ^_  all	# free up Ctrl+Shift+-, keeping Alt+g for the Go To Position command
-unbind ^j  main	# I pretty much never WANT to justify text, and I reflexively press this when I want to join lines, so this is an annoyance; keeping F4 for the rare instance.
+unbind M-E main	# Stop using Alt/Meta+E to redo actions
+unbind M-X all	# Prevent disabling nohelp everywhere; it should really be enabled at all times
+unbind M-C main	# Prevent disabling constantshow in the main view; it should really be enabled at all times
+unbind M-H main	# Prevent disabling smarthome in the main view; it should really be enabled at all times
+unbind ^B  main	# Free up Ctrl+b for use of findbracket action
+unbind ^_  all	# Free up Ctrl+Shift+-, keeping Alt+g for the Go To Position command
+unbind ^J  main	# I pretty much never WANT to justify text, and I reflexively press this when I want to join lines, so this is an annoyance; keeping F4 for the rare instance.
 
 # Delete word to left of cursor with Ctrl+H (Ctrl+Backspace)
 bind ^H chopwordleft main	#TODO: may actually want to disable this for my main machine; further use required
@@ -171,19 +171,20 @@ bind ^H chopwordleft main	#TODO: may actually want to disable this for my main m
 # Huzzah! Now if only I could figure out why this was necessary to begin with.
 bind ^_ chopwordleft main
 
-bind ^Space complete all	# attempt word completion with Ctrl+Space
+bind ^Space complete all	# Attempt word completion with Ctrl+Space
 bind ^B findbracket main	# Find a matching bracket with Ctrl+B
-bind M-Y redo main			# use Alt/Meta+Y to redo actions
-bind M-U undo main			# use Alt/Meta+U to undo actions
+bind Sh-M-Z redo main		# Also allow use of Shift+[Alt|Meta]+Z to redo actions
+bind M-Y redo main			# Use Alt/Meta+Y to redo actions
+bind M-U undo main			# Use Alt/Meta+U to undo actions
 
 ##### I wish these worked :(
-# bind ^Enter complete all	# attempt word completion with Ctrl+Enter
-# bind Sh-space pageup help	# press shift+Space to scroll up a page in the help view
-# bind ^PgUp prevbuf main	# switch to the previous file passed to nano with Ctrl+PageUp
-# bind ^PgDn nextbuf main	# switch to the next file passed to nano with Ctrl+PageUp
+# bind ^Enter complete all	# Attempt word completion with Ctrl+Enter
+# bind Sh-space pageup help	# Press shift+Space to scroll up a page in the help view
+# bind ^PgUp prevbuf main	# Switch to the previous file passed to nano with Ctrl+PageUp
+# bind ^PgDn nextbuf main	# Switch to the next file passed to nano with Ctrl+PageUp
 
-# bind ^{ prevblock main	# move up a text-block with Ctrl+]
-# bind ^} nextblock main	# move down a text-block with Ctrl+[
+# bind ^{ prevblock main	# Move up a text-block with Ctrl+]
+# bind ^} nextblock main	# Move down a text-block with Ctrl+[
 
 # bind ^Up scrollup main	# Ctrl+Up is supposed to move the view without moving the caret, who decided to make it do Alt+Up's job?
 # bind ^Dn scrolldown main	# Ctrl+Dn is supposed to move the view without moving the caret, who decided to make it do Alt+Dn's job?

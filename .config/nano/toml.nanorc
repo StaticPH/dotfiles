@@ -1,6 +1,6 @@
 # Taken from https://github.com/scopatz/nanorc/blob/master/toml.nanorc
 
-syntax "toml" "\.toml$"
+syntax "toml" "\.toml$" "Cargo\.lock$" "Cargo\.toml\.orig$"
 comment "#"
 
 # Booleans
