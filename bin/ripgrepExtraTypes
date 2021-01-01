@@ -12,32 +12,32 @@
 # 		and should be equivalent to {*.}.{foo,foo_*}
 #	{*,}.{foo,foo_bar} should match '.foo', '*.foo', '.foo_bar', '*.foo_bar'
 # HOWEVER, THEY DON'T APPEAR TO
-function ready(){
+ready(){
 	# We want to be sure not to accidentally add a whole bunch of extra environment variables, so make all these local.
-	# local __shellCommon=",*.sh, .profile, profile
+	# __shellCommon=",*.sh, .profile, profile
 
-	local _7z="--type-add '7z:*.7z{ip,}'"
-	local _bash="--type-add 'bash:{.*b,.b,b}ash{rc,_aliases,_functions,_login,_logout,_profile,_hooks}' --type-add 'bash:*.{bas,s}h' --type-add 'bash:{*.p,.p,p}rofile' --type-add 'bash:{*.b,.b}ash[-_]completion'"
-	local _cert="--type-add 'cert:*.cert,*.crt,*.pem'"
-	local _compiled="--type-add 'compiled:*.bin,*.chm,*.class,*.exe,*.lib,*.o,*.obj,*.pyc,*.pyd,*.so'"
-	local _config="--type-add 'config:*.cnf,*.inf,*.prop{s,erties}'"
-	local _cfg="--type-add 'cfg:include:config'"	# needs to occur AFTER any changes to the rules for 'config'
+	_7z="--type-add '7z:*.7z{ip,}'"
+	_bash="--type-add 'bash:{.*b,.b,b}ash{rc,_aliases,_functions,_login,_logout,_profile,_hooks}' --type-add 'bash:*.{bas,s}h' --type-add 'bash:{*.p,.p,p}rofile' --type-add 'bash:{*.b,.b}ash[-_]completion'"
+	_cert="--type-add 'cert:*.cert,*.crt,*.pem'"
+	_compiled="--type-add 'compiled:*.bin,*.chm,*.class,*.exe,*.lib,*.o,*.obj,*.pyc,*.pyd,*.so'"
+	_config="--type-add 'config:*.cnf,*.inf,*.prop{s,erties}'"
+	_cfg="--type-add 'cfg:include:config'"	# needs to occur AFTER any changes to the rules for 'config'
 	# [[ -n "$(type -t csh)" || -n "$(type -t tcsh)" ]] && \\
-	## local _csh="--type-add 'csh:*.sh, *.csh, *.tcsh, *.cshrc, .cshrc, .tcshrc, .login, .logout, .profile, profile'"
-	# local _csh="--type-add 'csh:*.{tc,c,}sh' --type-add 'csh:{*.,.,}{t,}cshrc' --type-add 'csh:.{login,logout}' --type-add 'csh:{.,}profile'"
-	local _dll="--type-add 'dll:*.dll,*.DLL'"
-	local _dump="--type-add 'dump:*.dmp,*.dump,*.out'"
-	local _h="--type-add 'h:*.hxx,*.H,*.hh'"
-	local _html="--type-add 'html:*.mhtml'"
-	local _img="--type-add 'img:*.dmg,*.dsk,*.hdd,*.img,*.iso,*.ova,*.qed,*.sav,*.snapshot,*.vdi,*.vhd,*.vmdk,*.vmsn,*.vmss'"
-	local _js="--type-add 'js:*.javascript,*.mjs'"
-	# local _javascript="--type-add 'javascript:include:js'" 	# needs to occur AFTER any changes to the rules for 'js'
+	## _csh="--type-add 'csh:*.sh, *.csh, *.tcsh, *.cshrc, .cshrc, .tcshrc, .login, .logout, .profile, profile'"
+	# _csh="--type-add 'csh:*.{tc,c,}sh' --type-add 'csh:{*.,.,}{t,}cshrc' --type-add 'csh:.{login,logout}' --type-add 'csh:{.,}profile'"
+	_dll="--type-add 'dll:*.dll,*.DLL'"
+	_dump="--type-add 'dump:*.dmp,*.dump,*.out'"
+	_h="--type-add 'h:*.hxx,*.H,*.hh'"
+	_html="--type-add 'html:*.mhtml'"
+	_img="--type-add 'img:*.dmg,*.dsk,*.hdd,*.img,*.iso,*.ova,*.qed,*.sav,*.snapshot,*.vdi,*.vhd,*.vmdk,*.vmsn,*.vmss'"
+	_js="--type-add 'js:*.javascript,*.mjs'"
+	# _javascript="--type-add 'javascript:include:js'" 	# needs to occur AFTER any changes to the rules for 'js'
 	# [ -n "$(type -t ksh)" ] && \\
-	## local _ksh="--type-add 'ksh:*.sh, *.ksh, *.kshrc, .kshrc, .login, .logout, .profile, profile'"
-	# local _ksh="--type-add 'ksh:*.{k,}sh' --type-add 'ksh:{*.,.,}kshrc' --type-add 'ksh:.{login,logout}' --type-add 'ksh:{.,}profile'"
-	local _make="--type-add 'make:include:cmake' --type-add 'make:*.qmake'" # add *.qmake, but not the other types in the qmake group. Maybe include amake too?
-	local _mk="--type-add 'mk:include:make'"
-	local _pic="--type-add 'pic:*.jpg,*.jpeg,*.png,*.apng,*.gif,*.bmp,*.tiff,*.webp,*.bpg,*.pgf"
+	## _ksh="--type-add 'ksh:*.sh, *.ksh, *.kshrc, .kshrc, .login, .logout, .profile, profile'"
+	# _ksh="--type-add 'ksh:*.{k,}sh' --type-add 'ksh:{*.,.,}kshrc' --type-add 'ksh:.{login,logout}' --type-add 'ksh:{.,}profile'"
+	_make="--type-add 'make:include:cmake' --type-add 'make:*.qmake'" # add *.qmake, but not the other types in the qmake group. Maybe include amake too?
+	_mk="--type-add 'mk:include:make'"
+	_pic="--type-add 'pic:*.jpg,*.jpeg,*.png,*.apng,*.gif,*.bmp,*.tiff,*.webp,*.bpg,*.pgf"
 		   # #_pic=$_pic",*.xwd,*.xpm,*.xbm"
 		   # #_pic=$_pic",*.wmf,*.emf,*.wmz,*.emz,*.wmv"
 		   # #_pic=$_pic",*.pcx,*.dng,*.ciff,*.flif,*.fli,*.flc,*.tga,*.pbm,*.pgm,*.ppm,*.pnm,*.ora,*.mng,*.jp2,*.jpx,*.fits"
@@ -45,30 +45,28 @@ function ready(){
 		   _pic=$_pic",*.ani,*.cur,*.icns,*.ico,*.thumb"
 		   _pic=$_pic"'"
 	# *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
-	local _py="--type-add 'py:*.pyi'"
-	local _python="--type-add 'py:include:py'"
-	local _qmake="--type-add 'qmake:*.qmake'" # already has *.prf, *.pri, *.pro
-	local _qml="--type-add 'qml:*.qmltypes,*.qm'" # *.qml is added by default
-	local _qt="--type-add 'qt:include:qmake,qml' --type-add 'qt:*.pr{f,i,o}' --type-add 'qt:*.q{ss,rc}'"
-	local _ruby="--type-add 'ruby:*.ri'"
-	local _serialized="--type-add 'serialized:include:yaml,xml' --type-add 'serialized:*.cson,*.json,*.toml,*.tson'"    # I distinctly remember there being something like an homl or hson
-	local _sql="--type-add 'sql:*.sqlite'"
-	local _store="--type-add 'store:*.accdb,*.csv,*.dat,*.db,*.dbf,*.frm,*.kexi,*.ldb,*.mdb,*.mdf,*.nsf,*.pdi,*.rdb,*.reg,*.sdf,*.sqlite,*.tab,*.tsv,*.wdb,*.wmdb'"
-	local _tmp="--type-add 'tmp:*.temp,*.tmp'"
-	local _txt="--type-add 'txt:*.text,*.manifest' --type-add 'txt:include:log'"
-	# local _typescript="--type-add 'typescript:include:ts'"
-	local _zip="--type-add 'zip:*.zip,*.jar,*.pak,*.rar,*.rar5,*.lz,*.z'"
+	_py="--type-add 'py:*.pyi'"
+	_python="--type-add 'py:include:py'"
+	_qmake="--type-add 'qmake:*.qmake'" # already has *.prf, *.pri, *.pro
+	_qml="--type-add 'qml:*.qmltypes,*.qm'" # *.qml is added by default
+	_qt="--type-add 'qt:include:qmake,qml' --type-add 'qt:*.pr{f,i,o}' --type-add 'qt:*.q{ss,rc}'"
+	_ruby="--type-add 'ruby:*.ri'"
+	_serialized="--type-add 'serialized:include:yaml,xml' --type-add 'serialized:*.cson,*.json,*.toml,*.tson'"    # I distinctly remember there being something like an homl or hson
+	_sql="--type-add 'sql:*.sqlite'"
+	_store="--type-add 'store:*.accdb,*.csv,*.dat,*.db,*.dbf,*.frm,*.kexi,*.ldb,*.mdb,*.mdf,*.nsf,*.pdi,*.rdb,*.reg,*.sdf,*.sqlite,*.tab,*.tsv,*.wdb,*.wmdb'"
+	_tmp="--type-add 'tmp:*.temp,*.tmp'"
+	_txt="--type-add 'txt:*.text,*.manifest' --type-add 'txt:include:log'"
+	# _typescript="--type-add 'typescript:include:ts'"
+	_zip="--type-add 'zip:*.zip,*.jar,*.pak,*.rar,*.rar5,*.lz,*.z'"
 		  _zip=$_zip" --type-add 'zip:*.rbz,*.cab,*.bin,*.deb,*.dmg,*.ipg,*.paf,*.rpm,*.ipa,*.apk,*.xpi,*.pkg,*.crate,*.egg,*.whl'"
 		  _zip=$_zip" --type-add 'zip:*.tar{.bz,.gz,.lz,.xz,}'"
 		  _zip=$_zip" --type-add 'zip:include:7z,bzip2,gzip,lz4,lzma,xz'" #Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
+	_archive="--type-add 'archive:include:zip'"
 # [ -n "$(type -t zsh)" ] && \\
-	# local _zsh="--type-add 'zsh:*.sh, *.zsh, *.zshrc, .zshrc, .zlogin, .zlogout, .zprofile, .zshenv, zlogin, zlogout, zprofile, zshenv, zshrc'"
-	# local _zsh="--type-add 'zsh:*.sh, *.zshrc'"
-	# local _zsh="--type-add 'zsh:{*.z,z}{login,logout,profile,shenv,shrc}' --type-add 'zsh:*.{zsh,sh}'"
-
-	# echo "$_bash $_compiled $_config $_cfg $_csh $_dll $_h $_js $_qml $_qt $_serialized $_txt $_zip"
-	# return "$_bash $_compiled $_config $_cfg $_csh $_dll $_h $_js $_qml $_qt $_serialized $_txt $_zip"
-	export extraRipgrep="$_7z $_bash $_cert $_compiled $_config $_cfg $_csh $_dll $_dump $_h $_html $_img $_js $_javascript $_ksh $_make $_mk $_pic $_py $_python $_qmake $_qml $_qt $_ruby $_serialized $_sql $_store $_tmp $_txt $_typescript $_zip $_zsh"
+	# _zsh="--type-add 'zsh:*.sh, *.zsh, *.zshrc, .zshrc, .zlogin, .zlogout, .zprofile, .zshenv, zlogin, zlogout, zprofile, zshenv, zshrc'"
+	# _zsh="--type-add 'zsh:*.sh, *.zshrc'"
+	# _zsh="--type-add 'zsh:{*.z,z}{login,logout,profile,shenv,shrc}' --type-add 'zsh:*.{zsh,sh}'"
+	export extraRipgrep="$_7z $_bash $_cert $_compiled $_config $_cfg $_csh $_dll $_dump $_h $_html $_img $_js $_javascript $_ksh $_make $_mk $_pic $_py $_python $_qmake $_qml $_qt $_ruby $_serialized $_sql $_store $_tmp $_txt $_typescript $_zip $_zsh $_archive"
 }
 ready
-unset ready
+unset -f ready

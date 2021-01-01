@@ -34,25 +34,28 @@ SUBCOMMANDS (Valid package operations):
    query   : check|package-changelog|search-installed|
              owner-of|who-owns|list-package-owned|
              list-orphans|list-outdated|list-installed|
-             list-explicitly-installed|list-dependencies
-   file    : provides-what
+             list-explicitly-installed|list-dependencies|
+             show-local
+   file    : provides-what|find-providers
 EOF
 }
 
+# TODO: More intelligent completion that suggests arguments available to this subcommand
 completion(){
 cat <<EOF
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
 search refresh check package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
-list-outdated list-installed list-explicitly-installed list-dependencies provides-what \
-help --completion" pac
+list-outdated list-installed list-explicitly-installed list-dependencies show-local provides-what \
+find-providers help --completion" pac
 EOF
 }
 
 	if [[ $# == 0 ]]; then
 		usage
 	else
-		case "$1" in
-			remove)
+		operation="$1" # facillitate TODO second-level help function that accepts the operation as a paremeter. i.e. `remove --help` calls `operationHelp "remove"`
+		case "$operation" in
+			remove | uninstall)
 				shift
 				pacman -R $*
 				;;
@@ -68,7 +71,7 @@ EOF
 				shift
 				pacman -S --downloadonly $*
 				;;
-			install | update) # treat both install and update as the same
+			install | update) # treat both install and update as the same; although perhaps at least 'update' should specifically use '--needed'
 				shift
 				pacman -S $*
 				;;
@@ -159,9 +162,20 @@ EOF
 				shift
 				pacman -Q --search
 				;;
+			show-local)
+				shift
+				pacman -Q --info --info $@
+				;;
 			provides-what)
 				shift
-				pacman -F --list $@
+				pacman -F --list $@ # Does not appear to be capable of finding SOME packages that don't show up with 'pacman -Q --search PKG_NAME', like pkgconf, but will for others, like dosfstools (at least from msys2)
+				;;
+			find-providers)
+				# Find all packages IN THE SYNC DATABASE that provide the file(s) passed as arguments.
+				# Each file argument will yield its own set of results, so the user can search for multiple files not provided by any single package.
+				# Each package in the results will also list all files it provides that match the search term
+				shift
+				pacman -F $@
 				;;
 			-h | --help | help)
 				usage
