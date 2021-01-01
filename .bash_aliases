@@ -145,6 +145,9 @@ else
 	alias here="pwd -P"
 fi
 
+alias hidecursor='tput civis'
+alias showcursor='tput cnorm'
+
 #----------------------
 # Terminal related
 #----------------------
@@ -217,6 +220,7 @@ if [ -n "$(type -t rg)" ]; then
 fi
 [ -n "$(type -t fd)" ] && alias fd="fd -HaL"
 [ -n "$(type -t desed)" ] && alias desed="desed --sed-path /usr/bin/sed"
+
 #--------------------------------
 # Network Related Aliases
 #--------------------------------
@@ -244,7 +248,7 @@ alias globalip="curl -s http://checkip.dyndns.com/ | sed 's/[^0-9\.]//g'"
 
 # [ -n "$(type -t dscacheutil)" ] && alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder" # Flush Directory Service cache
 
-[ "$OSTYPE" == 'msys' ] && alias routetbl-show='netstat -r'
+[ "$OSTYPE" == 'msys' ] && alias routetbl-show='netstat -r' # To be clear, this is WINDOWS netstat
 # [ "$OSTYPE" == 'msys' ] && alias netcon-stats='netstat -es'
 
 #--------------------------------
@@ -313,9 +317,6 @@ if [ -n "$(type -t python)" ]; then
 	[ -f "$PY37/Scripts/pipenv" ] && alias pipenv37="$PY37/Scripts/pipenv"
 	[ -f "$PY38/Scripts/pipenv" ] && alias pipenv38="$PY38/Scripts/pipenv"
 	alias py="python "
-
-	alias validjson="python -m json.tool"
-	alias printjson="validjson"
 
 	# And for ipython specifically...
 	[ -n "$(type -t ipython3)" ] && alias ipython="ipython3"
@@ -387,7 +388,6 @@ alias exitstatus="echo $?"            #print the error status for the last comma
 # alias returnToGuiMode='echo Try pressing alt+f7'     will probably use some environment variable check here
 [ -n "$(type -t setxkbmap)" ] && alias fixKeyboard='setxkbmap -model pc105 -layout us -rules evdev -option "lv3:ralt_switch" -option "numpad:microsoft"'
 [ -n "$(type -t timedatectl)" ] && alias fixTime="timedatectl --no-ask-password"
-
 
 alias getGibberish="head -n 1 /dev/random"
 

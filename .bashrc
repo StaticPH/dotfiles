@@ -116,14 +116,14 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # export HISTCONTROL=ignorespace:ignoredups		#subsumed by `[ \t]*:&` in HISTIGNORE
 #
 # Ignore some controlling instructions
-# HISTIGNORE is a colon-delimited list of patterns which should be excluded. Honors the setting of the extglob shell option
+# HISTIGNORE is a colon-delimited list of patterns which should be excluded. Honors the setting of the extglob shell option.
 # The '&' is a special pattern which suppresses duplicate entries.
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls:which:pwd:clear:cls' # Ignore some other commands as well
 #
-HISTIGNORE=$'[ \t]*:&:[fb]g:exit:clear:cls:history:history -a'
-HISTIGNORE=$HISTIGNORE':path:la:ll:ls:env'
+HISTIGNORE=$'[ \t]*:&:[fb]g:j:jobs:exit:clear:cls:history:history -a'
+HISTIGNORE=$HISTIGNORE':path:la:ll:ls:env:[pc]wd'
 HISTIGNORE=$HISTIGNORE':svn status:git status:git log'
 export HISTIGNORE
 # export HISTFILESIZE=-1 # Enable this for unlimited history file length
@@ -223,7 +223,7 @@ fi
 # echo $BASH_COMMAND > /dev/tty
 # See https://unix.stackexchange.com/questions/104018/set-dynamic-window-title-based-on-command-input for explanation
 
-[ -v CHERE_INVOKING_VISIBLE_FOR_USER ] && unset CHERE_INVOKING_VISIBLE_FOR_USER # set by my registry tweak that allows me to open the current directory in msys2 from Windows Explorer.
+[ -v CHERE_INVOKING_VISIBLE_FOR_USER ] && unset CHERE_INVOKING_VISIBLE_FOR_USER # set by my registry tweak that allows me to open the current directory in mintty(msys2) from Windows Explorer.
 [ "$OSTYPE" == 'msys' ] && [ "$TERM_PROGRAM" == 'mintty' ] && COLORTERM="truecolor"
 
 ##############################################################

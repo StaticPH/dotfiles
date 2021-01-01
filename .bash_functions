@@ -34,6 +34,14 @@ path(){
 	# IFS=$old
 }
 
+manpath(){
+	if [ $# -eq 0 ]; then
+		env manpath | tr -s ":" "\n"
+	else
+		env manpath "$@"
+	fi
+}
+
 # shellcheck disable=SC2034
 function pause() {
 	local dummy
@@ -99,7 +107,6 @@ echoChar (){
 	if [ $# -ne 1 ]; then
 		printf "Usage: $FUNCNAME UNICODE_NUMBER\n" && return 1
 	fi
-	#echo -e '\\U\'$1\''
 	printf "\U${1}"
 }
 
