@@ -1,0 +1,109 @@
+#! /bin/bash
+
+downloadFile(){
+	# $1 in format of "user_or_orgname/repo_name", such as "stedolan/jq"
+	# $2 in format of the expected filename
+	command wget --progress=bar:noscroll --show-progress --no-verbose "https://github.com/${1}/releases/latest/download/${2}"
+	# -N --no-use-server-timestamps
+	# command curl -Ls "https://github.com/${1}/releases/latest/download/${2}" # --output SOME_NAME
+}
+
+getLatestVersionNumber(){
+	# $1 in format of "user_or_orgname/repo_name", such as "stedolan/jq"
+	version="$(curl -s https://github.com/"${1}"/releases/latest/ | sed -Ee 's#.*\"([^"]*)\".*#\1#' -e 's#.*/##' )"
+	echo "$version"
+}
+
+# fetch_jq(){
+	# jq_latest="$(command curl -s https://github.com/stedolan/jq/releases/latest/download | sed -Ee 's#.*\"(.*)\".*#\1.tar.gz#' -e 's#download#latest/download#')"
+	# echo "Extracting manpge for latest jq release from ${latest} ..." > /dev/stderr
+	# command curl -Ls "$jq_latest" | tar -vzx #--wildcards */jq.1.prebuilt -O > ~/.local/share/man/man1/jq.1
+# }
+
+pandoc_repo='jgm/pandoc'
+pandoc_ver="$(getLatestVersionNumber "$pandoc_repo")"
+pandoc_fname="pandoc-${pandoc_ver}-windows-x86_64.zip"
+pandoc_entry=( 'pandoc' '' 'off' )
+
+shellcheck_repo='koalaman/shellcheck'
+shellcheck_ver="$(getLatestVersionNumber "$shellcheck_repo")"
+shellcheck_fname="shellcheck-${shellcheck_ver}.zip"
+shellcheck_entry=( 'shellcheck' '' 'off' )
+
+fetch_imagemagick(){
+	:
+}
+
+#TODO: Merge in the function of fetch-dsf
+
+## TO CONSIDER
+#~~jq~~ installed from package manager, as preferred
+#~~meld~~ installed from package manager, as preferred
+#dprint;	prefer using cargo or package manager
+#sccache;	prefer using cargo or package manager
+#imagemagick
+#graphicsmagick
+#showterm bash script
+#maven/mvn
+#pip-autoremove
+#fzf
+#direnv
+#rustup/cargo
+#awklib
+#adb
+#vlc
+#gimp
+#HTMLTidy
+#FontForge
+#prettyping
+#showterm shell script
+
+programsList=( pandoc shellcheck imagemagick graphicsmagick )
+begin(){
+	explanation='Use the tab and arrow keys to move the cursor, and spacebar to select which programs to download.'
+	mkfifo /tmp/namedPipeProgFetcher 
+	# refer to https://invisible-island.net/dialog/manpage/dialog.html
+	# instead of the local manpage file; the former includes information 
+	# missing from the latter.
+	dialog --checklist "$explanation" 0 0 0 \
+		   "${pandoc_entry[@]}" "${shellcheck_entry[@]}" \
+		   --item-help --defaultno --no-tags \
+		   --keep-tite --visit-items --separate-output \
+		   --ok-label 'Download selected' \
+		   2> /tmp/namedPipeProgFetcher &
+	argList="$(cat /tmp/namedPipeProgFetcher)"
+	for arg in $argList; do
+		case "$arg" in
+			[pP]andoc)
+				echo "Downloading Pandoc"
+				downloadFile "$pandoc_repo" "$pandoc_fname"
+				;;
+			[sS]hell[cC]heck)
+				echo "Downloading Shellcheck"
+				downloadFile "$shellcheck_repo" "$shellcheck_fname"
+				;;
+			# [mM]eld|[mM]eld[mM]erge)
+			# 	# echo "Downloading Meld"
+			# 	;;
+			[iI]mage[mM]agick)
+				# echo "Downloading ImageMagick"
+				echo "Downloading ImageMagick has not yet been implemented."
+				;;
+			[gG]raphics[mM]agick)
+				# echo "Downloading GraphicsMagick"
+				echo "Downloading GraphicsMagick has not yet been implemented."
+				;;
+			'exit'|EXIT)
+				echo "Exiting..."
+				break 2
+				;;
+			*)
+				echo "Ignoring unrecognized argument: \"$arg\""
+				continue
+				;;
+		esac
+	done
+	rm /tmp/namedPipeProgFetcher
+}
+
+begin

@@ -1,0 +1,100 @@
+#! /bin/sh
+
+#####
+# Downloading man pages for packages that did not come with them for whatever reason:
+#	1. Due to the way they were installed, manpages were not downloaded/generated
+#	2. The package source does not include a manpage or code to produce one (but a third party has created one)
+#	3. Reasons not listed because I'm having a hard time thinking of more reasons.
+#####
+
+#TODO: consider adding "DONE" and "FAILURE" print statements depending on success of curl/wget/command
+
+getPygmentsManpage(){
+	#TODO: I really need to look elsewhere for a more up-to-date manpage, or write it myself
+	echo "Fetching pygmentize manpage from Pygments GitHub repository..." > /dev/stderr
+	curl -Ls https://github.com/pygments/pygments/raw/master/doc/pygmentize.1 > ~/.local/share/man/man1/pygmentize.1
+};
+
+# No longer necessary; should still work though
+# getJqManpage(){
+	# let latest="$(curl -s https://github.com/stedolan/jq/releases/latest/download | sed -Ee 's#.*\"(.*)\".*#\1.tar.gz#' -e 's#download#latest/download#')"
+	# echo "Extracting manpage for latest jq release from ${latest} ..." > /dev/stderr
+	# curl -Ls "$latest" | tar -vzx --wildcards */jq.1.prebuilt -O > ~/.local/share/man/man1/jq.1
+# };
+
+# Ways I've found I can get manpages for nuitka and nuitka-run, without having to extract them from a deb/rpm/<pkg type here>:
+# http://manpages.ubuntu.com/manpages/hirsute/man1/nuitka.1.html	< has download for gzipped manpage at the top of the page
+#		Better yet, modify http://manpages.ubuntu.com/dman to just download manpages for the most recent Ubuntu preview, which is hirsute (hippo) as of December 3rd 2020; 
+#			NOTE that a small handful of manpages are located at http://manpages.ubuntu.com/manpages.gz/hirsute/MANPAGE rather than where the dman script looks; probably want to try that as a fallback if using this; http://manpages.ubuntu.com/manpages.gz/hirsute/man1/  === http://manpages.ubuntu.com/manpages.gz/hirsute/en/man1/
+# https://manpages.debian.org/unstable/nuitka/nuitka.1.en.html	< has link to page with download for .deb package at the bottom of the page; EVEN BETTER: has link to "raw man page" just to the right of the manpage header; change unstable to stable if desired
+
+getNuitkaManpage(){
+	# Thanks Debian, for providing access to the raw manpages rather than just the converted HTML and PDF versions :D
+	echo "Fetching nuitka manpage from Debian Unstable..." > /dev/stderr
+	# use -O flag to set output path? -o nuitka.1.gz ? In this particular instance, a normal redirect appears to be sufficient.
+	curl -Ls "https://manpages.debian.org/unstable/nuitka/nuitka.1.en.gz" > ~/.local/share/man/man1/nuitka.1.gz
+	echo "Fetching nuitka-run manpage from Debian Unstable..." > /dev/stderr
+	curl -Ls "https://manpages.debian.org/unstable/nuitka/nuitka-run.1.en.gz" > ~/.local/share/man/man1/nuitka-run.1.gz
+};
+
+getShellcheckManpage(){
+	# Shellcheck manpage needs to be converted from markdown via pandoc, which itself needs to be manually installed
+	echo "Using pandoc to convert shellcheck's manual from markdown to a manpage."
+	pandoc -s -f markdown-smart -t man 'https://raw.githubusercontent.com/koalaman/shellcheck/master/shellcheck.1.md' -o ~/.local/share/man/man1/shellcheck.1
+};
+
+getTidyManpage(){
+	# Thanks Debian, for providing access to the raw manpages rather than just the converted HTML and PDF versions :D
+	echo "Fetching html-tidy manpage from Debian Unstable..." > /dev/stderr
+	curl -Ls "https://manpages.debian.org/unstable/tidy/tidy.1.en.gz" > ~/.local/share/man/man1/tidy.1.gz
+};
+
+getMavenManpage(){
+	# Thanks Debian, for providing access to the raw manpages rather than just the converted HTML and PDF versions :D
+	echo "Fetching Apache-Maven manpage from Debian Unstable..." > /dev/stderr
+	curl -Ls "https://manpages.debian.org/unstable/maven/mvn.1.en.gz" > ~/.local/share/man/man1/mvn.1.gz
+}
+
+getTermToSvgManpage(){
+	# termtosvg's manual is provided as a markdown document; convert it to a more-or-less-proper manpage using pandoc, which itself needs to be manually installed
+	echo "Using pandoc to convert termtosvg's manual from markdown to a manpage."
+	pandoc -sf markdown-smart -t man 'https://github.com/nbedos/termtosvg/raw/develop/man/termtosvg.md' -o ~/.local/share/man/man1/termtosvg.1
+}
+
+# Fetch these as needed:
+#	bat.1 for sharkdp/bat; may already have locally, but may also need to patch for correct header and footer; TBD
+#	rg.1(.gz)? for BurntSushi/ripgrep
+#	desed.1 for SoptikHa2/desed
+#
+# Not sure what I want to do for all the 3rd-party cargo commands that don't provide a manpage
+#  i.e. whatfeatures, cache, show, install-update, ...
+#
+# manually symlink manpages for these as needed:
+# 	nc.1(.gz)? to netcat.1(.gz)?
+#	rg.1(.gz)? to ripgrep.1(.gz)? for BurntSushi/ripgrep
+#
+
+#TODO: some form of user-selection of downloads
+getPygmentsManpage > /dev/null
+# getJqManpage > /dev/null
+getNuitkaManpage > /dev/null
+getShellcheckManpage > /dev/null
+getTidyManpage > /dev/null
+getMavenManpage > /dev/null
+# getTermToSvgManpage > /dev/null
+
+# TODO: pandoc, ?ImageMagick/GraphicsMagick?, ?meld?, ?ipython?, genact, direnv
+# UPDATED ripgrep :p
+#
+# CHECK IF MANPAGES EXIST FOR:
+# cargo-cache, cargo-show, cargo-install-update{,-config}, cargo-whatfeatures, cargo-feature, cargo-clippy/clippy{,-driver}, cargo-miri, cargo-fmt
+# rls, rustfmt, rust-gdb, rust-lldb, rustup,
+# durt, copycat, git-delta, mdcat, miniserve, ptail, runiq, sccache, tabulate,
+# pipx, poetry, pipenv
+# ydiff, pyinstaller, pytabulate, litecli, jsonschema, icdiff, chardetect, html2text, something-venv-something, jupyter?
+# java, javaw, gradle, diff-so-fancy, chromedriver
+# prettyping?
+# go?, ntldd
+# all things ruby
+# adb, ldd?
+# vlc, gimp, steam, vmware, virtualbox, fontforge, 7z{,ip}, spotify, wireshark{,portable}, vivaldi, nvidia garbage, teamspeak, {real,tight}vnc
