@@ -45,7 +45,8 @@ manpath(){
 # shellcheck disable=SC2034
 function pause() {
 	local dummy
-	read -s -r -p "Press any key to continue..." -n 1 dummy
+#	read -s -r -p "Press any key to continue..." -n 1 dummy
+	printf "Press any key to continue..." >&2 && read -s -r -n 1 dummy
 }
 
 fullWidthLine(){
@@ -65,7 +66,7 @@ spacer(){
 
 function locateFunc(){
 	(shopt -s extdebug; declare -F "$1";)
-}
+}; complete -A function locateFunc;
 
 # Look, I forget things, okay?
 # ls_symbols(){
@@ -294,6 +295,10 @@ function skipNchars(){
 	echo "${1:$2:${#1}}"
 }
 
+remove-blank-lines(){
+	sed '/^\s*$/d'
+}
+
 function excuse(){
 	# shellcheck disable=SC2155
 	local str=$(curl -s developerexcuses.com | grep -Eo '<a href.*>.*<\/a>')
@@ -404,3 +409,5 @@ rl-cfg-dump(){
 
 # xdg-open is your friend
 # bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'
+
+# `complete -W '' COMMAND_NAME` is one of several ways to disallow any argument completion options for COMMAND_NAME.
