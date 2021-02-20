@@ -16,7 +16,7 @@ export LESS=" -PM'?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%
 # Colored man pages: http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
 # Less Colors for Man Pages
 # Coloration seems to behave strangely at times, but oh well.
-# export LESS_TERMCAP_mb=$'\E[01;31m'     # begin blinking
+# export LESS_TERMCAP_mb=$'\E[01;31m'      # begin blinking
 #export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
 #export LESS_TERMCAP_me=$'\E[0m'           # end mode
 #export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
@@ -38,6 +38,7 @@ fi
 export TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
 # export LANG='en_US.UTF-8'
 export LESSCHARSET='utf-8'
+export GCC_COLORS=1
 
 # Disallow pip from installing packages outside of a virtualenv
 #-------------------------------------------------------------
@@ -45,7 +46,7 @@ export LESSCHARSET='utf-8'
 
 # For filename expansion, ignore filename matches that match any of the colon-separated globs in 'GLOBIGNORE'. Honors the setting of the extglob shell options
 #-------------------------------------------------------------
-#export GLOBIGNORE=".:.."  #How often do you REALLY want a glob to match . or .. ?
+#export GLOBIGNORE=".:.."	#How often do you REALLY want a glob to match . or .. ?
 
 
 # Don't auto-complete files with the following file extensions
@@ -160,13 +161,39 @@ function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe
 # This is most likely a very less-than-ideal method of doing so, but it's worked for several months, and I lack better ideas.
 # NOTE: this might have been a typo for /etc/environment, and should be verified
 if [ -r "/env/environment" ]; then
+	# FIXME: Honestly, this probably isn't the greatest idea, so I should probably do away with it...
 	PATH=$(/usr/bin/cat /env/environment)
 	PATH="${PATH:6:-1}"
 else
-	if [[ $OSTYPE == 'msys' ]]; then # Best guess at a default path for msys (or cygwin, but I don't use that personally)
+	if [[ $OSTYPE == 'msys' ]]; then
+		# Best guess at a default path for msys (or cygwin, but I don't use that personally)
 		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"
-	else # Best guess at a default system path on a unix/linux system
+	else
+		# Best guess at a default system path on a unix/linux system
 		PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games"
+	fi
+fi
+
+if [ -n "$MINGW_PREFIX" ]; then
+	# If using MINGW, specifically NOT the MSYS2 compat layer,
+	# this MUST be before other standard system paths,
+	# but should still come AFTER paths used for personal scripts,
+	# such that a wrapper script can "shadow" a binary from the relevant MINGW environment.
+	
+	PATH="${MINGW_PREFIX}/bin:$PATH"
+elif [ -n "$MSYSTEM" ]; then
+	# If using MSYS2, specifically NOT MINGW, it may still be good to have MINGW binaries in the PATH.
+	# Of course, since I'll primarily be using things for MSYS2 in that case, the MINGW binaries
+	# should be AFTER the MSYS2 binaries on the PATH, such that only binaries installed for a MINGW 
+	# environment will be callable without explicit prefixing.
+	
+	if [ -r '/mingw64/bin' ]; then
+		PATH="$PATH:/mingw64/bin"
+	elif [ -r '/mingw32/bin' ]; then
+		# If ever I want to use anything MINGW, I'll use MINGW64 when possible.
+		PATH="$PATH:/mingw32/bin"
+	else
+		printf 'WARNING: $MSYSTEM has been assigned to an unrecognized value of "%s". There may be unexpected or missing PATH entries.\n' "$MSYSTEM"
 	fi
 fi
 
@@ -176,7 +203,7 @@ fi
 # Don't add this clutter to the path if aliases have already been generated through generateAll.sh;
 # the aliases will be sourced in .bashrc if they exist in the user's home directory
 if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
-# !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
+	# !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
 	if [[ $OSTYPE == 'msys' ]]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
 	elif [ $(seemsLikeWSL) ]; then
@@ -206,7 +233,7 @@ fi
 ##############################################################
 
 if [ -r "${HOME}/.setup_machine_env" ]; then
-  source "${HOME}/.setup_machine_env"
+	source "${HOME}/.setup_machine_env"
 fi
 
 export PATH #MANPATH
