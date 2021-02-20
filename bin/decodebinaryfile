@@ -1,16 +1,18 @@
 #! /bin/sh
 
-# Take a hexdump of a binary file(s)
+# Take a hexdump of a binary file(s) or piped input
 # Keep only the printable character representation of each 2-byte hexadecimal sequence (non-printables are replaced with a '.' character)
 # Strip delimiting '<' and '>' characters, extra whitespace, and newlines
+# Remove singular '.' characters from between ascii alphabetic characters, such that 'A.q' becomes 'Aq' while 'A..q' remains unchanged
+# Limit consecutive '.' characters to at most 3
 # Print out what's left, followed by an extra newline to ensure a separation between the output and the subsequent prompt line.
+
 decodebinaryfile(){
-#	/usr/bin/od -vt x2z "$1" | cut --fields='10-' -sd ' ' - | sed -e "s/ >\./\./" -e "s/\.</\./" | tr -d '\n'
-	/usr/bin/od -vt x2z "$1" | cut --fields='10-' -sd ' ' - | sed -e "s/ >//" -e "s/<//" | tr -d '\n' | sed -Ee 's#([a-zA-z])\.([a-zA-z])\.#\1\2#g' -e 's/\.{3,}/.../g'
-	echo #Guarantee a newline at the end
+	# I would love to know why this randomly decided to start behaving according to od's documentation when it hasn't been doing so for the months I've used this... maybe updating to bash 5?
+	# /usr/bin/od -vt x2z "$1" | cut --fields='10-' -sd ' ' - | sed -e "s/ >//" -e "s/<//" | tr -d '\n' | sed -Ee 's#([a-zA-z])\.([a-zA-z])\.#\1\2#g' -e 's/\.{3,}/.../g'
+
+	/usr/bin/od -vt x2z "${@:--}" | cut --fields='10-' -sd ' ' - | sed -e "s/ >//" -e "s/<//" | tr -d '\n' | sed -Ee 's#([a-zA-z])\.([a-zA-z])\.#\1\2#g' -e 's/\.{3,}/.../g'
+	echo # Guarantee a newline at the end
 }
 decodebinaryfile "$@"
 
-# An alternative method could be something like the following:
-# head -nz 100 FILENAME | sed -E 's/([^.])\.([^.])/\1\2/g'
-# sed -E 's/([^.])\.([^.])/\1\2/g' FILEPATH
