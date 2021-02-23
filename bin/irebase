@@ -1,0 +1,19 @@
+#! /bin/sh
+
+# This script serves as a wrapper to run `git rebase -i` using the interactive-rebase-tool https://github.com/MitMaro/git-interactive-rebase-tool
+# Full use of the interactive-rebase-tool from mintty, the default terminal emulator for Cygwin, Git-For-Windows, and MSYS2/MinGW, requires that the tool be run through winpty. 
+# My Windows device is set up with msys2 attempting to utilize a separate install of Git-For-Windows. Git-for-Windows uses a modified version of MSYS2's runtime, so many binaries compiled specifically for one or the other aren't fully (if at all) useable by the other. Among other things, this means that the same version of a program may behave differently depending on which runtime the build targetted. Additionally, in the case of Git-for-Windows, it seems to make shell calls exclusively using its own Bash shell executable, regardless of whether it was executed from a different shell or executable. As a result, aliases or calls to external applications made by Git-for-Windows use its own Bash and winpty executables. With Git configured to use winpty, unless a diffent path to the binary is explicitly specified, it uses the binary from Git-For-Windows, which throws an error stating that stdin is not a tty. When configured to specifically call the MSYS2 winpty binary by its absolute path, an error is thrown due to the differing runtimes. Ultimately that makes winpty unable to be reliably used in the gitconfig with my setup.
+# [ "x$MSYSTEM" != 'x' ] && [ "$MSYSTEM" != 'MSYS' ] || [ "$(command -v git)" != /usr/bin/git ] # This is relevant to my current workflow and system, but most likely wont be for any Windows devices I may own in the future. It also wouldn't use winpty if called from WSL while using mintty as the terminal emulator, so it has been replaced with something that should.
+
+printf "\e[?1049h" # Switch to alternate screen buffer in order to prevent accidentally drawing over any scrollback lines
+
+# Note that by switching to the alternate screen buffer, standard error is also sent there, rather than the normal screen buffer; nothing written to stderr will be visible after switching back.
+# To prevent the user from completely missing any error messages, there will be a 2 second delay between a non-graceful exit and returning to the main screen buffer.
+
+if [ "$OS" = 'Windows_NT' ] && [ "x$MSYSTEM" != 'x' ] || [ "$TERM_PROGRAM" = 'mintty' ]; then
+	GIT_SEQUENCE_EDITOR=interactive-rebase-tool winpty git rebase -i "$@" || sleep 2
+else
+	GIT_SEQUENCE_EDITOR=interactive-rebase-tool git rebase -i "$@" || sleep 2
+fi
+
+printf "\e[?1049l" # Switch back to main screen buffer
