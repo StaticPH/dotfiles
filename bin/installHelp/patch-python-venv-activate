@@ -1,0 +1,137 @@
+#! /bin/bash
+# shellcheck disable=SC2059
+
+__PROGNAME__="$(basename "$0")"
+
+_usage(){
+	# Note that the '-' postfix to << will remove leading TABS but not SPACES
+	cat <<- EOF
+	Usage:
+	    $__PROGNAME__ PATH_TO_ORIGINAL_ACTIVATE
+	Description:
+	    Patch the default python virtualenv activation script for bash/zsh.
+
+		This script is used to patch the default venv activation script, located at
+		"<PATH_TO_SYSTEM_PYTHON_INSTALL>/Lib/venv/scripts/common/activate"
+		to implement the following changes:
+		 -- Allow restoration of existing python aliases(and functions) in MSYS2 (system python, not MSYS2) upon venv deactivation
+		 -- Automatically alias python to use winpty and the venv specific python executable (sometimes simply changing the path is insufficient)
+		 -- Alias _python to use the venv specific python executable WITHOUT winpty (unalias upon deactivation)
+		 -- Automatically alias pip to use the venv specific python executable
+		 NOTE: Although remembering existing aliases (or wrapper functions) for pip is possible, it is not currently supported through this patch.
+		 NOTE: Use of this patch opens up the possibility of executing malicious code upon deactivating a venv. USE AT YOUR OWN RISK!
+		 NOTE: This script and the patch it applies are intended ONLY for use on Microsoft Windows operating systems,
+		       expects the use of a Python install targetting Windows, and assumes a winpty executable is on the system PATH.
+
+	EOF
+}
+
+_TARGET_=
+
+[ $# -ne 1 ] && _usage && exit 1
+case "$1" in
+	"--help|-h") _usage && exit 0
+esac
+[ "$OS" != 'Windows_NT' ] && _usage && exit 1
+
+if [ ! -e "$1" ]; then
+	printf "$1: No such file or directory\n"
+	exit 1
+elif [ -d "$1" ]; then
+	if [ -e "$1/activate" ]; then
+		_TARGET_="$1/activate"
+	else
+		printf "$__PROGNAME__: '$1' is not the path to the default 'activate' script, nor its immediate parent directory\n"
+		_usage
+		exit 1
+	fi
+else
+	# $1 is the path to the default 'activate' script, so store that value
+	_TARGET_="$1"
+fi
+
+_make_backup(){
+	target="$(dirname "$_TARGET_")"
+
+	# assume that $_TARGET_ points to an existing activate script, not just its parent directory
+	[ ! -e "$target/unpatched_activate" ] && \
+		(cp -n "$target/activate" "$target/unpatched_activate" || \
+		(echo "Unable to backup default 'activate' script. Aborting patch." && exit 1))
+}
+
+_make_backup
+
+_patch_data(){
+# Keep content of patch within the script itself, rather than a separate file. May change, particularly if the patch grows in complexity.
+# create with /bin/diff -Naurt --tabsize=4 --strip-trailing-cr ORIGINAL_ACTIVATE HAND_PATCHED_ACTIVATE
+cat << 'EOF'
+--- activate			2020-10-02 15:29:51.648106100 -0400
++++ patched_activate	2020-10-02 15:35:42.899087000 -0400
+@@ -1,6 +1,16 @@
+ # This file must be used with "source bin/activate" *from bash*
+ # you cannot run it directly
+ 
++#The default venv activation script, located at
++# "<PATH_TO_SYSTEM_PYTHON_INSTALL>/Lib/venv/scripts/common/activate"
++# has been patched to:
++# -- Allow restoration of existing python aliases(and functions) in MSYS2 (system python, not MSYS2) upon venv deactivation
++# -- Automatically alias python to use winpty and the venv specific python executable (sometimes simply changing the path is insufficient)
++# -- Alias _python to use the venv specific python executable WITHOUT winpty (unalias upon deactivation)
++# -- Automatically alias pip to use the venv specific python executable
++# NOTE: Although remembering existing aliases (or wrapper functions) for pip is possible, it is not currently supported through this patch.
++# NOTE: Use of this patch opens up the possibility of executing malicious code upon deactivating a venv. USE AT YOUR OWN RISK!
++
+ deactivate () {
+     # reset old environment variables
+     if [ -n "${_OLD_VIRTUAL_PATH:-}" ] ; then
+@@ -27,6 +37,21 @@
+         unset _OLD_VIRTUAL_PS1
+     fi
+ 
++############vvvv
++    if [ -n "${_OLD_PYTHON_ALIAS:-}" ]; then
++        unalias python 2>/dev/null
++        eval "$_OLD_PYTHON_ALIAS"
++        unset _OLD_PYTHON_ALIAS
++    fi
++#   if [ -n "${_OLD_PIP_ALIAS:-}" ]; then
++#       echo pip had an old state = "$_OLD_PIP_ALIAS"
++        unalias pip 2>/dev/null
++#       eval "$_OLD_PIP_ALIAS"
++#       unset _OLD_PIP_ALIAS
++#   fi
++    unalias _python
++############^^^^
++    
+     unset VIRTUAL_ENV
+     if [ ! "$1" = "nondestructive" ] ; then
+     # Self destruct!
+@@ -52,6 +77,18 @@
+     unset PYTHONHOME
+ fi
+ 
++################vvvv
++_OLD_PYTHON_ALIAS="$(command -v python)"
++unalias python 2>/dev/null
++unset -f python
++
++tmp_here="$(cygpath -au $VIRTUAL_ENV/__VENV_BIN_NAME__)"
++alias pip="$tmp_here/python -m pip"
++alias python="winpty $tmp_here/python"
++alias _python="$tmp_here/python"
++unset tmp_here
++#################^^^^
++
+ if [ -z "${VIRTUAL_ENV_DISABLE_PROMPT:-}" ] ; then
+     _OLD_VIRTUAL_PS1="${PS1:-}"
+     if [ "x__VENV_PROMPT__" != x ] ; then
+EOF
+}
+
+_apply_patch(){
+	# TODO: may need to use 'patch --force' due to timestamps in patch body
+	# TODO: Come up with a POSIX sh compliant replacement for using the here-string
+	patch "$_TARGET_" <<< $(_patch_data)
+}
+
+_apply_patch
