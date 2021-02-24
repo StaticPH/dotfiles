@@ -13,6 +13,10 @@
 # would be benifitial to all, please feel free to send
 # a patch to the msys2 mailing list.
 
+# The existence of this file will completely override ALL settings in any system-wide inputrc (usually /etc/inputrc)
+# Unless the system-wide file is included at the start of this file, like so (uncomment to use)
+# $include /etc/inputrc
+
 # the following line is actually
 # equivalent to "\C-?": delete-char
 # "\e[3~": delete-char
@@ -100,8 +104,8 @@ $if mode=emacs
     "\e[21~": "Function Key 10"
   # Eh, normal Console is not really cygwin anymore, is it? Using 'else' instead. -mstormo
   $else # $if term=cygwin # Console
-    "\e[1~": beginning-of-line      # Home Key
-    "\e[4~": end-of-line            # End Key
+    "\e[1~": beginning-of-line      # Home Key    Should not be necessary for mintty since v0.3.7
+    "\e[4~": end-of-line            # End Key     Should not be necessary for mintty since v0.3.7
     "\e[3~": delete-char            # Delete Key
     "\e\e[C": forward-word          # Alt-Right
     "\e\e[D": backward-word         # Alt-Left
@@ -136,25 +140,44 @@ $endif
 ## (note: this will replace the default tab-complete behavior)
 # TAB: menu-complete
 ## and the following line will allow you to do so in reverse with shift+tab
-#"\e[Z": "\e-1\C-i"		#alternatively, "\e[Z": menu-complete-backward
+#"\e[Z": "\e-1\C-i"     #alternatively, "\e[Z": menu-complete-backward
+
 					###################################
 
-# add ctrl+end for end of file
-#   + ctrl+home for beginning of file
-#   + ctrl+F5 for re-read-init-file
 $if mode=emacs
+	# add ctrl+end for end of file
+	#	+ ctrl+home for beginning of file
+	#	+ ctrl+F5 for re-read-init-file
 	$if term=msys # RXVT
-		#"\C[7~": beginning-of-line      # Home Key
-		#"\C[8~": end-of-file            # End Key
-		#"\C[15~": re-read-init-file     # Ctrl+F5
+		#"\C[7~": beginning-of-line         # Home Key
+		#"\C[8~": end-of-file               # End Key
+		#"\C[15~": re-read-init-file        # Ctrl+F5
 	$else
-		#"\C[1~": beginning-of-line      # Home Key
-		#"\C[4~": end-of-file            # End Key
-		";5~": re-read-init-file         # Ctrl+F5...somehow
+		### I'm honestly not really sure what term value should be used for msys2+mintty, assuming there even is a specific value that would work.
+		#"\C[1~": beginning-of-line         # Home Key; alternatively, may be \e[H
+		#"\C[4~": end-of-file               # End Key; alternatively, may be \e[F
+		#";5~": re-read-init-file           # Ctrl+F5...somehow...verbatim input in Nano says ^[[15;5~, '^[[' being '\033[' aka '\e['
+		"\e[15;5~": re-read-init-file       # Previously Ctrl+F5 was somehow ";5~"; I don't know exactly what changed, but now it uses a sequence that follows the same pattern as the other function keys (excluding F1-4)
+		# "\e[19;5~": "pressed ctrl+f8"     # Works; there must be some sort of historical reason for why F5 is 15 but F8 is 19 (rather than 18)
+
+		$if Bash
+			"\e\d": undo                      # Alt+Backspace to undo specifically in the context of Bash 
+			"\C-H": backward-kill-word        # Ctrl+Backspace to delete word; even in mintty as of version 0.3.7, when backspace was changed to emit ^H 
+			"\e[2;7~": overwrite-mode         # Ctrl+Alt+Insert to toggle overwrite mode
+			
+			#	"\C-SPC": menu-complete       # Nope
+			#	"\C-\\": menu-complete        # Nope
+			#	"\C-\\\\": menu-complete      # Nope
+			# "\C-|": menu-complete           # Nope
+			# "\e[Z": menu-complete-backward  # Nope
+			#	Clearly I must just be stupid for not finding any possible unused key combination that wants to ****ing work for these, while using the same non-modifier keys. I should probably give up.
+			"\e\\": old-menu-complete
+		$endif
+
 	$endif
+
 $endif
 
-# "\M(numpad insert)": overwrite-mode    # toggle overwrite-mode
 
 ## bell-style (Default: audible)
 ##		If set to audible, allows readline to (attempt to) ring an audible bell
@@ -164,32 +187,35 @@ $endif
 set bell-style none
 
 ## blink-matching-paren (Default: off)
-##      If set to On, readline attempts to briefly move the cursor to an
+##		If set to On, readline attempts to briefly move the cursor to an
 ##		opening parenthesis when a closing parenthesis is inserted.
 # set blink-matching-paren on
+
 ## colored-completion-prefix (Default: off)
-##      If set to On, when listing completions, readline displays the common prefix of the set of possible completions
+##		If set to On, when listing completions, readline displays the common prefix of the set of possible completions
 ##		using a different color. The color definitions are taken from the value of the LS_COLORS environment variable.
 set colored-completion-prefix on
 
 ## colored-stats (Default: off)
-##      If set to On, readline displays possible completions using different colors to indicate their file type.
+##		If set to On, readline displays possible completions using different colors to indicate their file type.
 ##		The color definitions are taken from the value of the LS_COLORS environment variable.
 set colored-stats on
 
 ## completion-ignore-case (Default: off)
 ##		Make Tab autocomplete regardless of filename case
 set completion-ignore-case on
+
 ## completion-map-case (Default: off)
 ##		If set to On, and if completion-ignore-case is set to On, treat
 ##		underscore ('_') and hyphen ('-') as equivalent when performing completion.
 #set completion-map-case on
 
 ## completion-prefix-display-length (Default: 0)
-##      The length in characters of the common prefix of a list of possible completions that is
+##		The length in characters of the common prefix of a list of possible completions that is
 ##		displayed without modification. If set to a value greater than zero, common prefixes
 ##		longer than this value are replaced with an ellipsis when displaying possible completions.
-set completion-prefix-display-length 10
+##		NOTE THAT SETTING THIS MAY BREAK colored-completion-prefix.
+# set completion-prefix-display-length 10
 
 ## completion-query-items (Default: 100)
 ##		If there are at least this many possible completions for a word, ask to show them all.
@@ -202,7 +228,7 @@ set completion-query-items 100
 set enable-bracketed-paste off
 
 ## enable-keypad (Default: off)
-##      When set to On, readline will try to enable the application keypad when it is called.
+##		When set to On, readline will try to enable the application keypad when it is called.
 ##		Some systems need this to enable the arrow keys.
 # set enable-keypad on
 
@@ -211,7 +237,7 @@ set enable-bracketed-paste off
 set mark-directories on
 
 ## mark-modified-lines (Default: off)
-##      If set to On, history lines that have been modified are displayed with a preceding asterisk (*).
+##		If set to On, history lines that have been modified are displayed with a preceding asterisk (*).
 # set mark-modified-lines off
 
 ## mark-symlinked-directories (Default: off)
@@ -225,7 +251,7 @@ set mark-symlinked-directories on
 set match-hidden-files on
 
 ## menu-complete-display-prefix (Default: off)
-##      If set to On, menu completion displays the common prefix of the list of possible
+##		If set to On, menu completion displays the common prefix of the list of possible
 ##		completions (which may be empty) before cycling through the list.
 set menu-complete-display-prefix on
 
@@ -233,13 +259,16 @@ set menu-complete-display-prefix on
 ##		Show all autocomplete results at once
 ##		"If set to On, readline uses an internal more-like pager to display a screenful of possible completions at a time."
 #set page-completions off
+
 ## show-all-if-ambiguous (Default: off)
 ##		If enabled, immediately lists all matches in a case where multiple completions are possible.
 set show-all-if-ambiguous off
+
 ## show-all-if-unmodified (Default: off)
 ##		If set to On, immediately list all matches for words with multiple possible completions but without any possible partial completions
 ##		(that is, where none of the possible completions share a common prefix following the cursor position)
 #set show-all-if-unmodified on
+
 ## skip-completed-text (Default: off)
 #		Be more intelligent when autocompleting by also looking at the text after the cursor. For example,
 #		when the current line is "cd ~/src/mozil", and the cursor is on the "z", pressing Tab will not
