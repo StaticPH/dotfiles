@@ -59,21 +59,25 @@
 	whoami = config user.email
 
 	# Show the git log for the last N commits
-	log-last = log -n # <N>
+	last-log = "!f(){ arg1=\"$1\"; shift; git log -n ${arg1:-1} $@; }; f" # <N>
 
 	# Show git log, with a summary of each commit, list which files a commit touched
 	# and classify the change using one (or more?) characters according to the following:
 	#     Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R),
 	#     have their type (i.e. regular file, symlink, submodule, etc) changed (T),
 	#     are Unmerged (U), are Unknown (X), or have had their pairing Broken (B)
-	log-files = log --name-status
+	flog = "!f(){ arg1=\"$1\"; shift; git log --name-status -n ${arg1:-1} $@; }; f"
 
-	# Stash all files, including files ignored or not yet tracked by git 
+	# Stash all files, including files ignored or not yet tracked by git
 	stash-all = stash push --all
-	
+
 	clean = clean -i
 
 	local-only-branch = branch --no-track
+
+	grog = log --graph --abbrev-commit --decorate --all --format=\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
+
+	meld = "!f(){ git difftool --tool=meld --dir-diff \"$@\"; }; f"
 
 [color]
 
@@ -81,11 +85,16 @@
 	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
 	ui = auto
 
-# [color "status"]
-#
-#	changed = 214
-#	untracked = 009
-#	unmerged = 203
+[color "diff"]
+	whitespace = red reverse
+
+[color "status"]
+
+	added = green		#files which are added but not committed; AKA updated
+	changed = red		#files which are changed but not added in the index
+	untracked = yellow 	#files which are not tracked by Git
+	unmerged = 202		#files which have unmerged changes between remote and local branch content
+	branch = 129			#the current branch, somehow not the same as the localBranch color?
 
 
 #[commit]
@@ -101,17 +110,22 @@
 
 	# I hate when a git command brings up vim, because I can never remember how to exit that, and end up having to look it up >.<
 	editor = "nano"
-	
+
+	# EXPERIMENTAL
+	fscache = true
+	symlinks = true
 	whitespace = blank-at-eol
+
 #[credential]
 #
 #	# Specify an external helper to be called when a username or password credential is needed;
 #	# the helper may consult external storage to avoid prompting the user for the credentials.
 #	# Note that multiple helpers may be defined. See gitcredentials(7) for details.
+#	# ALSO Note that Git will supposedly try to prepend "git-credential-" to the helper name and look for it in the path.
 #	# If using git-for-windows, prefer the newer credential-manager, (manager-core) "git-credential-manager-core"
-#	# If using the git-credential-manager from git-for-windows, set helper to the full WINDOWS path to the executable, 
+#	# If using the git-credential-manager from git-for-windows, set helper to the full WINDOWS path to the executable,
 #	# i.e.	"C:/Program Files (x86)/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
-#	helper = 
+#	helper =
 
 [delta]
 	features = side-by-side line-numbers
@@ -129,6 +143,9 @@
 
 	wsErrorHighlight = all
 
+	# Set the default graphical difftool to Meld
+	guitool = meld
+
 [diff "bin"]
 
 	# Use `hexdump` to diff binary files
@@ -136,19 +153,28 @@
 
 # [difftool]
 #
-#	# Prompt before each invocation of the(any) diff tool, default behavior is true
+#	# Prompt before each invocation of the(any) diff tool
+#	# Default behavior is true.
 #	prompt = false
 
 [difftool "icdiff"]
-	# Assumes that icdiff is available in PATH
 	# icdiff provides colorized side-by-side diffs on the command line
-	cmd = icdiff 
-	#-s --is-git-diff --cols=$(tput cols) --line-numbers $LOCAL $REMOTE
+	# Assumes that icdiff is available in PATH
+	cmd = icdiff -Ns --strip-trailing-cr --cols="$(tput cols)" "$LOCAL" "$REMOTE"
+	#cmd = icdiff -Ns --strip-trailing-cr --cols=\"$(tput cols)\" -L '{basename} (OLD)' -L '{basename} (NEW)' $LOCAL $REMOTE
 
-	# Still somewhat broken on Windows, sadly. Good news is that the following command does exactly what the cmd SHOULD do:
+	# Still somewhat broken on Windows, sadly. The good news is that the following command does exactly what the cmd SHOULD do:
 	# git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd="icdiff --is-git-diff -Ns --cols=$(tput cols) --strip-trailing-cr"
 
+	# Whether to prompt before each invocation of the (any) diff tool.
+	# Default behavior is true.
 	prompt = false # I hope this actually works...
+
+[difftool "meld"]
+	path = meld
+	cmd = meld "$REMOTE" "$LOCAL" --label='DIFF (Remote <-> Local)' # Left: LOCAL		Right: REMOTE
+	# For some reason, the REMOTE files always seems to insist upon displaying on the OPPOSITE side of the REMOTE directory tree, regardless of ordering of command line arguments or Meld settings.
+	prompt = false
 
 [grep]
 	lineNumber = true
@@ -162,7 +188,13 @@
 	sslVersion = tlsv1.2
 
 [icdiff]
-	options = -sN --strip-trailing-cr --cols="$(tput cols)" $LOCAL $REMOTE
+	# Used only by git-icdiff script; don't provide the "$LOCAL" "$REMOTE" arguments here.
+	options = -Ns --strip-trailing-cr --cols=\"$(tput cols)\"
+	# Specifically EXCLUDE the -R/--RAW-CONTROL-CHARS flag, as git-icdiff adds that automatically
+	pager = less -iJM --tilde --shift .25 --wheel-lines 3 --quit-if-one-screen
+
+[init]
+	defaultBranch = master
 
 #[interactive]
 #	diffFilter = delta --color-only
@@ -171,9 +203,9 @@
 	# Infuriatingly, I am unable to get the date format string to work with any sort of padding
 	# So even though I have confirmed that strftime can handle (prefixed with a '+') '%b %_2d, %_Y %_2I:%02M %p',
 	# I am unable to use my preferred date/time format.
-	#date=format-local:"%b %_2d, %_Y %_2I:%02M %p"
+	#date = format-local:"%b %_2d, %_Y %_2I:%02M %p"
 	# I suppose I'll have to settle for default-local then
-	date=default-local
+	date = default-local
 
 [merge]
 
@@ -188,16 +220,20 @@
 	# If you really want to create a merge commit, use 'git merge --ff' explicitly
 	ff = only
 
-	# tool =
+	# Set the default graphical mergetool to Meld
+	guitool = meld
 
+[mergetool]
+	# Whether to prompt before each invocation of the (any) merge tool.
+	# Default behavior is true.
+	prompt = false
 
+[pager]
 
-#[pager]
-#
 #	# If the value is boolean, turns on or off pagination of the output of a particular Git subcommand when writing to a tty.
 #	# Otherwise, turns on pagination for the subcommand using the pager specified by the value of pager.<cmd>
 #	log = less	# paginate the output of the 'log' subcommand using 'less'
-#	diff = delta # paginate the output of the 'diff' subcommand using 'delta' WAITING ON FIX
+	diff = delta # paginate the output of the 'diff' subcommand using 'delta'
 
 #[pretty]
 #	# Sadly this cannot be used with any of the special field names available for for-each-ref
@@ -216,15 +252,15 @@
 
 ## URL shorthands
 
-#[url "git@github.com:"]
-#
-#	insteadOf = "gh:"
-#	pushInsteadOf = "github:"
-#	pushInsteadOf = "git://github.com/"
+[url "git@github.com:"]
 
-#[url "git://github.com/"]
-#
-#	insteadOf = "github:"
+	insteadOf = "gh:"
+	pushInsteadOf = "github:"
+	pushInsteadOf = "git://github.com/"
+
+[url "git://github.com/"]
+
+	insteadOf = "github:"
 
 #[url "git@gist.github.com:"]
 #
@@ -236,6 +272,6 @@
 #
 #	insteadOf = "gist:"
 
-# If using git-for-windows, this may help; I can't quite remember HOW though
+# If using git-for-windows, this is used by the git-for-windows-updater utility script.
 [winUpdater]
-	recentlySeenVersion = 2.29.2.windows.2
+	recentlySeenVersion = 2.30.1.windows.1
