@@ -1,0 +1,37 @@
+# -------------  --------  -------------------------------------------------------------------------------------------------
+# EXECUTABLE     INSTALL   DETAILS
+#                PRIORITY
+# --------------------------------------------------------------------------------------------------------------------------
+# shellcheck     MID-HIGH  ...
+# jq             HIGH      FORMERLY STANDALONE, NOW THROUGH SOME PACKAGE MANAGER
+# direnv         MID-LOW   ...
+# pandoc         MID-HIGH  ...
+# jdk1.8         HIGH      ...
+# meld           MID       ...
+# maven          MID       ...
+# imagemagick    MID       ...
+# pip-autoremove MID-HIGH  ...
+# fzf            MID-LOW   ...
+# adb            MID-LOW   ...
+# diff-so-fancy  MID-LOW   See fetch-dsf
+# html2text      LOW       Install via pipx
+# git-icdiff     HIGH      Normally provided with icdiff
+# icdiff         HIGH      Install via pipx; for best results, subsequently patch it with the updates from the github repo that haven't made it to PyPi yet
+# ipython        HIGH      Install via pipx
+# litecli        MID       Install via pipx
+# nuitka         MID-LOW   Install via pipx
+# nuitka-run     MID-LOW   Installed along with nuitka
+# pipenv         MID       Install via pipx
+# poetry         MID       Install via pipx
+# prettyping     MID       Requires proper Unix/Linux ping; Windows version of ping lacks the correct options
+# pygmentize     MID-HIGH  Installed via pipx as part of ipython using `pipx install --include-deps ipython`
+# pytabulate     MID-HIGH  Install via pipx; ensure executable is named "pytabulate", not "tabulate"
+# showimg        HIGH      See mintty utils repository
+# sqlitebiter    MID       Install via pipx
+# sqliterepl     MID       Install via pipx
+# ydiff          MID       Install via pipx. Use as fallback for icdiff and/or git-delta (which can be installed via cargo).
+# yolk           LOW       Install via pipx
+# -------------  --------  -------------------------------------------------------------------------------------------------
+#
+git-filter-repo  MID-LOW   Install via pipx
+dprint           MID-HIGH  Install via cargo if possible; else as standalone binary

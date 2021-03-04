@@ -53,6 +53,7 @@ getMavenManpage(){
 	# Thanks Debian, for providing access to the raw manpages rather than just the converted HTML and PDF versions :D
 	echo "Fetching Apache-Maven manpage from Debian Unstable..." > /dev/stderr
 	curl -Ls "https://manpages.debian.org/unstable/maven/mvn.1.en.gz" > ~/.local/share/man/man1/mvn.1.gz
+	curl -Ls "https://manpages.debian.org/unstable/maven/mvnDebug.1.en.gz" > ~/.local/share/man/man1/mvnDebug.1.gz
 }
 
 getTermToSvgManpage(){
