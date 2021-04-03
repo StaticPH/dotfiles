@@ -19,6 +19,7 @@ set atblanks					# Command line flag -a
 set constantshow 				# Command line flag -c
 #set multibuffer				# Command line flag -F
 #set nonewlines					# Command line flag --nonewlines
+set showcursor					# Command line flag -g
 set smarthome					# Command line flag -A
 #set stateflags					# Command line flag -%
 set suspendable					# Command line flag -z
@@ -95,6 +96,8 @@ include "~/.config/nano/zsh.nanorc"
 # set numbercolor cyan
 set keycolor cyan
 # set functioncolor green
+# set spotlightcolor black,yellow
+# set promptcolor black,white
 
 ## In root's .nanorc you might want to use:
 # set titlecolor brightwhite,magenta
@@ -106,6 +109,8 @@ set keycolor cyan
 # set numbercolor magenta
 # set keycolor brightmagenta
 # set functioncolor magenta
+# set spotlightcolor black,orange
+# set promptcolor red,white
 
 
 ###############################################################
