@@ -13,17 +13,19 @@
 * tabulate				—	A tool that helps format data into nice tables.
 * bat					—	Like `cat`, but with syntax highlighting and a few other niceties.
 * genact				—	Honestly, this one I just keep for the amusement.
-* git-delta				—	Powerful diff tool with support for side-by-side view and Git repository diffs.
-* sccache				—	Basically `ccache` with support for cloud storage and Rust binaries.
+* git-delta				—	Powerful diff tool with support for side-by-side view and Git repository diffs <sup>[1]</sup>.
+* sccache				—	Basically `ccache` with support for cloud storage and Rust binaries <sup>[1]</sup>.
 * ptail					—	`tail -f`, but only show a certain number of lines at a time.
 * miniserve				—	Easy and surprisingly capable http server with support for file uploading.
 * runiq					—	Filter duplicate entries from textual input without inherently sorting the output.
 * mdcat					—	Like `cat`, but for markdown.
-* desed						—	Debug `sed` commands pseudo-interactively <sup>[1]</sup>.
-* interactive-rebase-tool	—	TUI for `git rebase -i` <sup>[2]</sup>.
+* desed					—	Debug `sed` commands pseudo-interactively <sup>[2]</sup>.
+* interactive-rebase-tool	—	TUI for `git rebase -i` <sup>[3]</sup>.
+* dprint				—	Code formatter for a handful of languages. One of annoyingly few decent JavaScript formatters that don't require NodeJS to run <sup>[1]</sup>.
 
-<sub>(1): Note, this does not appear to work in Mintty, or at least not with my current setup (but I suspect the former).</sub>
-<sub>(2): Because of how I have my current Windows machine set up, I am unable to use this by configuring Git's `sequence.editor` to call it automatically for `git rebase -i`; use the `irebase` wrapper script instead.</sub>
+<sub>(1): Standalone binary can also be downloaded with the `program-fetch` utility.</sub><br>
+<sub>(2): NOTE: This does not appear to work in Mintty, or at least not with my current setup (but I suspect the former).</sub><br>
+<sub>(3): Because of how I have my current Windows machine set up, I am unable to use this by configuring Git's `sequence.editor` to call it automatically for `git rebase -i`; use the `irebase` wrapper script instead.</sub>
 
 [cargo_show]: https://github.com/g-k/cargo-show
 [cargo_update]: https://github.com/nabijaczleweli/cargo-update
@@ -45,14 +47,15 @@
 [mdcat]: https://github.com/lunaryorn/mdcat
 [desed]: https://github.com/SoptikHa2/desed
 [interactive_rebase]: https://github.com/MitMaro/git-interactive-rebase-tool
+[dprint]: https://github.com/dprint/dprint
 
 ### Python packages installed via pipx:
 * ipython				—	Powerful Python REPL.
 * litecli				—	CLI for SQLite databases with auto-completion and syntax highlighting.
-* git-filter-repo		—	Quickly rewrite git repository history (filter-branch replacement).
-* icdiff				—	Show more granular differences between files in a colored 2-column view; supports Git repository diffs with included `git-icdiff` shell script<sup>[1]</sup>.
+* git-filter-repo		—	Quickly rewrite Git repository history (filter-branch replacement).
+* icdiff				—	Show more granular differences between files in a colored 2-column view; supports Git repository diffs with included `git-icdiff` shell script <sup>[1]</sup>.
 
-<sub>(1): Note: The version of `icdiff` on PyPI has been out of date for a while now. Install manually from the GitHub repository. Coercing `pipx` may require some effort.</sub>
+<sub>(1): NOTE: The version of `icdiff` on PyPI has been out of date for a while now. Install manually from the GitHub repository. Coercing `pipx` may require some effort.</sub>
 
 [ipython]: https://ipython.org/
 [litecli]: https://github.com/dbcli/litecli
@@ -86,8 +89,8 @@
 * showimg				—	Displays a number of image formats in Mintty; see https://github.com/mintty/utils
 * prettyping			—	A wrapper around the standard `ping` tool, making the output prettier and easier to read <sup>[2]</sup>.
 
-<sub>(1) Standalone binary can also be downloaded with the `program-fetch` utility.</sub>
-<sub>(2) Note: Unsurprisingly, does not work with Windows' `ping` command.</sub>
+<sub>(1): Standalone binary can also be downloaded with the `program-fetch` utility.</sub><br>
+<sub>(2): NOTE: Unsurprisingly, does not work with Windows' `ping` command.</sub>
 
 [jq]: https://github.com/stedolan/jq
 [shellcheck]: https://github.com/koalaman/shellcheck
@@ -118,17 +121,16 @@ Make numpad behave the way I always expect it to:
 	`setxkbmap -model pc105 -layout us -rules evdev -option "lv3:ralt_switch" -option "numpad:microsoft"`
 
 # Windows-only improvements to Python virtualenv activation
-This `patch-python-venv-activate` script is used to patch the default venv activation script<sup>[1],[2]</sup>, to implement the following changes:
--- Allow restoration of existing python aliases(and functions) in MSYS2 (system python, not MSYS2) upon venv deactivation.
--- Automatically alias python to use winpty and the venv specific python executable (sometimes simply changing the path is insufficient).
--- Alias _python to use the venv specific python executable WITHOUT winpty (unalias upon deactivation).
--- Automatically alias pip to use the venv specific python executable.
-NOTE: Although remembering existing aliases (or wrapper functions) for pip is possible, it is not currently supported through this patch.
-NOTE: Use of this patch opens up the possibility of executing malicious code upon deactivating a venv. USE AT YOUR OWN RISK!
-NOTE: This script and the patch it applies are intended ONLY for use on Microsoft Windows operating systems,
-      expects the use of a Python install targetting Windows, and assumes a winpty executable is on the system PATH.
+The `patch-python-venv-activate` script is used to patch the default venv activation script<sup>[1][2]</sup>, to implement the following changes:<br>
+	-- Allow restoration of existing python aliases(and functions) in MSYS2 (system python, not MSYS2) upon venv deactivation.<br>
+	-- Automatically alias python to use winpty and the venv specific python executable (sometimes simply changing the path is insufficient).<br>
+	-- Alias `_python` to use the venv specific python executable WITHOUT winpty (unalias upon deactivation).<br>
+	-- Automatically alias pip to use the venv specific python executable.<br>
+NOTE: Although remembering existing aliases (or wrapper functions) for pip is possible, it is not currently supported through this patch.<br>
+NOTE: Use of this patch opens up the possibility of executing malicious code upon deactivating a venv. USE AT YOUR OWN RISK!<br>
+NOTE: This script and the patch it applies are intended ONLY for use on Microsoft Windows operating systems, expects the use of a Python install targetting Windows, and assumes winpty and cygpath executables are on the system PATH.<br>
 
-<sub>(1): This can normally be found at "<PATH_TO_SYSTEM_PYTHON_INSTALL>/Lib/venv/scripts/common/activate".</sub>
+<sub>(1): This can normally be found at "<PATH_TO_SYSTEM_PYTHON_INSTALL>/Lib/venv/scripts/common/activate".</sub><br>
 <sub>(2): Though it is recommended to patch the default activation script, which is used as a template when creating new virtual environments, this script can also be applied to the activation script for specific virtual environments on an individual basis, which will be necessary to apply the change to existing virtual environments.</sub>
 
 # WIP:
