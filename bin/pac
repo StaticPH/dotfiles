@@ -49,7 +49,7 @@ cat <<EOF
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
 search refresh check package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
 list-outdated list-installed list-explicitly-installed list-dependencies show-local provides-what \
-find-providers help --completion" pac
+find-providers help --completions" pac
 EOF
 }
 
@@ -184,7 +184,7 @@ EOF
 				usage
 				exit
 				;;
-			--completion)
+			--completions)
 				completion
 				exit
 				;;
