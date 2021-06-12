@@ -1,3 +1,4 @@
 ## Other Downloadable Things
-* Get awklib from the gawk repository, which includes the igawk tool
-	git clone --single-branch --depth 1 --filter=blob:none --no-checkout https://git.savannah.gnu.org/git/gawk.git && cd gawk && git checkout HEAD -- awklib
+* Get `awklib` from the gawk repository, which includes the igawk tool
+	```git clone --single-branch --depth 1 --filter=blob:none --no-checkout https://git.savannah.gnu.org/git/gawk.git && cd gawk && git checkout HEAD -- awklib```
+* Get and compile `treef` from https://github.com/jacwah/treef

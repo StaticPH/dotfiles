@@ -41,6 +41,9 @@ EOF
 }
 
 # TODO: More intelligent completion that suggests arguments available to this subcommand
+# TODO: For commands using the -U and -S flags, add support for --ignore and --needed
+# TODO: For commands using the -R, -U and -S flags, add support for --nodeps, --assume-installed, and --print
+# TODO: For commands using the -F flag, add support for --regex
 completion(){
 cat <<EOF
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \

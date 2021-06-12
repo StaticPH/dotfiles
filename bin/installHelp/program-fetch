@@ -1,8 +1,10 @@
 #! /bin/bash
 
+__PROGNAME__="$(basename "$0")"
+
 [ "$OS" != 'Windows_NT' ] && printf "This script does not currently support platforms other than Microsoft Windows. Check your platform's package manager to see if it already has a package providing what you're looking for\n" && exit 1
 
-downloadFile(){
+gh_downloadFile(){
 	# $1 in format of "user_or_orgname/repo_name", such as "stedolan/jq"
 	# $2 in format of the expected filename
 	command wget --progress=bar:noscroll --show-progress --no-verbose "https://github.com/${1}/releases/latest/download/${2}"
@@ -10,7 +12,7 @@ downloadFile(){
 	# command curl -Ls "https://github.com/${1}/releases/latest/download/${2}" # --output SOME_NAME
 }
 
-getLatestVersionNumber(){
+gh_getLatestVersionNumber(){
 	# $1 in format of "user_or_orgname/repo_name", such as "stedolan/jq"
 	version="$(curl -s https://github.com/"${1}"/releases/latest/ | sed -Ee 's#.*\"([^"]*)\".*#\1#' -e 's#.*/##' )"
 	echo "$version"
@@ -22,33 +24,101 @@ getLatestVersionNumber(){
 	# command curl -Ls "$jq_latest" | tar -vzx #--wildcards */jq.1.prebuilt -O > ~/.local/share/man/man1/jq.1
 # }
 
+# Hopefully that covers all cases for Windows
+#__isWindows(){ return [[ $OS == Windows_NT || $OSTYPE == *msys* || $OSTYPE == *cygwin* ]]; }
+#is_windows=$(__isWindows)
+
+# naive check, as I don't actually have a conveniently available Mac to test with, nor to I forsee myself really needing this tool on a Mac to begin with.
+#__isMac(){ return [[ $OSTYPE == *darwin* ]]; }
+#is_mac=$(__isMac)
+
+# naive check
+#__isLinux(){ return [[ $OSTYPE == *linux* ]]; }
+#is_linux=$(__isLinux)
+
+# naive check
+#is_x64="$([[ "$(arch)" == 'x86_64' ]] && true)"
+#is32="$([[ "$(arch)" == 'x86_64' ]] || true)"
+# __is64bit(){ return [[ "$(arch)" == 'x86_64' ]]; }
+# is_x64=$(__is64bit)
+# is_x32=$(! __is64bit)
+
+# No, there is definitely a better way =_=
+if [[ $OS == Windows_NT || $OSTYPE == *msys* || $OSTYPE == *cygwin* ]]; then
+	is_windows=true
+else
+	is_windows=false
+fi
+
+if [[ "$(arch)" == 'x86_64' ]]; then
+	is_x64=true
+	is_x32=false
+else
+	is_x64=false
+	is_x32=true
+fi
+
+
+
+#jq_repo='stedolan/jq'
+#jq_ver="$(gh_getLatestVersionNumber "$jq_repo")"
+## jq_fname="jq-${jq_ver}-win64.exe"
+#jq_fname="jq-${jq_ver}-"
+## if [[ $is_windows ]]; then jq_fname="${jq_fname}win" .... ???
+#jq_entry=( 'jq' '' 'off' )
+
 pandoc_repo='jgm/pandoc'
-pandoc_ver="$(getLatestVersionNumber "$pandoc_repo")"
+pandoc_ver="$(gh_getLatestVersionNumber "$pandoc_repo")"
 pandoc_fname="pandoc-${pandoc_ver}-windows-x86_64.zip"
 pandoc_entry=( 'pandoc' '' 'off' )
 
 shellcheck_repo='koalaman/shellcheck'
-shellcheck_ver="$(getLatestVersionNumber "$shellcheck_repo")"
+shellcheck_ver="$(gh_getLatestVersionNumber "$shellcheck_repo")"
 shellcheck_fname="shellcheck-${shellcheck_ver}.zip"
 shellcheck_entry=( 'shellcheck' '' 'off' )
 
-fetch_imagemagick(){
-	:
+dprint_repo='dprint/dprint'
+dprint_ver="$(gh_getLatestVersionNumber "$dprint_repo")"
+dprint_fname="dprint-x86_64-pc-windows-msvc.zip"
+dprint_entry=( 'dprint' '' 'off' )
+
+delta_repo='dandavison/delta'
+delta_ver="$(gh_getLatestVersionNumber "$delta_repo")"
+delta_fname="delta-${delta_ver}-x86_64-pc-windows-msvc.zip"
+delta_entry=( 'delta' '' 'off' )
+
+sccache_repo='mozilla/sccache'
+sccache_ver="$(gh_getLatestVersionNumber "$sccache_repo")"
+sccache_fname="sccache-v${sccache_ver}-x86_64-pc-windows-msvc.tar.gz"
+sccache_entry=( 'sccache' '' 'off' )
+
+# fetch_imagemagick(){
+# 	:
+# }
+
+install_maven_bash_comp(){
+	# $1 is the destination directory to install the completion file into
+	local destDir="${1:-/etc/bash_completion.d}"
+	wget -Nq --no-if-modified-since --show-progress https://raw.github.com/juven/maven-bash-completion/master/bash_completion.bash --output-document "${destDir}/mvn"
 }
+# second array element is the description field by default
+maven_comp_entry=( 'maven_bash_completion' '' 'off' )
 
 #TODO: Merge in the function of fetch-dsf
+# Support fonts?
 
 ## TO CONSIDER
 #~~jq~~ installed from package manager, as preferred
-#~~meld~~ installed from package manager, as preferred
-#dprint;	prefer using cargo or package manager
-#sccache;	prefer using cargo or package manager
+#~~meld~~ installed from package manager, as preferred	format: Meld-3.20.2-mingw.msi
+#dprint;	prefer using cargo or package manager		format: dprint-x86_64-pc-windows-msvc.zip
+#git-delta;	prefer using cargo or package manager		format: delta-0.8.0-x86_64-pc-windows-msvc.zip
+#sccache;	prefer using cargo or package manager		format: sccache-0.2.12-x86_64-pc-windows-msvc.tar.gz  !!STARTING AT 0.2.15, VERSION NUMBERS ARE PREFIXED WITH 'v'!!
 #imagemagick
 #graphicsmagick
 #showterm bash script
-#maven/mvn
+#maven/mvn		format: apache-maven-3.6.3-bin.zip
 #pip-autoremove
-#fzf
+#fzf		format: fzf-0.21.1-windows_amd64.zip
 #direnv
 #rustup/cargo
 #awklib
@@ -58,31 +128,52 @@ fetch_imagemagick(){
 #HTMLTidy
 #FontForge
 #prettyping
-#showterm shell script
+#git interactive rebase tool		format: git-interactive-rebase-tool-1.2.1-x86_64-pc-windows-msvc.zip
 
-programsList=( pandoc shellcheck imagemagick graphicsmagick )
+# programsList=( pandoc shellcheck dprint delta sccache imagemagick graphicsmagick )
+# otherList=( maven_bash_completion )
 begin(){
 	explanation='Use the tab and arrow keys to move the cursor, and spacebar to select which programs to download.'
 	mkfifo /tmp/namedPipeProgFetcher
 	# refer to https://invisible-island.net/dialog/manpage/dialog.html
 	# instead of the local manpage file; the former includes information
 	# missing from the latter.
-	dialog --checklist "$explanation" 0 0 0 \
-		   "${pandoc_entry[@]}" "${shellcheck_entry[@]}" \
-		   --item-help --defaultno --no-tags \
-		   --keep-tite --visit-items --separate-output \
-		   --ok-label 'Download selected' \
-		   2> /tmp/namedPipeProgFetcher &
+	dialog \
+			--ok-label 'Download selected' \
+			--defaultno \
+			--checklist "$explanation" 0 0 0 \
+			"${pandoc_entry[@]}" "${shellcheck_entry[@]}" \
+			"${dprint_entry[@]}" "${delta_entry[@]}" \
+			"${sccache_entry[@]}" \
+			"${maven_comp_entry[@]}" \
+			--item-help --no-tags \
+			--keep-tite --visit-items --separate-output \
+			2> /tmp/namedPipeProgFetcher &
+	# Perhaps this should instead be a `read` from `/tmp/namedPipeProgFetcher`, if only to avoid dealing with argument expansion
+	# if so, --separate-output becomes particularly critical; hopefully such a change would also result in error messages not being subject to word splitting
+	# Should thus also permit selecting items containing whitespace
 	argList="$(cat /tmp/namedPipeProgFetcher)"
 	for arg in $argList; do
 		case "$arg" in
 			[pP]andoc)
 				echo "Downloading Pandoc"
-				downloadFile "$pandoc_repo" "$pandoc_fname"
+				gh_downloadFile "$pandoc_repo" "$pandoc_fname"
 				;;
 			[sS]hell[cC]heck)
 				echo "Downloading Shellcheck"
-				downloadFile "$shellcheck_repo" "$shellcheck_fname"
+				gh_downloadFile "$shellcheck_repo" "$shellcheck_fname"
+				;;
+			[dD]print)
+				echo "Downloading dprint"
+				gh_downloadFile "$dprint_repo" "$dprint_fname"
+				;;
+			[dD]elta)
+				echo "Downloading delta"
+				gh_downloadFile "$delta_repo" "$delta_fname"
+				;;
+			[sS]ccache)
+				echo "Downloading sccache"
+				gh_downloadFile "$sccache_repo" "$sccache_fname"
 				;;
 			# [mM]eld|[mM]eld[mM]erge)
 			# 	# echo "Downloading Meld"
@@ -95,12 +186,19 @@ begin(){
 				# echo "Downloading GraphicsMagick"
 				echo "Downloading GraphicsMagick has not yet been implemented."
 				;;
+			# [mM]aven_comp|[mM]vn_comp)
+			# [mM]aven_completion)
+			"maven_bash_completion")
+				echo "Installing bash completion file for Apache Maven"
+				install_maven_bash_comp ''
+				;;
 			'exit'|EXIT)
 				echo "Exiting..."
 				break 2
 				;;
 			*)
-				echo "Ignoring unrecognized argument: \"$arg\""
+				# No idea why this always (when downloading something) catches some error message from dialog about expecting a box option
+				echo "${__PROGNAME__}: Ignoring unrecognized argument: \"$arg\""
 				continue
 				;;
 		esac

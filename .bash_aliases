@@ -281,6 +281,7 @@ alias gppg="g++ -ggdb3"
 
 if [ -n "$(type -t gdb)" ]; then
 	alias gdb="gdb -q"		#launch gdb without all the versioning and help printouts
+	alias gdba="gdb --args" #launch gdb while providing arguments to any target executable for debugging
 	alias gdbHelp="gdb -h"	#print gdb help and exit
 fi
 

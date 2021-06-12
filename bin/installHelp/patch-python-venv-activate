@@ -21,7 +21,7 @@ _usage(){
 		 NOTE: Although remembering existing aliases (or wrapper functions) for pip is possible, it is not currently supported through this patch.
 		 NOTE: Use of this patch opens up the possibility of executing malicious code upon deactivating a venv. USE AT YOUR OWN RISK!
 		 NOTE: This script and the patch it applies are intended ONLY for use on Microsoft Windows operating systems,
-		       expects the use of a Python install targetting Windows, and assumes a winpty executable is on the system PATH.
+		       expects the use of a Python install targetting Windows, and assumes winpty and cygpath executables are on the system PATH.
 
 	EOF
 }
@@ -30,18 +30,18 @@ _TARGET_=
 
 [ $# -ne 1 ] && _usage && exit 1
 case "$1" in
-	"--help|-h") _usage && exit 0
+	--help|-h) _usage && exit 0;;
 esac
 [ "$OS" != 'Windows_NT' ] && _usage && exit 1
 
 if [ ! -e "$1" ]; then
-	printf "$1: No such file or directory\n"
+	printf "$__PROGNAME__: cannot access '%s': No such file or directory\n" "$1"
 	exit 1
 elif [ -d "$1" ]; then
 	if [ -e "$1/activate" ]; then
 		_TARGET_="$1/activate"
 	else
-		printf "$__PROGNAME__: '$1' is not the path to the default 'activate' script, nor its immediate parent directory\n"
+		printf "%s\n" "$__PROGNAME__: '$1' is not the path to the default 'activate' script, nor its immediate parent directory"
 		_usage
 		exit 1
 	fi

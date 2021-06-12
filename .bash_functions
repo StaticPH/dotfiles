@@ -53,6 +53,7 @@ fullWidthLine(){
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "${1:--}"
 }
 
+# shellcheck disable=SC2120
 fullWidthLineUnicode(){
 	yes "${1:--}" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
 }
@@ -93,8 +94,8 @@ function showColorRange(){
 		printf "\tSTART_NUM AND END_NUM must be integers in the range of [0,256).\n"
 		return 1
 	fi
-	#for i in `seq 0 5`; do \echo -en "\e[48;5;"$i"m   ";done;echo -e "\033[m"
-	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do \echo -en "\e[48;5;"$i"m   \033[m";done;);done;
+	#for i in `seq 0 5`; do printf "\e[48;5;${i}m   ";done;printf "\033[m\n"
+	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do printf "\e[48;5;${i}m   \033[m";done;);done;
 	# for i in `seq $1 $2`;
 	local i;
 	for ((i=$1; i <= $2; i++)); do
@@ -116,24 +117,24 @@ samplePrompt(){
 }
 
 setTitle(){
-	[ $# -ge 1 ] && echo -e "\e]2;$@\a"
-	#echo -e '\[\033]0;$@\007\]' #set maximized title
-	#echo -e '\[\033]1;$@\007\]' #set minimized title
+	[ $# -ge 1 ] && printf "\e]2;$*\a"
+	#printf '\[\033]0;$@\007\]' #set maximized title
+	#printf '\[\033]1;$@\007\]' #set minimized title
 }
 
 # shellcheck disable=SC2128
 setTextColor(){
-	[ $# -eq 1 ] && echo -e "\e]10;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
+	[ $# -eq 1 ] && printf "\e]10;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
 }
 
 # shellcheck disable=SC2128
 setBackgroundColor(){
-	[ $# -eq 1 ] && echo -e "\e]11;$1\a" || echo "$FUNCNAME only accepts a single color parameter."	#seagreen is pretty
+	[ $# -eq 1 ] && printf "\e]11;$1\a" || echo "$FUNCNAME only accepts a single color parameter."	#seagreen is pretty
 }
 
 # shellcheck disable=SC2128
 setCursorColor(){
-	[ $# -eq 1 ] && echo -e "\e]12;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
+	[ $# -eq 1 ] && printf "\e]12;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
 }
 
 function moveCursorTo(){
@@ -360,6 +361,47 @@ if [ -n "$(type -t pip)" ]; then
 			help|-h|--help|'')	pip --help; echo ;;
 			*)	COLUMNS=$(tput cols) pip "$@" --help | sed -n '/General Options:/q;p' ;;
 		esac
+	}
+fi
+
+if [ -n "$(type -t treef)" ]; then
+	# { command -v fd || command -v fd-find } &&      TODO
+	fdtree(){
+		# command -v fd || printf 'something is wrong; command -v fd yields: %s\n' "$(command -v fd)"
+		# set -x
+		__fdtree_has_temp_colors='0'
+		command -p test ! "$LS_COLORS" && __fdtree_has_temp_colors=1 &&  eval "$(dircolors)" #export LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
+		# LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
+		# __fdtree_LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
+		case "$1" in
+			--help | -h)
+				printf "Wrapper around fd and treef.\n"
+				printf "Lists all files in a directory in the form of a tree using the fd command and the treef tree-formatter.\n"
+				printf "   $FUNCNAME [-h|--help] [-g|--git] DIRECTORY\n"
+				printf "      -h|--help     Shows this help text.\n"
+				printf "      -g|--git      Include the contents of any .git directories"
+				;;
+			--git | -g)
+				shift
+				# LS_COLORS="$__fdtree_LS_COLORS" command fd -HL "$@" | tr '\\' '/' | treef
+				command fd -HL --no-ignore-vcs "$@" | tr '\\' '/' | treef
+				;;
+			*)
+				#shift
+				# LS_COLORS="$__fdtree_LS_COLORS" command fd -HL "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | treef
+				# command fd -HL --no-ignore "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")" treef
+				if [ -e "$1" ]; then
+					# Naively assume no pattern was intended
+					command fd -HL --no-ignore '' "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | treef
+				else
+					command fd -HL --no-ignore "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | treef
+				fi
+				# I cant seem to get treef to colorize unless LS_COLORS is explicitly set by the shell prior to calling fdtree :(
+				;;
+		esac
+		test __fdtree_has_temp_colors != '0' && export -n LS_COLORS && unset LS_COLORS
+		unset __fdtree_has_temp_colors
+		# set +x
 	}
 fi
 

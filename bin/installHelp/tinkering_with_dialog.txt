@@ -1,0 +1,16 @@
+--ascii-lines ?
+--colors
+--column-separator @
+--cr-wrap ?
+--no-shadow ?
+--output-fd 
+--separate-output ?
+--title 'Use space to select which programs to download'
+--trim ?
+
+dialog --checklist "test string" 0 0 0 {"$pandoc_entry"} {"$shellcheck_entry"} --item-help --defaultno --keep-tite --visit-items --separate-output --yes-label 'Download selected'
+
+https://invisible-island.net/dialog/manpage/dialog.html
+https://askubuntu.com/questions/491509/how-to-get-dialog-box-input-directed-to-a-variable/704643#704643
+https://askubuntu.com/questions/1085201/how-to-handle-multiple-parameters-from-a-users-selection-in-a-checklist-menu?noredirect=1&lq=1
+https://invisible-island.net/dialog/
