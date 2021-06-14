@@ -1,5 +1,7 @@
 #! /bin/bash
 
+__PROGNAME__="$(basename $0)"
+
 # Honor the NO_COLOR environment variable
 if [ ! -v NO_COLOR ]; then
 	_RED_="\033[31m"
@@ -11,18 +13,14 @@ else
 	_OFF_=
 fi
 
-pacman(){
-	if [ ! -v NO_COLOR ]; then
-		command pacman --color=auto $@
-	else
-		command pacman --color=never $@
-	fi
-}
+if ! command -v pacman &> /dev/null; then
+	printf "${_RED_}ERROR: %s could not locate the \"pacman\" package manager. Exiting...${_OFF_}\n" "$__PROGNAME__" && exit 1
+fi
 
 usage(){
 cat <<EOF
 FLAGS:
-   --completions  : output bash completion for pac to stdout.
+   --completions  : output bash completion for $__PROGNAME__ to stdout.
    -h|--help      : Display this help text.
    -p             : (SYNC AND REMOVAL ONLY; Not Yet Implemented) Only simulate the command, do not execute it.
 
@@ -40,6 +38,17 @@ SUBCOMMANDS (Valid package operations):
 EOF
 }
 
+# Output usage and exit with return code 1 if the user provides no arguments
+[ "$#" -eq 0 ] && usage && exit 1
+
+pacman(){
+	if [ ! -v NO_COLOR ]; then
+		command pacman --color=auto $@
+	else
+		command pacman --color=never $@
+	fi
+}
+
 # TODO: More intelligent completion that suggests arguments available to this subcommand
 # TODO: For commands using the -U and -S flags, add support for --ignore and --needed
 # TODO: For commands using the -R, -U and -S flags, add support for --nodeps, --assume-installed, and --print
@@ -49,53 +58,220 @@ cat <<EOF
 complete -W "remove autoremove install update download upgrade downgrade info show cleanup list \
 search refresh check package-changelog search-installed owner-of who-owns list-package-owned list-orphans \
 list-outdated list-installed list-explicitly-installed list-dependencies show-local provides-what \
-find-providers help --completions" pac
+find-providers help --completion" $__PROGNAME__
 EOF
 }
 
-	if [[ $# == 0 ]]; then
-		usage
-	else
+
+_helpTextOptions_F(){
+	printf "%s\n" "Options:" \
+		"   -x, --regex     Interpret each query as a regular expression."
+}
+
+_helpTextOptions_Q(){
+	:
+}
+
+_helpTextOptions_R(){
+	printf "%s\n" "Options:" \
+		"   -h, --help      Display this help text." \
+		"   -d, --nodeps    Skips pacman's normal dependency version checks. Package names are still checked. Specify this option twice to skip all dependency checks." \
+		"   -p, --print     Only print the targets instead of performing the actual operation." \
+		"" \
+		"Options with arguments:" \
+		"   --assume-installed <package=version>" \
+		"      Add a virtual package \"package\" with version \"version\" to the transaction to satisfy dependencies. This allows disabling dependency checks for specific packages. To disable all dependency checking, see the --nodeps option." \
+		"      This option can be specified multiple times."
+}
+
+_helpTextOptions_S(){
+	printf "%s\n" "Options:" \
+		"   -h, --help      Display this help text." \
+		"   -d, --nodeps    Skips pacman's normal dependency version checks. Package names are still checked. Specify this option twice to skip all dependency checks." \
+		"   -p, --print     Only print the targets instead of performing the actual operation." \
+		"   --needed        Do not reinstall packages that are already up-to-date." \
+		"" \
+		"Options with arguments:" \
+		"   --assume-installed <package=version>" \
+		"      Add a virtual package \"package\" with version \"version\" to the transaction to satisfy dependencies. This allows disabling dependency checks for specific packages. To disable all dependency checking, see the --nodeps option." \
+		"      This option can be specified multiple times." \
+		"   --ignore <PKG_NAME,...>" \
+		"      Ignore upgrades of package even if there is one available. Multiple packages can be specified by separating them with a comma." \
+		"      This option can be specified multiple times."
+}
+
+getHelp(){
+	# Call Reason: $__PROGNAME__ $1 [-h|--help]   OR $__PROGNAME__ help $1
+	# example: pac install
+	## Usage: $__PROGNAME__ $1 [options...] PKG_NAME...
+	## Installs or updates packages available via the pacman package manager.
+	## Analagous to `pacman -S`
+	##
+	## Options:
+	##    -h, --help      Display this help text.
+	##    -d, --nodeps    Skips pacman's normal dependency version checks. Package names are still checked. Specify this option twice to skip all dependency checks.
+	##    -p, --print     Only print the targets instead of performing the actual operation.
+	##    --needed        Do not reinstall packages that are already up-to-date.
+	##
+	## Options with arguments:
+	##    --assume-installed <package=version>
+	##       Add a virtual package "package" with version "version" to the transaction to satisfy dependencies. This allows disabling dependency checks for specific packages. To disable all dependency checking, see the --nodeps option.
+	##       This option can be specified multiple times.
+	##    --ignore <PKG_NAME,...>
+	##       Ignore upgrades of package even if there is one available. Multiple packages can be specified by separating them with a comma.
+	##       This option can be specified multiple times.
+	##
+	#
+	#  CONSIDER: group commands that are equivalent, for example
+	#    Usage:
+	#       pac install [options...] PKG_NAME...
+	#       pac update  [options...] PKG_NAME...
+	case "$1" in
+		# remove) &;
+		# uninstall)
+			# printf "%s\n" "Usage: $__PROGNAME__ $1 [options...] PKG_NAME..." \
+			# "Uninstalls packages previously installed via the pacman package manager." \
+			# "Analagous to `pacman -R`"
+			# _helpTextOptions_R
+		remove | uninstall)
+			printf "%s\n" \
+			"Usage: $__PROGNAME__ remove [options...] PKG_NAME..." \
+			"       $__PROGNAME__ uninstall [options...] PKG_NAME..." \
+			"Uninstalls packages previously installed via the pacman package manager." \
+			"Analagous to `pacman -R`"
+			_helpTextOptions_R
+			;;
+		autoremove)
+			
+			;;
+		info | show)
+			
+			;;
+		download)
+			
+			;;
+		install | update)
+			
+			;;
+		upgrade)
+			
+			;;
+		downgrade)
+			
+			;;
+		cleanup)
+			
+			;;
+		list)
+			
+			;;
+		search)
+			
+			;;
+		refresh)
+			# refresh the local sync database
+			;;
+		check)
+			
+			;;
+		package-changelog)
+			
+			;;
+		search-installed)
+			
+			;;
+		owner-of | who-owns)
+			
+			;;
+		list-package-owned)
+			
+			;;
+		list-explicitly-installed)
+			
+			;;
+		list-dependencies)
+			
+			;;
+		list-orphans)
+			
+			;;
+		list-outdated)
+			# refresh the local sync database
+			# check for out-of-date packages installed on the local system
+			;;
+		list-installed)
+			
+			;;
+		show-local)
+			
+			;;
+		provides-what)
+			
+			;;
+		find-providers)
+			# Find all packages IN THE SYNC DATABASE that provide the file(s) passed as arguments.
+			# Each file argument will yield its own set of results, so the user can search for multiple files not provided by any single package.
+			# Each package in the results will also list all files it provides that match the search term
+			;;
+		help)
+			
+			;;
+		*)
+			printf "${_RED_}%s%s${_OFF_}\n" \
+				   "$__PROGNAME__: Unrecognized subcommand: \"$1\"" \
+				   "For a list of available subcommands, try \"$__PROGNAME__ --help\""
+			exit 1
+			;;
+	esac
+	exit
+}
+
+case "$1" in
+	-h | --help)
+		usage && exit
+		;;
+	--completions)
+		completion && exit
+		;;
+	-*)
+		# No other options are allowed prior to a subcommand
+		usage && exit 1
+		;;
+esac
+
+# CONSIDER: separate subcommand option parsing functions according to the options applicable
+# May want to examine /usr/share/doc/util-linux/getopt/getopt-parse.bash
 		operation="$1" # facillitate TODO second-level help function that accepts the operation as a paremeter. i.e. `remove --help` calls `operationHelp "remove"`
+		shift
 		case "$operation" in
 			remove | uninstall)
-				shift
 				pacman -R $*
 				;;
 			autoremove)
-				shift
 				pacman -R --recursive $@
 				;;
 			info | show)
-				shift
 				pacman -S --info --info $*
 				;;
 			download)
-				shift
 				pacman -S --downloadonly $*
 				;;
 			install | update) # treat both install and update as the same; although perhaps at least 'update' should specifically use '--needed'
-				shift
 				pacman -S $*
 				;;
 			upgrade)
-				shift
 				pacman -Sy --sysupgrade $@
 				;;
 			downgrade)
-				shift
 				pacman -S --sysupgrade --sysupgrade $@
 				;;
 			cleanup)
-				shift
 				pacman -S --clean $@
 				;;
 			list)
-				shift
 				pacman -S --list #$@
 				;;
 			search)
-				shift
 				pacman -S --search $*
 				# TODO: change this to search separately for each distinct parameter group, collate the results, and remove duplicates
 				# multiple parameters can be grouped into a single parameter by enclosing them in quotes,
@@ -103,11 +279,9 @@ EOF
 				# strings not within quotes are treated as separate search queries.
 				;;
 			refresh)
-				shift
 				pacman -Sy # refresh the local sync database
 				;;
 			check)
-				shift
 				if [ "$#" != 0 ];then
 					pacman -Qkq "$@" | sed -Ee 's#(.*)( .*)#\1 is missing \2#'
 				else
@@ -123,75 +297,60 @@ EOF
 				fi
 				;;
 			package-changelog)
-				shift
 				pacman -Q --changelog $@
 				;;
 			search-installed)
-				shift
 				pacman -Q --search $*
 				# TODO: See TODO on "search"
 				;;
 			owner-of | who-owns)
 				# This functionality is also available through pkgfile.
-				shift
 				pacman -Q --owns $*
 				# TODO: for windows users, consider OR-ing || pacman -Q --owns (...something that tries again with ".exe" appended to every argument)
 				;;
 			list-package-owned) 	#TODO: May deprecate completely, since -Fl seems to give the same results for installed packages
-				shift
 				pacman -Q --list $*
 				# I don't fully understand the difference between -Ql and -Fl, because it _sounds_ like -Q --list only works when you have the package installed,
 				# while -F --list works for all known packages (installed or not).
 				;;
 			list-explicitly-installed)
-				shift
 				pacman -Q --explicit $@
 				;;
 			list-dependencies)
-				printf "Currently doesn't quite do what might be expected from the name.\n"
-				shift
+				printf "%s\n" "Currently doesn't quite do what might be expected from the name."
 				pacman -Q --deps $@
 				;;
 			list-orphans)
-				shift
 				pacman -Q --deps -t $@
 				;;
 			list-outdated) #list-out-of-date |
-				shift
 				pacman -Sy # refresh the local sync database
 				pacman -Q --upgrades $@ #  check for out-of-date packages on the local system
 				;;
 			list-installed)
-				shift
 				pacman -Q --search
 				;;
 			show-local)
-				shift
 				pacman -Q --info --info $@
 				;;
 			provides-what)
-				shift
 				pacman -F --list $@ # Does not appear to be capable of finding SOME packages that don't show up with 'pacman -Q --search PKG_NAME', like pkgconf, but will for others, like dosfstools (at least from msys2)
 				;;
 			find-providers)
 				# Find all packages IN THE SYNC DATABASE that provide the file(s) passed as arguments.
 				# Each file argument will yield its own set of results, so the user can search for multiple files not provided by any single package.
 				# Each package in the results will also list all files it provides that match the search term
-				shift
 				pacman -F $@
 				;;
-			-h | --help | help)
-				usage
-				exit
-				;;
-			--completions)
-				completion
-				exit
+			help)
+				[ "$#" -eq 0 ] && usage && exit
+				[ "$#" -eq 1 ] && getHelp "$1"
+				printf "${_RED_}$__PROGNAME__: Help: expected 0 or 1 arguments. Found %s arguments (%s)${_OFF_}\n" "$#" "$*"
+				exit 1
 				;;
 			*)
-				printf "${_RED_}Invalid operation \"$1\"${_OFF_}\n"
+				printf "${_RED_}%s${_OFF_}\n" "Invalid operation specified: \"$operation\" (use -h for help)"
 				usage
 				exit 1
 				;;
 		esac
-	fi
