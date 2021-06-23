@@ -350,6 +350,7 @@ if [ "$OSTYPE" == 'msys' ]; then
 	for name in sqliterepl node php php5 psql ipython litecli; do
 		[ -n "$(type -t $name)" ] && alias "$name"="winpty $name"
 	done
+	unset name
 fi
 
 #---------------------------
@@ -369,6 +370,7 @@ alias more="less" # insert obligatory "less is more" pun here
 
 alias j='jobs -l'
 alias who="who -H"
+alias file='file -p' # Attempt to preserve file access times from prior to being scanned.
 alias filetype="file" # Would alias as "ftype", but that already exists on Windows
 # alias dirs="dirs -v" # Display directory stack entries on separate lines, prefixed by their zero-based index in the stack
 
