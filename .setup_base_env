@@ -10,8 +10,8 @@
 #-------------------------------------------------------------
 ##############################################################
 
-# Set arguments to automatically pass to the less pager; needs to include -R and -F for git commands to behave nicely.
-export LESS="-F -R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\: %x.:?pB%pB\%..   ?f(Press v to open with default editor).%t"
+# Set arguments to automatically pass to the less pager; git pager needs to include -R and -F for git commands to behave nicely, but including -F in LESS affects man, so the -F should be handled in the gitconfig and/or aliases for less/man/git.
+export LESS="-R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\: %x.:?pB%pB\%..   ?f(Press v to open with default editor).%t"
 
 # Colored man pages: http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
 # Less Colors for Man Pages

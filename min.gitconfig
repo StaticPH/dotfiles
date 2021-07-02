@@ -116,6 +116,10 @@
 	symlinks = true
 	whitespace = blank-at-eol
 
+	# Including -F in LESS screws with the man command, but some git commands really should have less auto-exit if the full command output fits on one screen.
+	# Might as well enforce all the default flags git passes to less when LESS is unset.
+	pager = "less -RFX"
+
 #[credential]
 #
 #	# Specify an external helper to be called when a username or password credential is needed;
