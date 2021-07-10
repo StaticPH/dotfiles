@@ -64,6 +64,10 @@ export FIGNORE=".dll:.DLL:.ax" #:.DS_Store:.pyc:.pyd:
 #-------------------------------------------------------------
 export IGNOREEOF="1"
 
+# Config file path variables
+#-------------------------------------------------------------
+export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
+export RIPGREP_CONFIG_PATH="${HOME}/.config/ripgrep/.ripgreprc"
 
 ##############################################################
 #-------------------------------------------------------------

@@ -1,0 +1,188 @@
+# NOTE: *.profile REALLY SHOULD cover .profile (as should other similar cases behave)
+# TODO: raw image formats
+# TODO: _video
+# TODO: exe, db, *.msi, *.iso, *.msu
+# TODO: Doxyfile
+#cat		security catalog
+# Maybe include ts and coffeescript in js?
+
+--type-add
+	7z:*.7z,*.7zip
+
+--type-add
+	bash:{.*b,.b,b}ash{rc,_aliases,_functions,_login,_logout,_profile,_hooks}
+--type-add
+	bash:*.{bas,s}h
+--type-add
+	bash:{*.p,.p,p}rofile
+--type-add
+	bash:{*.b,.b}ash[-_]completion
+
+--type-add
+	cert:*.{cert,crt,pem}
+
+--type-add
+	cmake:CMake{File,Cache.txt,Output.log,RuleHashes.txt}
+--type-add
+	cmake:CMakeDetermineCompilerABI_CXX.bin
+
+--type-add
+	compiled:*.{a,bin,chm,class,exe,lib,o,obj,pyc,pyd,rlib,so}
+
+--type-add
+	config:*.cnf,*.inf,*.prop{s,erties}
+
+# This needs to occur AFTER any changes to the rules for 'config'
+--type-add
+	cfg:include:config
+
+#--type-add
+#	csh:*.{tcsh,csh,sh}
+#--type-add
+#	csh:{*.c,.c,c,*.tc,.tc,tc}shrc
+#--type-add
+#	csh:.log{in,out}
+#--type-add
+#	csh:{*.p,.p,p}rofile
+
+--type-add
+	dll:*.{[Dd]ll,DLL}
+
+--type-add
+	dump:*.{dmp,dump,out}
+
+# C/++ header files
+--type-add
+	h:*.{hxx,H,hh}
+
+--type-add
+	html:*.mhtml
+
+--type-add
+	img:*.{dmg,dsk,hdd,img,iso,ova,qed,sav,snapshot,vdi,vhd,vmdk,vmsn,vmss}
+
+--type-add
+	js:*.{javascript,mjs}
+
+# This needs to occur AFTER any changes to the rules for 'js'
+--type-add
+	javascript:include:js
+
+#--type-add
+#	ksh:*.sh, *.ksh, *.kshrc, .kshrc, .login, .logout, .profile, profile
+#--type-add
+#	ksh:*.{k,}sh
+#--type-add
+#	ksh:{*.,.,}kshrc
+#--type-add
+#	ksh:.{login,logout}
+#--type-add
+#	ksh:{.,}profile
+
+#*.lock is already part of the default 'lock' type
+--type-add
+	lock:*.Lock,[Ll]ock,*.LOCK,LOCK,*.[Ll]ockfile,[Ll]ockfile,*.LOCKFILE,LOCKFILE
+#	lock:*.Lock,{l,L}ock,*.LOCK,LOCK,*.{l,L}ockfile,{l,L}ockfile,*.LOCKFILE,LOCKFILE	# Old and reliable
+#--type-add 'lock:{*.,}{l,L}ock{file,}' --type-add:'lock:{*.,}LOCK{FILE,}	DOES NOT WORK WITH {...,} GLOB RULE
+
+--type-add
+	make:include:cmake
+# add *.qmake, but not the other types in the qmake group. Maybe include amake too?
+--type-add
+	make:*.qmake,mkfile
+
+--type-add
+	mk:include:make
+
+--type-add
+	pic:*.{jpg,jpeg,png,apng,gif,bmp,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb}
+# *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
+
+--type-add
+	py:*.pyi
+--type-add
+	py:include:py
+
+# the default qmake type already includes *.prf, *.pri, and *.pro, but interestingly, not *.qmake
+--type-add
+	qmake:*.qmake
+
+# *.qml is added by default
+--type-add
+	qml:*.qmltypes,*.qm
+
+--type-add
+	qt:include:qmake,qml
+--type-add
+	qt:*.pr[fio]
+--type-add
+	qt:*.q{ss,rc}
+
+--type-add
+	ruby:*.ri
+
+--type-add
+	serialized:include:jsonl,xml,yaml
+--type-add
+	serialized:*.[cjt]son
+--type-add
+    # I distinctly remember there being something like an homl or hson
+	serialized:*.toml
+
+--type-add
+	sql:*.sqlite
+
+--type-add
+	store:*.{accdb,csv,dat,db,dbf,frm,kexi,ldb,mdb,mdf,nsf,pdi,rdb,reg,sdf,sqlite,tab,tsv,wdb,wmdb}
+
+--type-add
+	tar:*.tar
+--type-add
+	tar:*.tar.{bz,bz2,br,gz,lz,lz4,xz}
+--type-add
+	#tar:*.t{bz,bz2,br,gz,lz,lz4,xz}
+	#tar:*.t[bglx]z,.*t{bz2,lz4}
+	tar:*.t{[bglx]z,bz2,lz4}
+
+--type-add
+	template:*.{haml,twig,mustache}
+--type-add
+	template:include:jinja
+
+--type-add
+	tmp:*.{temp,*.tmp}
+
+--type-add
+	txt:*.{text,manifest}
+--type-add
+	txt:include:log
+
+--type-add
+	typescript:include:ts
+
+#Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
+--type-add
+	zip:*.{zip,jar,pak,rar,rar5,lz,z,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl}
+--type-add
+	zip:include:7z,bzip2,gzip,lz4,lzma,xz,zstd
+--type-add
+	zip:include:tar
+
+--type-add
+	zsh:*.z{login,logout,profile,shenv,shrc}
+#--type-add
+#	zsh:*.{sh}
+
+--type-add
+	archive:include:zip
+
+
+######################
+# END TYPE GROUPS
+######################
+--hidden
+--color=auto
+--max-columns
+	500
+--smart-case
+--follow

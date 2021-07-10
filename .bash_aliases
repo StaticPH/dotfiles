@@ -65,6 +65,11 @@ fi
 [ -n "$(type -t dmesg)" ]  && alias dmesg='dmesg --color=auto -T'
 alias dir="dir --color=auto -Fh --group-directories-first --hide='*.dll' --hide='*.DLL'"
 
+if command -v shellcheck &>/dev/null ; then
+	alias shellcheck='shellcheck --color=always'
+	alias shc='shellcheck'
+fi
+
 #---------------
 # Find-like
 #---------------
@@ -204,20 +209,8 @@ fi
 #--------------------------
 # Rust Program Aliases
 #--------------------------
-# I tried $(ripgrepExtraTypes) with said program echoing output, but bash seemed unable to locate it on load, so I resorted to exporting a new variable
-# At some point this will be replaced by actually using the .ripgreprc functionality that was implemented a few versions after I came up with this method.
 
-# shellcheck disable=SC2154,SC1090
-if [ -n "$(type -t rg)" ]; then
-	if [ -f "${HOME}/bin/ripgrepExtraTypes" ]; then
-		source "${HOME}/bin/ripgrepExtraTypes"
-	fi
-	alias rg="rg --hidden --color=auto --max-columns 500 --smart-case --follow $extraRipgrep" # --no-messages
-	alias ripgrep="rg"
-
-	alias genRipgrepTypeList="rg --type-list > ${HOME}/txts/.ripgrepTypeList && echo 'List saved at ${HOME}/txts/.ripgrepTypeList' || echo 'List failed to generate'"
-	unset extraRipgrep		# BEGONE no-longer-needed environment variable!
-fi
+[ -n "$(type -t rg)" ] && alias ripgrep="rg"
 [ -n "$(type -t fd)" ] && alias fd="fd -HaL"
 [ -n "$(type -t desed)" ] && alias desed="desed --sed-path /usr/bin/sed"
 
