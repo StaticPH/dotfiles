@@ -12,8 +12,8 @@
 
 	remotes = remote -v
 
-	# List aliases
-	aliases = config --get-regexp alias
+	# List and regex-match aliases
+	aliases = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\".$1\"; [ -n \"$arg1\" ] && shift;; esac; git config --get-regexp alias${arg1:-} $@; }; f"
 
 	# Amend the currently staged files to the latest commit
 	amend = commit --amend --reuse-message=HEAD
@@ -21,7 +21,14 @@
 	# Check what git attributes are set for a file
 	attrs = check-attr --all
 
+	# Shorthand for status; nothing special
 	st = status
+
+	# Shorthand for ls-files; nothing special
+	ls = ls-files
+
+	# Be extra careful about what you're getting rid of when using git clean
+	clean = clean -i
 
 	#  %(authordate:format:%Y-%m-%d %I:%M %p)										:  Prints authordate in a format like `2019-10-28 10:13 PM`
 	###  %(authordate:human)														:  Prints authordate in a format like `Mon Oct 28 22:13`
@@ -32,8 +39,14 @@
 	# More simplistic "branches"
 	# branches = branch -a --sort=-committerdate
 
-	# Undo the effects of the last commit
-	undo-hard = reset --soft HEAD~1
+	# Undo the effects of the last commit; reverts all changes to pristine state.
+	# Extra dangerous for merge commits, where HEAD has multipe parents,
+	# and this only discards the changes from one parent.
+	# Use a combination of ~n and ^m to specify which parent(s),
+	# Where ~n specifies a linear parent, and ^m is a branched parent.
+	# It's not a very intuitive syntax.
+	# See https://stackoverflow.com/questions/2221658
+	undo-destructive = reset --hard HEAD^
 
 	# Uncommit the last commit, but retain all changes made in the committed files.
 	undo = reset --soft HEAD^
@@ -59,24 +72,41 @@
 	whoami = config user.email
 
 	# Show the git log for the last N commits
-	last-log = "!f(){ arg1=\"$1\"; shift; git log -n ${arg1:-1} $@; }; f" # <N>
+	last-log = "!f(){ arg1=\"$1\"; [ -n \"$arg1\" ] && shift; git log -n ${arg1:-1} $@; }; f" # <N>
 
 	# Show git log, with a summary of each commit, list which files a commit touched
 	# and classify the change using one (or more?) characters according to the following:
 	#     Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R),
 	#     have their type (i.e. regular file, symlink, submodule, etc) changed (T),
 	#     are Unmerged (U), are Unknown (X), or have had their pairing Broken (B)
-	flog = "!f(){ arg1=\"$1\"; shift; git log --name-status -n ${arg1:-1} $@; }; f"
+	# The case block here is responsible for changing behavior according to whether the first argument is a positive integer (and doesnt start with a '0'), a possible flag (starts with a dash '-'), or an empty string (or no argument at all). Any errors thrown are still from Git.
+	flog = "!f(){ case $1 in ''|-*) arg1= ;; 0*|[!0-9]*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git log --name-status -n ${arg1:-1} $@; }; f"
 
 	# Stash all files, including files ignored or not yet tracked by git
 	stash-all = stash push --all
 
-	clean = clean -i
-
+	# Create a local branch without specifying a remote branch for it to track, nor allowing the implicit creation of a remote branch of the same name
 	local-only-branch = branch --no-track
 
+	# Something with git-icdiff has been misbehaving following an update I did, seemingly causing it to misinterpret all arguments. This seems to do what I need in the mean time.
+	jcdiff = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd='"icdiff --is-git-diff -Ns --cols=$(tput cols) --strip-trailing-cr"' ${arg1:-} $@; }; f"
+
+	# Formatted log showing all branches
 	grog = log --graph --abbrev-commit --decorate --all --format=\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
 
+	# git grog, but only for a single branch
+	bgrog = log --graph --abbrev-commit --decorate --format=\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
+
+	# Remove a file from the local repository index (and unstage it) without deleting the file itself; Follow this with a commit and push.
+	# Note that the file in question MUST also be added to .gitignore to prevent changing/deleting the local file during future merges/pulls.
+	# Afterwards, local changes to the file should no longer be tracked by git.
+	# Also see https://stackoverflow.com/a/21477287
+	rmFromIndex = rm --cached
+
+	# Show the change history of one or more specific files, including both commit messages and diff
+	filehist = log --follow -p
+
+	# If this doesn't behave properly, try just running 'git difftool --dir-diff --tool=meld' directly. ARGUMENT ORDERING MAY BE SIGNIFICANT! ALSO LAUNCHING IN BACKGROUND WITH A TRAILING &
 	meld = "!f(){ git difftool --tool=meld --dir-diff \"$@\"; }; f"
 
 [color]
@@ -85,6 +115,13 @@
 	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
 	ui = auto
 
+[color "branch"]
+	current = green
+	local = dim bold green
+	remote = red
+	upstream = magenta
+	reset = dim cyan
+	worktree = bold blue
 [color "diff"]
 	whitespace = red reverse
 
@@ -102,6 +139,14 @@
 #	# https://help.github.com/articles/signing-commits-using-gpg/
 #	gpgsign = true
 
+[completion]
+#
+#	# This is only used by git-completion.bash to add or remove commands from the list of completed commands.
+#	# Normally only porcelain commands and a few select others are completed.
+#	# You can add more commands, separated by space, in this variable.
+#	# Prefixing the command with - will remove it from the existing list
+	commands = ls-files -ls -st
+
 [core]
 
 	# Speed up commands involving untracked files such as `git status`.
@@ -117,7 +162,7 @@
 	whitespace = blank-at-eol
 
 	# Including -F in LESS screws with the man command, but some git commands really should have less auto-exit if the full command output fits on one screen.
-	# Might as well enforce all the default flags git passes to less when LESS is unset.
+	# Might as well enforce all the default flags git passes to less when LESS is unset, I guess?
 	pager = "less -RFX"
 
 #[credential]
@@ -236,7 +281,9 @@
 
 #	# If the value is boolean, turns on or off pagination of the output of a particular Git subcommand when writing to a tty.
 #	# Otherwise, turns on pagination for the subcommand using the pager specified by the value of pager.<cmd>
-#	log = less	# paginate the output of the 'log' subcommand using 'less'
+	blame = less -RF -JM --tilde --shift .25 # paginate the output of the 'log' subcommand using 'less -RF'
+	log = less -RF -JM --tilde --shift .25 # paginate the output of the 'log' subcommand using 'less -RF'
+	show = less -RF -JM --tilde --shift .25 # paginate the output of the 'log' subcommand using 'less -RF'
 	diff = delta # paginate the output of the 'diff' subcommand using 'delta'
 
 #[pretty]
