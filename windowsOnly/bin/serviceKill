@@ -4,7 +4,7 @@
 __PROGNAME__="$(basename $0)"
 
 usage(){
-	echo "Usage: $__PROGNAME__ (bluetooth|bt)|adobe|nvidia|apple"
+	echo "Usage: $__PROGNAME__ (bluetooth|bt)|adobe|nvidia|apple|microsoft"
 }
 
 ifExistsThenToggle(){
@@ -20,6 +20,8 @@ ifExistsThenToggle(){
 	fi
 	pkill "sc query"
 }
+
+#Might want to consider using `sc` rather than `net` for controlling services
 
 # I changed my mind; I dont care what state the service is in, or even if it exists at all. Just TRY to do stuff to it and disregard any failures.
 killBt(){
@@ -43,6 +45,10 @@ killApple(){
 	net stop "iPod Service" 2>/dev/null #2>&1					#iPod Service
 
 }
+killMicrosoft(){
+	net stop "ClickToRunSvc" 2>/dev/null						#Microsoft Office ClickToRun Service
+}
+
 # "EvtEng"					# Intel(R) PROSet/Wireless Event Log
 # "RegSrvc"					# Intel(R) PROSet/Wireless Registry Service
 # "ZeroConfigZervice"		# Intel(R) PROSet/Wireless Zero Configuration Service
@@ -52,7 +58,6 @@ killApple(){
 # "wlidsvc"				#Microsoft Account Sign-in Assistant
 # "MSiSCSI"				#Microsoft iSCSI Initiator Service
 # "MsKeyboardFilter"	#Microsoft Keyboard Filter
-# "ClickToRunSvc"		#Microsoft Office ClickToRun Service
 # "swprv"				#Microsoft Software Shadow Copy Provider
 # "smphost"				#Microsoft Storage Spaces SMP
 # "ose"					#Office Source Engine
@@ -134,6 +139,7 @@ case "$1" in
 	adobe)				killAdobe	;;
 	apple)				killApple	;;
 	nvidia)				killNvidia		;;
+	microsoft)			killMicrosoft		;;
 	*)
 		echo Invalid arguement "$1"
 		usage
