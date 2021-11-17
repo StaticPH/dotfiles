@@ -87,7 +87,7 @@ color brightred "[!$%^&*=+|:<>,?/]" "-"
 # ~ ,
 
 # Future use
-color lagoon "|>" "?."
+color lagoon "\|\>" "\?\."
 
 # Block labels
 color italic,brightcyan "^[0-9a-zA-Z_]+\s*\:"

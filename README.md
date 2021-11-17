@@ -1,5 +1,5 @@
 # dotfiles
-<!-- TODO: DECIDE HOW TO SHOW LINKS TO EXTERNAL TOOLS AND INFORMATION -->
+<!-- TODO: DECIDE HOW TO SHOW LINKS TO EXTERNAL TOOLS AND INFORMATION WITHOUT ALSO MAKING THE RAW MARKDOWN FEEL TOO CLUTTERED-->
 ### Cargo crates:
 * cargo-show			—	Should really be a built-in feature.
 * cargo-update			—	Should really be a built-in feature.
@@ -16,12 +16,14 @@
 * git-delta				—	Powerful diff tool with support for side-by-side view and Git repository diffs <sup>[1]</sup>.
 * sccache				—	Basically `ccache` with support for cloud storage and Rust binaries <sup>[1]</sup>.
 * ptail					—	`tail -f`, but only show a certain number of lines at a time.
-* miniserve				—	Easy and surprisingly capable http server with support for file uploading.
+* miniserve				—	Easy and surprisingly capable http server with support for file uploading <sup>[1]</sup>.
 * runiq					—	Filter duplicate entries from textual input without inherently sorting the output.
 * mdcat					—	Like `cat`, but for markdown.
 * desed					—	Debug `sed` commands pseudo-interactively <sup>[2]</sup>.
-* interactive-rebase-tool	—	TUI for `git rebase -i` <sup>[3]</sup>.
+* interactive-rebase-tool	—	TUI for `git rebase -i`. AKA girt/girt-git <sup>[3]</sup>.
 * dprint				—	Code formatter for a handful of languages. One of annoyingly few decent JavaScript formatters that don't require NodeJS to run <sup>[1]</sup>.
+* gping					—	Ping command, but with a graph <sup>[1]</sup>.
+* git-hist				—	A CLI tool to quickly browse the git history of files on a terminal.
 
 <sub>(1): Standalone binary can also be downloaded with the `program-fetch` utility.</sub><br>
 <sub>(2): NOTE: This does not appear to work in Mintty, or at least not with my current setup (but I suspect the former).</sub><br>
@@ -48,12 +50,18 @@
 [desed]: https://github.com/SoptikHa2/desed
 [interactive_rebase]: https://github.com/MitMaro/git-interactive-rebase-tool
 [dprint]: https://github.com/dprint/dprint
+[gping]: https://github.com/orf/gping
+[git_hist]: https://github.com/arkark/git-hist
+
+[spotify_tui]: https://github.com/Rigellute/spotify-tui
+<!-- ?spotifyd / librespot? -->
 
 ### Python packages installed via pipx:
 * ipython				—	Powerful Python REPL.
 * litecli				—	CLI for SQLite databases with auto-completion and syntax highlighting.
 * git-filter-repo		—	Quickly rewrite Git repository history (filter-branch replacement).
 * icdiff				—	Show more granular differences between files in a colored 2-column view; supports Git repository diffs with included `git-icdiff` shell script <sup>[1]</sup>.
+* sqlitebiter			—	A CLI tool to convert CSV, Excel, HTML, JSON, and more to a SQLite database file
 
 <sub>(1): NOTE: The version of `icdiff` on PyPI has been out of date for a while now. Install manually from the GitHub repository. Coercing `pipx` may require some effort.</sub>
 
@@ -61,6 +69,7 @@
 [litecli]: https://github.com/dbcli/litecli
 [git-filter-repo]: https://github.com/newren/git-filter-repo
 [icdiff]: https://github.com/jeffkaufman/icdiff
+[sqlitebiter]: https://github.com/thombashi/sqlitebiter
 
 ### Ruby gems:
 * lolcat				—	Output text in rainbow colors!
@@ -88,6 +97,7 @@
 * mvn					—	Apache Maven build automation tool; typically used for Java projects.
 * showimg				—	Displays a number of image formats in Mintty; see https://github.com/mintty/utils
 * prettyping			—	A wrapper around the standard `ping` tool, making the output prettier and easier to read <sup>[2]</sup>.
+* treef					—	Reads paths from stdin and formats them as a tree, like the tree utility.
 
 <sub>(1): Standalone binary can also be downloaded with the `program-fetch` utility.</sub><br>
 <sub>(2): NOTE: Unsurprisingly, does not work with Windows' `ping` command.</sub>
@@ -103,6 +113,7 @@
 [maven]: https://maven.apache.org
 [showimg]: https://github.com/mintty/utils/blob/master/showimg
 [prettyping]: http://denilson.sa.nom.br/prettyping/
+[treef]: https://github.com/jacwah/treef
 
 ### Fonts
 * DejaVu Sans Mono Nerd Font Complete
@@ -115,6 +126,26 @@
 
 ### Other
 * JDK 1.8
+
+<!-- Other software of note, not yet categorized appropriately:
+nuitka (python)
+poetry (python)
+pipenv (python)
+pyinstaller (python)
+yolk (python)
+ydiff (diff tool in python)
+direnv (general, possibly the Go variant)
+lsix (general/fun)
+ntldd (Windows dll/exe tool)
+rename (PERL-script version) (general)
+showterm (bash-script version) (general)
+awklib (general)
+adb (android tool)
+gimp
+spotify-qt
+vlc
+miktex (provides pdflatex for use with pandoc)
+-->
 
 # X11
 Make numpad behave the way I always expect it to:
@@ -152,7 +183,12 @@ NOTE: This script and the patch it applies are intended ONLY for use on Microsof
 		However, as I haven't been using a Mac for anything, and don't particularly expect that to change for the near future, I currently see no real need for me to change anything.
 		This note is really just here for posterity.
 	</li>
+	<li>
+		Version 1.2.1 of the interactive-rebase-tool, which used pancurses, seems to be more cooperative on my machine than subsequent versions, which use crossterm. And by "more cooperative", I mean "properly responds to keyboard input, and is just actually usable". I'm fairly confident this is a problem with my setup, though, rather than with the implementation of the tool itself.
+	</li>
 </ul>
+
+
 
 ### Help on line ending normalization:
 I have not tested, but I suspect that line endings for files may need to be changed depending on the system.

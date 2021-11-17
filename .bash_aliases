@@ -211,8 +211,15 @@ fi
 #--------------------------
 
 [ -n "$(type -t rg)" ] && alias ripgrep="rg"
-[ -n "$(type -t fd)" ] && alias fd="fd -HaL"
 [ -n "$(type -t desed)" ] && alias desed="desed --sed-path /usr/bin/sed"
+
+if [ -n "$(type -t fd)" ]; then
+	if [ "$OSTYPE" == 'msys' ]; then
+		alias fd="command fd -HaL --path-separator '//'"
+	else
+		alias fd="fd -HaL"
+	fi
+fi
 
 #--------------------------------
 # Network Related Aliases
@@ -380,6 +387,8 @@ alias lstat='stat -L'	# A poor man's lstat
 alias sysInfo="uname"
 
 alias exitstatus="echo $?"            #print the error status for the last command
+
+alias termbin="nc termbin.com 9999" # Pipe or file-redirect into this
 
 # alias returnToGuiMode='echo Try pressing alt+f7'     will probably use some environment variable check here
 [ -n "$(type -t setxkbmap)" ] && alias fixKeyboard='setxkbmap -model pc105 -layout us -rules evdev -option "lv3:ralt_switch" -option "numpad:microsoft"'

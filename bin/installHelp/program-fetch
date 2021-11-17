@@ -92,6 +92,16 @@ sccache_ver="$(gh_getLatestVersionNumber "$sccache_repo")"
 sccache_fname="sccache-v${sccache_ver}-x86_64-pc-windows-msvc.tar.gz"
 sccache_entry=( 'sccache' '' 'off' )
 
+gping_repo='orf/gping'
+gping_ver="$(gh_getLatestVersionNumber "gping_repo")"
+gping_fname="gping-Windows-x86_64.zip"
+gping_entry=( 'gping' '' 'off' )
+
+miniserve_repo='svenstaro/miniserve'
+miniserve_ver="$(gh_getLatestVersionNumber "$miniserve_repo")"
+miniserve_fname="miniserve-${miniserve_ver}-x86_64-pc-windows-msvc.exe"
+miniserve_entry=( 'miniserve' '' 'off' )
+
 # fetch_imagemagick(){
 # 	:
 # }
@@ -125,12 +135,12 @@ maven_comp_entry=( 'maven_bash_completion' '' 'off' )
 #adb
 #vlc
 #gimp
-#HTMLTidy
+#~~HTMLTidy~~ installed from package manager, as preferred
 #FontForge
 #prettyping
 #git interactive rebase tool		format: git-interactive-rebase-tool-1.2.1-x86_64-pc-windows-msvc.zip
 
-# programsList=( pandoc shellcheck dprint delta sccache imagemagick graphicsmagick )
+# programsList=( pandoc shellcheck dprint delta sccache gping miniserve imagemagick graphicsmagick )
 # otherList=( maven_bash_completion )
 begin(){
 	explanation='Use the tab and arrow keys to move the cursor, and spacebar to select which programs to download.'
@@ -144,8 +154,8 @@ begin(){
 			--checklist "$explanation" 0 0 0 \
 			"${pandoc_entry[@]}" "${shellcheck_entry[@]}" \
 			"${dprint_entry[@]}" "${delta_entry[@]}" \
-			"${sccache_entry[@]}" \
-			"${maven_comp_entry[@]}" \
+			"${sccache_entry[@]}" "${gping_entry[@]}" \
+			"${miniserve_entry[@]}" "${maven_comp_entry[@]}" \
 			--item-help --no-tags \
 			--keep-tite --visit-items --separate-output \
 			2> /tmp/namedPipeProgFetcher &
@@ -174,6 +184,14 @@ begin(){
 			[sS]ccache)
 				echo "Downloading sccache"
 				gh_downloadFile "$sccache_repo" "$sccache_fname"
+				;;
+			[gG]ping)
+				echo "Downloading gping"
+				gh_downloadFile "$gping_repo" "$gping_fname"
+				;;
+			[mM]iniserve)
+				echo "Downloading miniserve"
+				gh_downloadFile "$miniserve_repo" "$miniserve_fname"
 				;;
 			# [mM]eld|[mM]eld[mM]erge)
 			# 	# echo "Downloading Meld"

@@ -1,14 +1,65 @@
+###########################
+# BEGIN SIMPLE ARGUMENTS
+###########################
+
+--hidden
+--color=auto
+--max-columns
+	500
+--smart-case
+--follow
+
+###########################
+# END SIMPLE ARGUMENTS
+###########################
+
+
+
+###########################
+# BEGIN TYPE GROUPS
+###########################
 # NOTE: *.profile REALLY SHOULD cover .profile (as should other similar cases behave)
 # TODO: raw image formats
 # TODO: _video
-# TODO: exe, db, *.msi, *.iso, *.msu
+# TODO: db, *.msi, *.msu
 # TODO: Doxyfile
 #cat		security catalog
+#add *.tmpl to template files; for cheetah
+# Cucumber files?
+# deno extensions?
+# groff/troff/nroff/roff?
+# SCSS and SASS have a relationship that makes me question whether the "sass" type should include scss in its glob
+#nginx? squid proxy (squid.conf)? mysql? 
+#Should the "tex" type include *.aux,*.toc
+#Velocity template files *.{vm,fhtml} ?
 # Maybe include ts and coffeescript in js?
+# *.pdb: Program Debug Database
+# *.exp: Exports Library File
+# *.timestamp: self-explanatory
+# TODO: documentation type group
+# TODO: markup type group
 
+### 7Zip
 --type-add
 	7z:*.7z,*.7zip
 
+### Ada
+#--type-add
+#	ada:*.ada,.ad[bs]
+
+### Autohotkey
+#--type-add
+#	ahk:*.{ahk,ahkl}
+
+### Apache config
+#--type-add
+#	apacheconf:.htaccess,apache.conf,apache2.conf
+
+### Applescript
+#--type-add
+#	applescript:*.applescript
+
+### Bash
 --type-add
 	bash:{.*b,.b,b}ash{rc,_aliases,_functions,_login,_logout,_profile,_hooks}
 --type-add
@@ -18,24 +69,30 @@
 --type-add
 	bash:{*.b,.b}ash[-_]completion
 
+### Batchfile
+--type-add
+	batch:*.{bat,cmd}
+
+### Certificate files
 --type-add
 	cert:*.{cert,crt,pem}
 
+### CMake
 --type-add
 	cmake:CMake{File,Cache.txt,Output.log,RuleHashes.txt}
---type-add
-	cmake:CMakeDetermineCompilerABI_CXX.bin
+#--type-add
+#	cmake:CMakeDetermineCompilerABI_CXX.bin
 
+### Various files resulting from some form of compilation or linking
 --type-add
-	compiled:*.{a,bin,chm,class,exe,lib,o,obj,pyc,pyd,rlib,so}
+	compiled:*.{a,bin,chm,class,d,[Ee]xe,EXE,lib,o,obj,pyc,pyd,rlib,rmeta,so}
+#*.winmd,*.mui
 
+### Common config files
 --type-add
-	config:*.cnf,*.inf,*.prop{s,erties}
+	config:*.cnf,*.inf,*.prop{s,erties},*.I{ni,NI}
 
-# This needs to occur AFTER any changes to the rules for 'config'
---type-add
-	cfg:include:config
-
+### C-Shell and Thompson C-Shell
 #--type-add
 #	csh:*.{tcsh,csh,sh}
 #--type-add
@@ -45,29 +102,55 @@
 #--type-add
 #	csh:{*.p,.p,p}rofile
 
+### Windows DLL files
 --type-add
 	dll:*.{[Dd]ll,DLL}
 
 --type-add
-	dump:*.{dmp,dump,out}
+	compiled:include:dll
 
-# C/++ header files
+### Assorted dumps and outputs
+--type-add
+	dump:*.{dmp,dump,out}
+#Might want to include *.objdump and a few others
+
+### Font files
+--type-add
+	font:*.otf,*.ttf,*.woff,*.ttc,*.fon
+
+### GLSL
+#--type-add
+#	glsl:*.{vert,frag,geo}
+
+### GNUPlot
+#--type-add
+#	gnuplot:*.{plot,plt}
+
+### C/++ header files
 --type-add
 	h:*.{hxx,H,hh}
 
+### MIME Html, which encapsulates all the resources necessary to render a page into a single file.
 --type-add
 	html:*.mhtml
 
+### Disk images
 --type-add
 	img:*.{dmg,dsk,hdd,img,iso,ova,qed,sav,snapshot,vdi,vhd,vmdk,vmsn,vmss}
 
+### Ini Files
+--type-add
+	ini:*.{[Ii]ni,INI}
+
+### Javascript
 --type-add
 	js:*.{javascript,mjs}
 
-# This needs to occur AFTER any changes to the rules for 'js'
---type-add
-	javascript:include:js
+### JSON
+#--type-add
+#	json:include:jsonl
 
+### Korn shell
 #--type-add
 #	ksh:*.sh, *.ksh, *.kshrc, .kshrc, .login, .logout, .profile, profile
 #--type-add
@@ -79,62 +162,84 @@
 #--type-add
 #	ksh:{.,}profile
 
+### 'Lock' files
 #*.lock is already part of the default 'lock' type
 --type-add
 	lock:*.Lock,[Ll]ock,*.LOCK,LOCK,*.[Ll]ockfile,[Ll]ockfile,*.LOCKFILE,LOCKFILE
-#	lock:*.Lock,{l,L}ock,*.LOCK,LOCK,*.{l,L}ockfile,{l,L}ockfile,*.LOCKFILE,LOCKFILE	# Old and reliable
+#--type-add
+#	lock:LOCK,Lock,lock,LOCKFILE,Lockfile,LockFile,lockfile
 #--type-add 'lock:{*.,}{l,L}ock{file,}' --type-add:'lock:{*.,}LOCK{FILE,}	DOES NOT WORK WITH {...,} GLOB RULE
 
+### Lua
+# Add *.wlua for Windows applications in Lua with no console output
+#--type-add
+#	lua:*.wlua
+
+### Makefiles
 --type-add
 	make:include:cmake
 # add *.qmake, but not the other types in the qmake group. Maybe include amake too?
 --type-add
 	make:*.qmake,mkfile
 
---type-add
-	mk:include:make
-
+### Image (as in graphics) files
 --type-add
 	pic:*.{jpg,jpeg,png,apng,gif,bmp,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb}
 # *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
 
+### Python
+# *.pyw files are used on Windows to prompt the use of pythonw rather than python, the former of which wont display a console.
+# *.pyi files are stub files
+## cython pyx and pxd files are roughly equivalent to C source and header files, respectively.
+## cython pxi files are "include files"; these files are seemingly used for including entire blocks of code as though via substitution with a C/++ macro
 --type-add
-	py:*.pyi
---type-add
-	py:include:py
-
-# the default qmake type already includes *.prf, *.pri, and *.pro, but interestingly, not *.qmake
+	py:*.py[iw]
+#--type-add
+#	py:include:cython
+	
+### Qt makefile and related extensions
+# The default qmake type already includes *.prf, *.pri, and *.pro, but interestingly, not *.qmake
 --type-add
 	qmake:*.qmake
 
+### QML files
 # *.qml is added by default
 --type-add
 	qml:*.qmltypes,*.qm
 
+### Qt related files, including the existing "qml" and "qmake" types
 --type-add
 	qt:include:qmake,qml
 --type-add
-	qt:*.pr[fio]
---type-add
 	qt:*.q{ss,rc}
 
+### Ruby
 --type-add
-	ruby:*.ri
+	ruby:*.{ri,rake}
 
+### Scons construction/built tool files
+# They're really just python files, but used more like configs
+--type-add
+	scons:SCons{truct,ript},*.sc
+
+### Various data files using a serializable syntax
 --type-add
 	serialized:include:jsonl,xml,yaml
 --type-add
-	serialized:*.[cjt]son
+	serialized:*.[cjt]son,*.[ct]sv
 --type-add
     # I distinctly remember there being something like an homl or hson
 	serialized:*.toml
 
+### SQL and SQL flavors
 --type-add
 	sql:*.sqlite
 
+### Databases and somehow database related files not expected to be intelligible as plaintext
 --type-add
-	store:*.{accdb,csv,dat,db,dbf,frm,kexi,ldb,mdb,mdf,nsf,pdi,rdb,reg,sdf,sqlite,tab,tsv,wdb,wmdb}
+	store:*.{accdb,dat,db,dbf,frm,kexi,ldb,mdb,mdf,nsf,pdi,rdb,reg,sdf,sqlite,tab,wdb,wmdb}
 
+### Tape archives (tarballs)
 --type-add
 	tar:*.tar
 --type-add
@@ -144,22 +249,23 @@
 	#tar:*.t[bglx]z,.*t{bz2,lz4}
 	tar:*.t{[bglx]z,bz2,lz4}
 
---type-add
-	template:*.{haml,twig,mustache}
---type-add
-	template:include:jinja
+### Assorted template files
+#--type-add
+#	template:*.{haml,twig,mustache}
+#--type-add
+#	template:include:jinja
 
+### Temporary files
 --type-add
 	tmp:*.{temp,*.tmp}
 
+### Plaintext files
 --type-add
 	txt:*.{text,manifest}
 --type-add
 	txt:include:log
 
---type-add
-	typescript:include:ts
-
+### Compressed files
 #Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
 --type-add
 	zip:*.{zip,jar,pak,rar,rar5,lz,z,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl}
@@ -168,21 +274,47 @@
 --type-add
 	zip:include:tar
 
+### Z shell
 --type-add
 	zsh:*.z{login,logout,profile,shenv,shrc}
 #--type-add
 #	zsh:*.{sh}
 
+###########################
+# END TYPE GROUPS
+###########################
+
+
+
+###########################
+# BEGIN TYPE ALIASES
+###########################
+## Aliases are defined only by a single include of one existing type group.
+
+### "archive" as an alias for "zip"
 --type-add
 	archive:include:zip
 
+### "cfg" as an alias for "config"
+--type-add
+	cfg:include:config
 
-######################
-# END TYPE GROUPS
-######################
---hidden
---color=auto
---max-columns
-	500
---smart-case
---follow
+### "javascript" as an alias for "js"
+--type-add
+	javascript:include:js
+
+### "mk" as an alias for "make"
+--type-add
+	mk:include:make
+
+### "python" as an alias for "py"
+--type-add
+	python:include:py
+
+### "typescript" as an alias for "ts"
+--type-add
+	typescript:include:ts
+
+###########################
+# END TYPE ALIASES
+###########################

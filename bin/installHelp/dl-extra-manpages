@@ -66,6 +66,22 @@ getPandocManpage(){
 	curl -Ls https://github.com/jgm/pandoc/raw/master/man/pandoc.1 > ~/.local/share/man/man1/pandoc.1
 
 }
+getWget2Manpage(){
+	echo "Fetching manual from wget2 GitLab repository; using pandoc to convert into manpage..." > /dev/stderr
+	# Based on https://gitlab.com/gnuwget/wget2/-/blob/574c8ae08dfd8949da039879d85899123d31ab1d/docs/wget2_md2man.sh.in
+
+	set -u
+	set -e
+
+	local ver="$(wget2 --version | sed -Ee '/^GNU/!d' -e 's/[^0-9]+$//')"
+	(
+	  echo "% WGET2(1) GNU Wget2 User Manual|${ver}"
+	  echo ""
+	  curl -Ls "https://gitlab.com/gnuwget/wget2/-/raw/master/docs/wget2.md"
+	) | \
+	sed '/# Wget2/,/^#/{/^# </!d}' | \
+	pandoc -s -f markdown -t man -o ~/.local/share/man/man1/wget2.1
+}
 # Fetch these as needed:
 #	bat.1 for sharkdp/bat; may already have locally, but may also need to patch for correct header and footer; TBD
 #	rg.1(.gz)? for BurntSushi/ripgrep
@@ -88,6 +104,7 @@ getTidyManpage > /dev/null
 getMavenManpage > /dev/null
 # getTermToSvgManpage > /dev/null
 getPandocManpage > /dev/null
+getWget2Manpage > /dev/null
 
 # TODO: ?ImageMagick/GraphicsMagick?, ?meld?, ?ipython?, genact, direnv
 # UPDATED ripgrep :p
