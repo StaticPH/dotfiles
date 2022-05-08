@@ -16,7 +16,7 @@
 ## "color" will do case sensitive matches, while "icolor" will do case
 ## insensitive matches.
 ##
-## Valid colors: white, black, red, blue, green, yellow, magenta, cyan.
+## Basic valid colors: white, black, red, blue, green, yellow, magenta, cyan. See the Colors section below for further options.
 ## For foreground colors, you may use the prefix "bright" to get a
 ## stronger highlight.
 ##
@@ -42,11 +42,14 @@ comment "#"
 ###Attributes
 ## Unclear if order of attributes is significant, but documentation uses bold,italic,fgcolor,bgcolor
 ## Note that not all terminal emulators support bold and/or italics, and bold in particular may have the same effect as applying the bright/light prefix.
-color bold,normal "<\bold\>"
+color bold,normal "\<bold\>"
 color italic,normal "\<italic\>"
 
 ### Options
-color italic,brightblue "^(\<(un)?set\>).+?\<(afterends|allow_insecure_backup|atblanks|autoindent|backup|boldtext|breaklonglines|casesensitive|constantshow|cutfromcursor|emptyline|historylog|indicator|jumpyscrolling|linenumbers|locking|magic|minibar|mouse|multibuffer|noconvert|nohelp|nonewlines|positionlog|preserve|quickblank|rawsequences|rebinddelete|regexp|saveonexit|showcursor|smarthome|softwrap|stateflags|suspendable|tabstospaces|trimblanks|unix|view|wordbounds|zap)\>"
+color italic,brightblue "^(\<(un)?set\>).+?\<(afterends|allow_insecure_backup|atblanks|autoindent|backup|boldtext|bookstyle|breaklonglines|casesensitive|constantshow|cutfromcursor|emptyline|historylog|indicator|jumpyscrolling|linenumbers|locking|magic|minibar|mouse|multibuffer|noconvert|nohelp|nonewlines|positionlog|preserve|quickblank|rawsequences|rebinddelete|regexp|saveonexit|showcursor|smarthome|softwrap|stateflags|tabstospaces|trimblanks|unix|wordbounds|zap|zero)\>"
+#### Legacy Options
+color italic,brightblue "^(\<(un)?set\>)[[:blank:]]+(view)\>"
+
 # Options which accept parameters
 color italic,brightblue "\<(fill\s+(-)?[[:digit:]]+)\>"
 color italic,brightblue "\<(guidestripe|tabsize)\s+[1-9][0-9]*\>"
@@ -96,6 +99,8 @@ color yellow "\<yellow\>"
 color magenta "\<magenta\>"
 color cyan "\<cyan\>"
 color normal "\<normal\>"
+
+# Version 5.0 added 9 new color names.
 color pink "\<pink\>"
 color purple "\<purple\>"
 color mauve "\<mauve\>"
@@ -105,6 +110,22 @@ color lime "\<lime\>"
 color peach "\<peach\>"
 color orange "\<orange\>"
 color latte "\<latte\>"
+
+# Version 6.0 added 14 new color names.
+color rosy "\<rosy\>"
+color beet "\<beet\>"
+color plum "\<plum\>"
+color sea "\<sea\>"
+color sky "\<sky\>"
+color slate "\<slate\>"
+color teal "\<teal\>"
+color sage "\<sage\>"
+color brown "\<brown\>"
+color ocher "\<ocher\>"
+color sand "\<sand\>"
+color tawny "\<tawny\>"
+color brick "\<brick\>"
+color crimson "\<crimson\>"
 
 color brightwhite "\<brightwhite\>"
 color brightblack "\<brightblack\>"
@@ -154,3 +175,17 @@ color lightblack "\<gray\>"
 # color brightpeach "\<brightpeach\>"
 # color brightorange "\<brightorange\>"
 # color brightlatte "\<brightlatte\>"
+# color brightrosy "\<brightrosy\>"
+# color brightbeet "\<brightbeet\>"
+# color brightplum "\<brightplum\>"
+# color brightsea "\<brightsea\>"
+# color brightsky "\<brightsky\>"
+# color brightslate "\<brightslate\>"
+# color brightteal "\<brightteal\>"
+# color brightsage "\<brightsage\>"
+# color brightbrown "\<brightbrown\>"
+# color brightocher "\<brightocher\>"
+# color brightsand "\<brightsand\>"
+# color brighttawny "\<brighttawny\>"
+# color brightbrick "\<brightbrick\>"
+# color brightcrimson "\<brightcrimson\>"

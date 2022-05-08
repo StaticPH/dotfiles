@@ -1,0 +1,4 @@
+#! /usr/bin/sh
+# Using 'start' instead of calling the executable directly will start Microsoft Word, rather than Wordpad.
+"C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe" $@ &
+disown $!

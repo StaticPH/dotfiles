@@ -40,6 +40,11 @@ export TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
 export LESSCHARSET='utf-8'
 export GCC_COLORS=1
 
+export CARGO_HOME="${HOME}/.cargo"
+export RUSTUP_HOME="${HOME}/.cargo"
+
+export HTML_TIDY="${HOME}/.config/html_tidy/.tidyrc"
+
 # Disallow pip from installing packages outside of a virtualenv
 #-------------------------------------------------------------
 #export PIP_REQUIRE_VIRTUALENV=true

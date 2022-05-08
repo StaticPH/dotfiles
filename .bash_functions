@@ -67,7 +67,7 @@ spacer(){
 
 function locateFunc(){
 	(shopt -s extdebug; declare -F "$1";)
-}; complete -A function locateFunc;
+} && complete -A function locateFunc;
 
 # Look, I forget things, okay?
 # ls_symbols(){
@@ -166,20 +166,6 @@ isRoot(){
 		return 0
 	fi
 }
-
-#Check that an executable with the given name exists on the PATH.
-# function programExists(){
-	#INSTEAD OF: check="$(type -a $1)" >/dev/null 2>&1
-	#USE: check="$(type -a $1)" &>/dev/null
-
-	# if [ -n "$check" ]; then
-		# # echo "$1 exists"
-		# return 0
-	# else
-		# # echo "$1 was not found"
-		# return 1
-	# fi
-# }
 
 # Send text to the system clipboard
 sendToClipboard(){
@@ -300,6 +286,10 @@ remove-blank-lines(){
 	sed '/^\s*$/d'
 }
 
+mancat(){
+	man --nj --nh "$@" | unexpand --first-only --tabs=4 | tr -s ' '
+}
+
 function excuse(){
 	# shellcheck disable=SC2155
 	local str=$(curl -s developerexcuses.com | grep -Eo '<a href.*>.*<\/a>')
@@ -364,45 +354,49 @@ if [ -n "$(type -t pip)" ]; then
 	}
 fi
 
-if [ -n "$(type -t treef)" ]; then
-	# { command -v fd || command -v fd-find } &&      TODO
-	fdtree(){
-		# command -v fd || printf 'something is wrong; command -v fd yields: %s\n' "$(command -v fd)"
-		# set -x
-		__fdtree_has_temp_colors='0'
-		command -p test ! "$LS_COLORS" && __fdtree_has_temp_colors=1 &&  eval "$(dircolors)" #export LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
-		# LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
-		# __fdtree_LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
-		case "$1" in
-			--help | -h)
-				printf "Wrapper around fd and treef.\n"
-				printf "Lists all files in a directory in the form of a tree using the fd command and the treef tree-formatter.\n"
-				printf "   $FUNCNAME [-h|--help] [-g|--git] DIRECTORY\n"
-				printf "      -h|--help     Shows this help text.\n"
-				printf "      -g|--git      Include the contents of any .git directories"
-				;;
-			--git | -g)
-				shift
-				# LS_COLORS="$__fdtree_LS_COLORS" command fd -HL "$@" | tr '\\' '/' | treef
-				command fd -HL --no-ignore-vcs "$@" | tr '\\' '/' | treef
-				;;
-			*)
-				#shift
-				# LS_COLORS="$__fdtree_LS_COLORS" command fd -HL "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | treef
-				# command fd -HL --no-ignore "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")" treef
-				if [ -e "$1" ]; then
-					# Naively assume no pattern was intended
-					command fd -HL --no-ignore '' "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | treef
-				else
-					command fd -HL --no-ignore "$@" | command -p grep --invert-match --ignore-case '\.git' | command -p tr '\\' '/' | treef
-				fi
-				# I cant seem to get treef to colorize unless LS_COLORS is explicitly set by the shell prior to calling fdtree :(
-				;;
-		esac
-		test __fdtree_has_temp_colors != '0' && export -n LS_COLORS && unset LS_COLORS
-		unset __fdtree_has_temp_colors
-		# set +x
-	}
+if command -v fd >/dev/null 2>&1; then
+	if [ -n "$(type -t treef)" ]; then
+		fdtree(){
+			# You CAN simply pipe the current version of fd into tree (version >= 1.8.0), but both that and this function seem to have some quirks...
+			# If the locally available version of fd doesn't default to the Unix path separator in MSYS,
+			# insert the following command into the command pipeline before piping into treef:   command -p tr '\\' '/'
+
+			# set -x
+			__fdtree_has_temp_colors='0'
+			command -p test ! "$LS_COLORS" && __fdtree_has_temp_colors=1 &&  eval "$(dircolors)" #export LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
+			# LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
+			# __fdtree_LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")"
+			case "$1" in
+				--help | -h)
+					printf "Wrapper around fd and treef.\n"
+					printf "Lists all files in a directory in the form of a tree using the fd command and the treef tree-formatter.\n"
+					printf "   $FUNCNAME [-h|--help] [-g|--git] DIRECTORY\n"
+					printf "      -h|--help     Shows this help text.\n"
+					printf "      -g|--git      Include the contents of any .git directories"
+					;;
+				--git | -g)
+					shift
+					# LS_COLORS="$__fdtree_LS_COLORS" command fd -HL "$@" | treef
+					command fd -HL --no-ignore-vcs "$@" | treef
+					;;
+				*)
+					#shift
+					# LS_COLORS="$__fdtree_LS_COLORS" command fd -HL "$@" | command -p grep --invert-match --ignore-case '\.git' | treef
+					# command fd -HL --no-ignore "$@" | command -p grep --invert-match --ignore-case '\.git' | LS_COLORS="$(dircolors | sed -Ee 2d -e "s/.*'(.+)'.*/\1/")" | treef
+					if [ -e "$1" ]; then
+						# Naively assume no pattern was intended
+						command fd -HL --no-ignore '' "$@" | command -p grep --invert-match --ignore-case '\.git' | treef
+					else
+						command fd -HL --no-ignore "$@" | command -p grep --invert-match --ignore-case '\.git' | treef
+					fi
+					# I cant seem to get treef to colorize unless LS_COLORS is explicitly set by the shell prior to calling fdtree :(
+					;;
+			esac
+			test __fdtree_has_temp_colors != '0' && export -n LS_COLORS && unset LS_COLORS
+			unset __fdtree_has_temp_colors
+			# set +x
+		}
+	fi
 fi
 
 rl-cfg-dump(){

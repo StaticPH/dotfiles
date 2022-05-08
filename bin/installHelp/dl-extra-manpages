@@ -13,7 +13,7 @@ getPygmentsManpage(){
 	#TODO: I really need to look elsewhere for a more up-to-date manpage, or write it myself
 	echo "Fetching pygmentize manpage from Pygments GitHub repository..." > /dev/stderr
 	curl -Ls https://github.com/pygments/pygments/raw/master/doc/pygmentize.1 > ~/.local/share/man/man1/pygmentize.1
-};
+}
 
 # No longer necessary; should still work though
 # getJqManpage(){
@@ -35,19 +35,20 @@ getNuitkaManpage(){
 	curl -Ls "https://manpages.debian.org/unstable/nuitka/nuitka.1.en.gz" > ~/.local/share/man/man1/nuitka.1.gz
 	echo "Fetching nuitka-run manpage from Debian Unstable..." > /dev/stderr
 	curl -Ls "https://manpages.debian.org/unstable/nuitka/nuitka-run.1.en.gz" > ~/.local/share/man/man1/nuitka-run.1.gz
-};
+}
 
 getShellcheckManpage(){
 	# Shellcheck manpage needs to be converted from markdown via pandoc, which itself needs to be manually installed
 	echo "Using pandoc to convert shellcheck's manual from markdown to a manpage."
 	pandoc -s -f markdown-smart -t man 'https://raw.githubusercontent.com/koalaman/shellcheck/master/shellcheck.1.md' -o ~/.local/share/man/man1/shellcheck.1
-};
+
+}
 
 getTidyManpage(){
 	# Thanks Debian, for providing access to the raw manpages rather than just the converted HTML and PDF versions :D
 	echo "Fetching html-tidy manpage from Debian Unstable..." > /dev/stderr
 	curl -Ls "https://manpages.debian.org/unstable/tidy/tidy.1.en.gz" > ~/.local/share/man/man1/tidy.1.gz
-};
+}
 
 getMavenManpage(){
 	# Thanks Debian, for providing access to the raw manpages rather than just the converted HTML and PDF versions :D
@@ -61,11 +62,12 @@ getTermToSvgManpage(){
 	echo "Using pandoc to convert termtosvg's manual from markdown to a manpage."
 	pandoc -sf markdown-smart -t man 'https://github.com/nbedos/termtosvg/raw/develop/man/termtosvg.md' -o ~/.local/share/man/man1/termtosvg.1
 }
+
 getPandocManpage(){
 	echo "Fetching Pandoc manpage from Pandoc GitHub repository..." > /dev/stderr
 	curl -Ls https://github.com/jgm/pandoc/raw/master/man/pandoc.1 > ~/.local/share/man/man1/pandoc.1
-
 }
+
 getWget2Manpage(){
 	echo "Fetching manual from wget2 GitLab repository; using pandoc to convert into manpage..." > /dev/stderr
 	# Based on https://gitlab.com/gnuwget/wget2/-/blob/574c8ae08dfd8949da039879d85899123d31ab1d/docs/wget2_md2man.sh.in
@@ -88,7 +90,7 @@ getWget2Manpage(){
 #	desed.1 for SoptikHa2/desed
 #
 # Not sure what I want to do for all the 3rd-party cargo commands that don't provide a manpage
-#  i.e. whatfeatures, cache, show, install-update, ...
+#  i.e. whatfeatures, cache, show, ...
 #
 # manually symlink manpages for these as needed:
 # 	nc.1(.gz)? to netcat.1(.gz)?
@@ -107,12 +109,11 @@ getPandocManpage > /dev/null
 getWget2Manpage > /dev/null
 
 # TODO: ?ImageMagick/GraphicsMagick?, ?meld?, ?ipython?, genact, direnv
-# UPDATED ripgrep :p
 #
 # CHECK IF MANPAGES EXIST FOR:
-# cargo-cache, cargo-show, cargo-install-update{,-config}, cargo-whatfeatures, cargo-feature, cargo-clippy/clippy{,-driver}, cargo-miri, cargo-fmt
+# cargo-cache, cargo-show, cargo-whatfeatures, cargo-feature, cargo-clippy/clippy{,-driver}, cargo-miri, cargo-fmt
 # rls, rustfmt, rust-gdb, rust-lldb, rustup,
-# durt, copycat, git-delta, miniserve, ptail, runiq, sccache, tabulate,
+# durt, copycat, git-delta, ptail, runiq, sccache, tabulate,
 # pipx, poetry, pipenv
 # ydiff, pyinstaller, pytabulate, litecli, jsonschema, icdiff, chardetect, html2text, something-venv-something, jupyter?
 # java, javaw, gradle, diff-so-fancy, chromedriver

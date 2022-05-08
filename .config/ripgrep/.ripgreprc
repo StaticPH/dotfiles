@@ -16,6 +16,22 @@
 
 
 ###########################
+# BEGIN GLOB EXCLUSION ARGS
+###########################
+
+--glob=!.git
+--glob=!.DS_Store
+--glob=!_metadata/verified_contents.json
+--glob=!*-journal
+--glob=!*.db-journal
+
+###########################
+# END GLOB EXCLUSION ARGS
+###########################
+
+
+
+###########################
 # BEGIN TYPE GROUPS
 ###########################
 # NOTE: *.profile REALLY SHOULD cover .profile (as should other similar cases behave)
@@ -116,7 +132,23 @@
 
 ### Font files
 --type-add
-	font:*.otf,*.ttf,*.woff,*.ttc,*.fon
+	font:*.otf,*.ttf,*.TTF,*.woff,*.ttc,*.fon,*.sfd,*.shx,*.CompositeFont
+
+### Git
+--type-add
+	git:*.git{attributes,config,ignore,modules}
+--type-add
+	git:git{attributes,config,ignore,modules}
+# There are many more files used by git than just 'exclude' which dont actually include the string in their names, but I don't currently see myself searching within any of those in particular.
+--type-add
+	git:exclude
+#.git is used in git worktrees
+#--type-add
+#	git:*.git
+#--type-add
+#	git:*.github
+#--type-add
+#	git:.git-blame-ignore-revs
 
 ### GLSL
 #--type-add
@@ -133,6 +165,14 @@
 ### MIME Html, which encapsulates all the resources necessary to render a page into a single file.
 --type-add
 	html:*.mhtml
+
+### Ignore files
+--type-add
+	ignore:*.ignore
+--type-add
+	ignore:*.{ag,fd,git,rg}ignore
+--type-add
+	ignore:gitignore,exclude
 
 ### Disk images
 --type-add
@@ -186,6 +226,10 @@
 --type-add
 	pic:*.{jpg,jpeg,png,apng,gif,bmp,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb}
 # *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
+
+### Pkg-config
+--type-add
+	pkgconfig:*.pc
 
 ### Python
 # *.pyw files are used on Windows to prompt the use of pythonw rather than python, the former of which wont display a console.
@@ -265,6 +309,10 @@
 --type-add
 	txt:include:log
 
+### Web files
+--type-add
+	web:include:cshtml,css,html,js,less,php,sass,svg,ts
+
 ### Compressed files
 #Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
 --type-add
@@ -306,6 +354,10 @@
 ### "mk" as an alias for "make"
 --type-add
 	mk:include:make
+
+### "pkgconf" as an alias for "pkgconfig", the former being a standalone replacement for the latter, and shorter
+--type-add
+	pkgconf:include:pkgconfig
 
 ### "python" as an alias for "py"
 --type-add

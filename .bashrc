@@ -146,7 +146,7 @@ fi
 ##############################################################
 
 if [ -r "${HOME}/.setup_base_env" ]; then
-  source "${HOME}/.setup_base_env"
+	source "${HOME}/.setup_base_env"
 fi
 
 
@@ -157,7 +157,7 @@ fi
 
 ## If started from sshd, make sure profile is sourced
 #if [[ -n "$SSH_CONNECTION" ]] && [[ "$PATH" != *:/usr/bin* ]]; then
-#    source /etc/profile
+#	source /etc/profile
 #fi
 
 
@@ -165,7 +165,7 @@ fi
 ### Some people use a different file for aliases
 #-------------------------------------------------------------
 if [ -r "${HOME}/.bash_aliases" ]; then
-  source "${HOME}/.bash_aliases"
+	source "${HOME}/.bash_aliases"
 fi
 
 
@@ -181,7 +181,7 @@ fi
 ### Some people use a different file for functions
 #-------------------------------------------------------------
 if [ -r "${HOME}/.bash_functions" ]; then
-  source "${HOME}/.bash_functions"
+	source "${HOME}/.bash_functions"
 fi
 
 if [ "$OS" == 'Windows_NT' ]; then
@@ -198,7 +198,7 @@ fi
 ### Import functions and aliases that may only be relevant to a specific machine
 #-------------------------------------------------------------
 if [ -r "${HOME}/.machine_specific" ]; then
-  source "${HOME}/.machine_specific"
+	source "${HOME}/.machine_specific"
 fi
 
 

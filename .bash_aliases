@@ -110,7 +110,7 @@ alias ll="ls -Alhv --group-directories-first --no-group -o" #g: don't list owner
 alias lsdir='ls --recursive'
 
 if [ -n "$(type -t tree)" ]; then
-	alias tree="tree -C -uhal -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_mdoules'"    #  Nice alternative to 'recursive ls' ...
+	alias tree="tree -C -uhal --dirsfirst -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_mdoules'"    #  Nice alternative to 'recursive ls' ...
 	# alias treeOccupied="tree --prune -FC -I '.git|.svn|.ssh|.gnupg|build'"
 	alias treeOccupied="tree --prune -F"
 fi
@@ -182,6 +182,7 @@ if [ -n "$(type -t tar)" ]; then
 	alias tarzip="tar --create --gzip --file" # 1st argument is the resulting tarfile
 	alias tarball="tar --create --verbose --file" # 1st argument is the resulting tarfile
 	alias untz="tar --extract --gzip --verbose --file"
+	alias untxz='tar --extract -v --atime-preserve -I "xz -c -T 0" --totals '
 fi
 
 #--------------------------
@@ -214,11 +215,11 @@ fi
 [ -n "$(type -t desed)" ] && alias desed="desed --sed-path /usr/bin/sed"
 
 if [ -n "$(type -t fd)" ]; then
-	if [ "$OSTYPE" == 'msys' ]; then
-		alias fd="command fd -HaL --path-separator '//'"
-	else
-		alias fd="fd -HaL"
-	fi
+	alias fd="fd -HaL"
+
+	# Faster version of findLinks using fd instead of find
+	alias findLinksFd="command fd -H --no-ignore --type symlink"
+
 fi
 
 #--------------------------------
@@ -254,14 +255,15 @@ alias globalip="curl -s http://checkip.dyndns.com/ | sed 's/[^0-9\.]//g'"
 #--------------------------------
 # Process Management Aliases
 #--------------------------------
-	# Better 'ps'
-alias _ps="ps -a --format 'logname user pid jobc start command'"
-alias myps="ps -a --format 'logname user pid jobc start command'"
 
 alias ps='ps -l'
 if [ "$OSTYPE" == 'msys' ]; then
+	alias _ps="procps -a --format 'logname user pid jobc start command'"
+	alias myps="procps -a --format 'logname user pid jobc start command'"
 	alias psa='ps -lWa'
 else
+	alias _ps="ps -a --format 'logname user pid jobc start command'"
+	alias myps="ps -a --format 'logname user pid jobc start command'"
 	alias psa='ps -la'
 fi
 
@@ -273,7 +275,7 @@ fi
 # Development Related Aliases
 #---------------------------------
 
-alias jmake="make -j$(nproc)"
+command -v nproc &>/dev/null && alias jmake="make -j$(nproc)"
 alias gccg="gcc -ggdb3"		#compile and create debugging symbols
 alias g++g="g++ -ggdb3"
 alias gpp="g++"

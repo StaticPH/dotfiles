@@ -106,6 +106,17 @@ miniserve_entry=( 'miniserve' '' 'off' )
 # 	:
 # }
 
+getAndroidSDK_PlatformTools(){
+	# Android SDK command line tools (replaces SDK Tools, including command-line SDK Manager) available at: https://developer.android.com/studio#command-tools
+	# If you intend to install the SDK command line tools package at all, you probably want to install it first, then use sdkmanager to install any other SDK packages.
+	#
+	# Android SDK Platform Tools available at: https://developer.android.com/studio/releases/platform-tools
+
+	let latest_platform_tools_link="$(command curl -Ls 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip' -H 'authority: dl.google.com' -H 'upgrade-insecure-requests: 1' -H 'dnt: 1' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -H 'referer: https://dl.google.com/' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-US,en;q=0.9' -H 'cookie: ANID=OPT_OUT' --compressed | command sed -E 's/.*href=\"([^"]+)\".*/\1/')"
+	command wget --progress=bar:noscroll --show-progress --no-verbose "$latest_platform_tools_link"
+}
+androidSDK_PlatformTools_entry=( 'Android SDK Platform Tools' '' 'off' )
+
 install_maven_bash_comp(){
 	# $1 is the destination directory to install the completion file into
 	local destDir="${1:-/etc/bash_completion.d}"
@@ -126,13 +137,13 @@ maven_comp_entry=( 'maven_bash_completion' '' 'off' )
 #imagemagick
 #graphicsmagick
 #showterm bash script
-#maven/mvn		format: apache-maven-3.6.3-bin.zip
+#maven/mvn;		format: apache-maven-3.6.3-bin.zip
 #pip-autoremove
-#fzf		format: fzf-0.21.1-windows_amd64.zip
+#fzf;			format: fzf-0.21.1-windows_amd64.zip
 #direnv
 #rustup/cargo
 #awklib
-#adb
+#adb;			Part of Android SDK Platform Tools
 #vlc
 #gimp
 #~~HTMLTidy~~ installed from package manager, as preferred
@@ -140,7 +151,7 @@ maven_comp_entry=( 'maven_bash_completion' '' 'off' )
 #prettyping
 #git interactive rebase tool		format: git-interactive-rebase-tool-1.2.1-x86_64-pc-windows-msvc.zip
 
-# programsList=( pandoc shellcheck dprint delta sccache gping miniserve imagemagick graphicsmagick )
+# programsList=( pandoc shellcheck dprint delta sccache gping miniserve imagemagick graphicsmagick androidSDK_PlatformTools )
 # otherList=( maven_bash_completion )
 begin(){
 	explanation='Use the tab and arrow keys to move the cursor, and spacebar to select which programs to download.'
@@ -155,7 +166,8 @@ begin(){
 			"${pandoc_entry[@]}" "${shellcheck_entry[@]}" \
 			"${dprint_entry[@]}" "${delta_entry[@]}" \
 			"${sccache_entry[@]}" "${gping_entry[@]}" \
-			"${miniserve_entry[@]}" "${maven_comp_entry[@]}" \
+			"${miniserve_entry[@]}" "${androidSDK_PlatformTools_entry[@]}" \
+			"${maven_comp_entry[@]}" \
 			--item-help --no-tags \
 			--keep-tite --visit-items --separate-output \
 			2> /tmp/namedPipeProgFetcher &
@@ -163,49 +175,52 @@ begin(){
 	# if so, --separate-output becomes particularly critical; hopefully such a change would also result in error messages not being subject to word splitting
 	# Should thus also permit selecting items containing whitespace
 	argList="$(cat /tmp/namedPipeProgFetcher)"
+	shopt -s nocasematch
 	for arg in $argList; do
 		case "$arg" in
-			[pP]andoc)
+			pandoc)
 				echo "Downloading Pandoc"
 				gh_downloadFile "$pandoc_repo" "$pandoc_fname"
 				;;
-			[sS]hell[cC]heck)
+			shellcheck)
 				echo "Downloading Shellcheck"
 				gh_downloadFile "$shellcheck_repo" "$shellcheck_fname"
 				;;
-			[dD]print)
+			dprint)
 				echo "Downloading dprint"
 				gh_downloadFile "$dprint_repo" "$dprint_fname"
 				;;
-			[dD]elta)
+			delta)
 				echo "Downloading delta"
 				gh_downloadFile "$delta_repo" "$delta_fname"
 				;;
-			[sS]ccache)
+			sccache)
 				echo "Downloading sccache"
 				gh_downloadFile "$sccache_repo" "$sccache_fname"
 				;;
-			[gG]ping)
+			gping)
 				echo "Downloading gping"
 				gh_downloadFile "$gping_repo" "$gping_fname"
 				;;
-			[mM]iniserve)
+			miniserve)
 				echo "Downloading miniserve"
 				gh_downloadFile "$miniserve_repo" "$miniserve_fname"
 				;;
-			# [mM]eld|[mM]eld[mM]erge)
+			# meld|meldmerge)
 			# 	# echo "Downloading Meld"
 			# 	;;
-			[iI]mage[mM]agick)
+			imagemagick)
 				# echo "Downloading ImageMagick"
 				echo "Downloading ImageMagick has not yet been implemented."
 				;;
-			[gG]raphics[mM]agick)
+			graphicsmagick)
 				# echo "Downloading GraphicsMagick"
 				echo "Downloading GraphicsMagick has not yet been implemented."
 				;;
-			# [mM]aven_comp|[mM]vn_comp)
-			# [mM]aven_completion)
+			"android sdk platform tools")
+				echo "Downloading latest Android SDK Platform Tools"
+				getAndroidSDK_PlatformTools
+				;;
 			"maven_bash_completion")
 				echo "Installing bash completion file for Apache Maven"
 				install_maven_bash_comp ''

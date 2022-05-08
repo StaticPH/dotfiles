@@ -22,7 +22,7 @@ set constantshow 				# Command line flag -c
 set showcursor					# Command line flag -g
 set smarthome					# Command line flag -A
 #set stateflags					# Command line flag -%
-set suspendable					# Command line flag -z
+# set suspendable				# Command line flag -z; enabled by default in v6.0, but the default binding is Ctrl+T,Ctrl+Z
 set tabsize 4					# Command line flag -T 4
 set trimblanks					# Command line flag -M
 set zap							# Command line flag -Z
@@ -187,6 +187,8 @@ bind ^B findbracket main	# Find a matching bracket with Ctrl+B
 bind Sh-M-Z redo main		# Also allow use of Shift+[Alt|Meta]+Z to redo actions
 bind M-Y redo main			# Use Alt/Meta+Y to redo actions
 bind M-U undo main			# Use Alt/Meta+U to undo actions
+
+bind ^Z suspend main		# Restore use of Ctrl+Z to suspend
 
 ##### I wish these worked :(
 # bind ^Enter complete all	# Attempt word completion with Ctrl+Enter

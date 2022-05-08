@@ -1,10 +1,13 @@
 ############## Javascript Syntax Highlighting ##############
-# It may seem like overkill, but I assure you, I could have been far nire thorough.
+# It may seem like overkill, but I assure you, I could have been far more thorough.
+# Inspired in part by:
+#	https://github.com/scopatz/nanorc/blob/master/js.nanorc
+#	https://github.com/scopatz/nanorc/blob/master/javascript.nanorc
 ###
 syntax "JavaScript" "\.(js|jsx|mjs)$"
 comment "//"
 
-# TODO: Consider also highlighting a hashbang, but only if it is the very first line of the file.
+# TODO: Consider also highlighting a shebang, but only if it is the very first line of the file.
 
 ##### Flow Control #####
 # General flow control blocks
@@ -133,5 +136,3 @@ color brightblack start="/\*" end="\*/"
 # Trailing whitespace.
 color ,red "[[:space:]]+$"
 
-#https://github.com/scopatz/nanorc/blob/master/js.nanorc
-#https://github.com/scopatz/nanorc/blob/master/javascript.nanorc

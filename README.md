@@ -24,6 +24,7 @@
 * dprint				—	Code formatter for a handful of languages. One of annoyingly few decent JavaScript formatters that don't require NodeJS to run <sup>[1]</sup>.
 * gping					—	Ping command, but with a graph <sup>[1]</sup>.
 * git-hist				—	A CLI tool to quickly browse the git history of files on a terminal.
+* shellharden			—	A syntax highlighter and a tool to semi-automate the rewriting of scripts to ShellCheck conformance, mainly focused on quoting.
 
 <sub>(1): Standalone binary can also be downloaded with the `program-fetch` utility.</sub><br>
 <sub>(2): NOTE: This does not appear to work in Mintty, or at least not with my current setup (but I suspect the former).</sub><br>
@@ -52,9 +53,11 @@
 [dprint]: https://github.com/dprint/dprint
 [gping]: https://github.com/orf/gping
 [git_hist]: https://github.com/arkark/git-hist
+[shellharden]: https://github.com/anordal/shellharden
 
 [spotify_tui]: https://github.com/Rigellute/spotify-tui
 <!-- ?spotifyd / librespot? -->
+<!-- On windows, copycat can be useful for clipboard i/o -->
 
 ### Python packages installed via pipx:
 * ipython				—	Powerful Python REPL.

@@ -124,7 +124,7 @@ $endif
 ###							ADDITIONS BELOW
 ###################################################################
 ### NOTE:
-##	The following symbolic character names are recognized while  processing
+##	The following symbolic character names are recognized while processing
 ##	key bindings of the form 'keyname: function-name/macro':
 ##	DEL, ESC, ESCAPE, LFD, NEWLINE, RET, RETURN, RUBOUT, SPACE, SPC, and TAB.
 
@@ -156,15 +156,17 @@ $if mode=emacs
 		### I'm honestly not really sure what term value should be used for msys2+mintty, assuming there even is a specific value that would work.
 		#"\C[1~": beginning-of-line         # Home Key; alternatively, may be \e[H
 		#"\C[4~": end-of-file               # End Key; alternatively, may be \e[F
-		#";5~": re-read-init-file           # Ctrl+F5...somehow...verbatim input in Nano says ^[[15;5~, '^[[' being '\033[' aka '\e['
+		#";5~": re-read-init-file           # At one point, this was Ctrl+F5...somehow...verbatim input in Nano said ^[[15;5~, '^[[' being '\033[' aka '\e['
 		"\e[15;5~": re-read-init-file       # Previously Ctrl+F5 was somehow ";5~"; I don't know exactly what changed, but now it uses a sequence that follows the same pattern as the other function keys (excluding F1-4)
 		# "\e[19;5~": "pressed ctrl+f8"     # Works; there must be some sort of historical reason for why F5 is 15 but F8 is 19 (rather than 18)
+		# "\e[24;3":  # trying to see if altgr+f12 can be made to behave like alt+f12, as I already seem to have it doing with non function keys. Obviously I'm having trouble, given that its incomplete and commented out.
 
 		$if Bash
-			"\e\d": undo                      # Alt+Backspace to undo specifically in the context of Bash 
-			"\C-H": backward-kill-word        # Ctrl+Backspace to delete word; even in mintty as of version 0.3.7, when backspace was changed to emit ^H 
+			"\e\d": undo                      # Alt+Backspace to undo specifically in the context of Bash
+			"\C-H": backward-kill-word        # Ctrl+Backspace to delete word; even in mintty as of version 0.3.7, when backspace was changed to emit ^H
 			"\e[2;7~": overwrite-mode         # Ctrl+Alt+Insert to toggle overwrite mode
-			
+			"\e[1;3A": previous-screen-line   # Alt+Up to move the cursor up a line (on screen)
+			"\e[1;3B": next-screen-line       # Alt+Down to move the cursor down a line (on screen)
 			#	"\C-SPC": menu-complete       # Nope
 			#	"\C-\\": menu-complete        # Nope
 			#	"\C-\\\\": menu-complete      # Nope
@@ -214,7 +216,7 @@ set completion-ignore-case on
 ##		The length in characters of the common prefix of a list of possible completions that is
 ##		displayed without modification. If set to a value greater than zero, common prefixes
 ##		longer than this value are replaced with an ellipsis when displaying possible completions.
-##		NOTE THAT SETTING THIS MAY BREAK colored-completion-prefix.
+##		NOTE THAT SETTING THIS MAY BREAK colored-completion-prefix. Unfortunate, considering this is useful behavior far more often than I would like.
 # set completion-prefix-display-length 10
 
 ## completion-query-items (Default: 100)
@@ -281,3 +283,6 @@ set skip-completed-text on
 set visible-stats on
 # see https://www.xfree86.org/current/ctlseqs.html for some helpful information
 # also review infocmp results side-by-side with man user_caps. and stty
+
+
+# "\e\C-e": shell-expand-line # expand all variables in line

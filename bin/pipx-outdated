@@ -2,14 +2,17 @@
 # List outdated (application-like) packages installed using pipx
 
 _pipx_outdated(){
-	let local hasOutdated;
+	let hasOutdated;
 	while read -sr pyPkgName pyPkyVersion; do
-		local pypi_latest="$(curl -sS https://pypi.org/simple/${pyPkgName}/ | grep -o '>.*</' | tail -n 1 | grep -o -E '[0-9]([0-9]|[-._])*[0-9]')"
+		# local pypi_latest="$(curl -sS https://pypi.org/simple/${pyPkgName}/ | grep -o '>.*</' | tail -n 1 | grep -o -E '[0-9]([0-9]|[-._])*[0-9]')" # No-sed-version
+		local pypi_latest="$(curl -Ss https://pypi.org/simple/${pyPkgName}/ | sed -Ee 's@[^>]+>([^<]+)</.+@\1@' -e '/[-.]dev[0-9]*[-.]|[<>]/d' -e 's/.+[-_]([0-9]([0-9]|[-._])*[0-9]).+/\1/' -e '/\./!d' | tail -n 1)"
+
 		if [ "$pyPkyVersion" != "$pypi_latest" ]; then
 			[ ! -v hasOutdated ] && printf "An update is available for the following package(s):\n" && hasOutdated=0
-			printf "%s\n\tCurrent: %s\tLatest: %s\n" "$pyPkgName" "$pyPkyVersion" "$pypi_latest"
+			printf "%s\tCurrent: %s\tLatest: %s\n" "$pyPkgName" "$pyPkyVersion" "$pypi_latest"  # | column -o '\t' -s '\t'
 		fi
-	done < <( pipx list | grep -o 'package.*,' | tr -d ',' | cut -d ' ' -f 2- )
+	# done < <( pipx list | grep -o 'package.*,' | tr -d ',' | cut -d ' ' -f 2- ) # No-sed-version
+	done < <( pipx list | sed -E '{ /package.*,/!d ; s/\s*package\s*([^ ]+)\s*([0-9.]+),.+/\1 \2/ ;}' ) # | column -o '\t' -s '\t'
 
 	if [ "${hasOutdated:-1}" -eq 1 ]; then
 		printf "All top-level packages are currently up to date.\n"
