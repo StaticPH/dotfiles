@@ -316,7 +316,7 @@
 ### Compressed files
 #Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
 --type-add
-	zip:*.{zip,jar,pak,rar,rar5,lz,z,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl}
+	zip:*.{zip,jar,pak,rar,rar5,lrz,lz,lzop,z,zpaq,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl}
 --type-add
 	zip:include:7z,bzip2,gzip,lz4,lzma,xz,zstd
 --type-add
