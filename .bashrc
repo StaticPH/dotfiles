@@ -232,8 +232,8 @@ fi
 # These statements need to come AFTER any modifications to the prompt occur
 #-------------------------------------------------------------
 ##############################################################
-if [ -r "${HOME}/.bash_hooks" ]; then
-	source "${HOME}/.bash_hooks"
+if [ -r "${HOME}/.hooks" ]; then
+	source "${HOME}/.hooks"
 fi
 
 
