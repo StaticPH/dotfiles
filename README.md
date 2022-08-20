@@ -57,12 +57,14 @@
 
 [spotify_tui]: https://github.com/Rigellute/spotify-tui
 <!-- ?spotifyd / librespot? -->
+<!-- mandown -->
+<!-- cargo-xwin, cargo-lock -->
 <!-- On windows, copycat can be useful for clipboard i/o -->
 
 ### Python packages installed via pipx:
 * ipython				—	Powerful Python REPL.
 * litecli				—	CLI for SQLite databases with auto-completion and syntax highlighting.
-* git-filter-repo		—	Quickly rewrite Git repository history (filter-branch replacement).
+* ~~git-filter-repo		—	Quickly rewrite Git repository history (filter-branch replacement).~~ Installed via some package manager in all cases.
 * icdiff				—	Show more granular differences between files in a colored 2-column view; supports Git repository diffs with included `git-icdiff` shell script <sup>[1]</sup>.
 * sqlitebiter			—	A CLI tool to convert CSV, Excel, HTML, JSON, and more to a SQLite database file
 
@@ -131,21 +133,24 @@
 * JDK 1.8
 
 <!-- Other software of note, not yet categorized appropriately:
-nuitka (python)
+nuitka (python), currently installed via system package manager, formerly with pipx
 poetry (python)
 pipenv (python)
 pyinstaller (python)
 yolk (python)
+py-spy (python)
 ydiff (diff tool in python)
 direnv (general, possibly the Go variant)
 lsix (general/fun)
 ntldd (Windows dll/exe tool)
 rename (PERL-script version) (general)
 showterm (bash-script version) (general)
+makefile2graph (makefile dependency and flow visualization)
 awklib (general)
 adb (android tool)
 gimp
 spotify-qt
+spotifyd and/or librespot
 vlc
 miktex (provides pdflatex for use with pandoc)
 -->
