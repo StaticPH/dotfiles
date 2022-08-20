@@ -81,6 +81,9 @@ shopt -s progcomp_alias >/dev/null 2>&1
 # If this is set, the shift builtin prints an error message when the shift count exceeds the number of positional parameters.
 # shopt -s shift_verbose
 #
+# Don't search through $PATH for files when using the builtin 'source' command
+shopt -u sourcepath
+#
 # Expand backslash-escape sequences in echo by default
 # shopt -s xpg_echo
 #
