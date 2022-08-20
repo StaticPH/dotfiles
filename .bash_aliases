@@ -113,6 +113,9 @@ if [ -n "$(type -t tree)" ]; then
 	alias tree="tree -C -uhal --dirsfirst -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_mdoules'"    #  Nice alternative to 'recursive ls' ...
 	# alias treeOccupied="tree --prune -FC -I '.git|.svn|.ssh|.gnupg|build'"
 	alias treeOccupied="tree --prune -F"
+else
+	# Sorta-kinda-approximate tree
+	alias tree='ls -Ah --group-directories-first --dereference-command-line-symlink-to-dir --recursive | grep ":$" | sed -e "s/:$//" -e "s@[^-][^/]*/@--@g" -e "s/^/ /" -e "s/-/|/"'
 fi
 
 # Some shortcuts for different directory listings
