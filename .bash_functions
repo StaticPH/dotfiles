@@ -69,6 +69,26 @@ function locateFunc(){
 	(shopt -s extdebug; declare -F "$1";)
 } && complete -A function locateFunc;
 
+function editfunc(){
+	### Look for the function definition, and store the results in an array
+	local found=( $(shopt -s extdebug; declare -F "$1") )
+	### Fail if function definition cannot be found
+	if [ "${#found[@]}" -eq 0 ]; then
+		printf '\033[31m%s: Unable to find function: "%s"\033[0m\n' "$FUNCNAME" "$1"
+		return 1;
+	fi
+	### Remove function name from $found
+	unset found[0];
+	### Ensure array indices are current; in this particular case,
+	### quoting the variable to prevent expansion results in a single array
+	### element, so don't do that.
+	found=( ${found[*]} )
+
+	#printf "found=\033[32m%s\033[0m\nlen found=\033[33m%s\033[0m\n" "${found[@]}" "${#found[@]}";
+	### Open nano to the line containing the function definition
+	nano "+${found[0]}" "${found[1]}"
+} && complete -A function editfunc;
+
 # Look, I forget things, okay?
 # ls_symbols(){
 	# printf "╔═════╤═════════════╦═════╤══════════╗\n"
