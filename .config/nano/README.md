@@ -8,7 +8,6 @@
 * csh.nanorc
 * css.nanorc
 * etc-hosts.nanorc
-* html.nanorc
 * inputrc.nanorc
 * java.nanorc
 * json.nanorc
@@ -35,6 +34,7 @@
 
 # Modified:
 * git.nanorc
+* html.nanorc
 * markdown.nanorc
 * nanohelp.nanorc
 * toml.nanorc
@@ -47,3 +47,4 @@
 * Update markdown syntax rules, taking inspiration from the rules provided with nano by default (/usr/share/nano/markdown.nanorc). Alternatively, just use the default.
 * Extensively review troff syntax and update man syntax rules (low priority). Alternatively, just use the default.
 * Deprecate various copied files for the builtin defaults
+* Incorporate highlighting of CSS property names and delimiting semicolons into the style attribute of html elements in html.nanorc
