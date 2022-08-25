@@ -35,7 +35,7 @@ color brightblue "\<(fc|history)\>"
 color brightblue "\<(set|shopt)\>"
 #
 icolor brightgreen "^\s+[0-9A-Z_]+\s+\(\)"
-icolor brightred "\$\{?[0-9A-Z_!@#$*?-]+\}?"
+icolor brightred "\$\{?[0-9A-Z_!@#%$*?-]+\}?"
 color brightyellow ""(\\.|[^"])*"" "'(\\.|[^'])*'"
 color cyan "(^|[[:space:]])#.*$"
 color ,green "[[:space:]]+$"

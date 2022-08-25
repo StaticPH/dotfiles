@@ -1,7 +1,7 @@
 # Files copied directly from https://github.com/scopatz/nanorc
+There is a _very_ good chance these are out of date.
 * asm.nanorc
 * awk.nanorc
-* bash.nanorc
 * c.nanorc
 * cmake.nanorc
 * conf.nanorc
@@ -33,6 +33,7 @@
 * zsh.nanorc
 
 # Modified:
+* bash.nanorc (modified from sh.nanorc; frankly, this probably shouldn't have a different name)
 * git.nanorc
 * html.nanorc
 * markdown.nanorc
