@@ -1,0 +1,45 @@
+
+# Apparently gating the loading of completion behind a conditional prevents it from being loaded even if the condition is true.
+# I suppose this kinda makes sense, considering that Bash isn't supposed to even look for completion specifications until it needs one, let alone load them?
+
+#! command -v _sqlite3 &>/dev/null && . /usr/share/bash-completion/completions/sqlite3
+#complete -F _sqlite3 sqlitedump
+_sqlite3_pretender ()
+{
+    # Trick the completion function, _parse_help, by replacing the name of the function/command Bash is trying to complete.
+    #
+    # Note that bash completion always uses 3 arguments, $1 being the function/command being completed for,
+    # and $3 being the word before the current word being completed on the command line.
+    # As such, when completing the first argument the user is passing to the command,
+    # the $3 as given to bash completion will still be the name written by the user, rather than the replaced value in $1.
+
+    shift # Remove name of target function/command from argument list
+    local foo=("$@") # Try to be a little more cautious about unquoted variables, even if its probably fine; use an array to "safely" expand
+    set -- sqlite3 "${foo[@]}"
+
+    local cur prev words cword;
+    _init_completion || return;
+    local dbexts='@(sqlite?(3)|?(s?(3))db)';
+    case $prev in
+        -help | -version | -lookaside | -mmap | -newline | -nullvalue | -pagecache | -scratch | -separator | *.$dbexts)
+            return
+        ;;
+        -init)
+            _filedir;
+            return
+        ;;
+        -cmd)
+            compopt -o filenames;
+            COMPREPLY=($(compgen -c -- "$cur"));
+            return
+        ;;
+    esac;
+    [[ $cword -gt 2 && ${words[cword - 2]} == -@(lookaside|pagecache|scratch) ]] && return;
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '$(_parse_help "$1" -help)' -- "$cur"));
+        return;
+    fi;
+    _filedir "$dbexts"
+}
+complete -F _sqlite3_pretender sqlitedump
+

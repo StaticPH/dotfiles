@@ -1,0 +1,12 @@
+_webp2png (){
+	local cur prev words cword split;
+	_init_completion -s || return;
+	local xspec="*.@(webp|riff)";
+	xspec="!"$xspec
+	#printf '\nprev=%s\n' "$prev"
+	[ "$prev" != "$1" ] && return;
+	local IFS='
+';
+	compopt -o filenames;
+	COMPREPLY=($(compgen -f -X "$xspec" -- "$cur") $(compgen -d -- "$cur"))
+} && complete -F _webp2png webp2png

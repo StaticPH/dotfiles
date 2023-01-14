@@ -1,0 +1,181 @@
+# shellcheck disable=SC2207
+
+# Requires https://github.com/scop/bash-completion
+
+_tidy() {
+	local cur prev
+	_init_completion -s || return 0
+
+	narg_shortopts='-version -help -help-config -help-env -show-config -export-config -export-default-config -xml-help -xml-config -xml-strings -xml-error-strings -xml-options-strings'
+	str_shortopts='-help-option -config -language'
+	shortopts="${narg_shortopts} ${str_shortopts}"
+
+	bool_longopts='--add-meta-charset --add-xml-decl --add-xml-space --anchor-as-name --ascii-chars --assume-xml-procins --bare --break-before-br --clean --coerce-endtags --decorate-inferred-ul --drop-empty-elements --drop-empty-paras --drop-proprietary-attributes --enclose-block-text --enclose-text --escape-cdata --escape-scripts --fix-backslash --fix-style-tags --fix-uri --force-output --gdoc --gnu-emacs --hide-comments --indent-attributes --indent-cdata --indent-with-tabs --input-xml --join-classes --join-styles --keep-tabs --keep-time --literal-attributes --logical-emphasis --markup --merge-emphasis --mute-id --ncr --numeric-entities --omit-optional-tags --output-html --output-xhtml --output-xml --preserve-entities --punctuation-wrap --quiet --quote-ampersand --quote-marks --quote-nbsp --replace-color --show-info --show-meta-change --show-warnings --skip-nested --strict-tags-attributes --tidy-mark --uppercase-tags --warn-proprietary-attributes --word-2000 --wrap-asp --wrap-attributes --wrap-jste --wrap-php --wrap-script-literals --wrap-sections --write-back'
+	autobool_longopts='--vertical-space --indent --fix-bad-comments --merge-spans --merge-divs --output-bom --show-body-only'
+	int_longopts='--wrap --tab-size --indent-spaces --show-errors'
+	enum_longopts='--sort-attributes --repeated-attributes --uppercase-attributes --custom-tags --newline --accessibility-check --doctype'
+	encoding_longopts='--char-encoding --output-encoding --input-encoding'
+	str_longopts='--new-blocklevel-tags --new-empty-tags --new-inline-tags --new-pre-tags --css-prefix --alt-text --priority-attributes --error-file --output-file --mute'
+	longopts="${bool_longopts} ${autobool_longopts} ${int_longopts} ${enum_longopts} ${encoding_longopts} ${str_longopts}"
+
+	doc_types='auto html5 loose omit strict'
+	encodings='raw ascii latin0 latin1 utf8 iso2022 mac win1252 ibm858 utf16le utf16be utf16 big5 shiftjis'
+	sort_attributes='none alpha'
+	attribute_repetition='keep-first keep-last'
+	attribute_uppercase_mode='no yes preserve'
+	custom_tags='no blocklevel empty inline pre'
+	line_endings='LF CR CRLF'
+	accessibility_lvl='0 1 2 3'
+	langs='aa ab af am ar as ay az ba be bg bh bi bn bo br ca co cs cy da de dz el en eo es et eu fa fi fj fo fr fy ga gd gl gn gu ha he hi hr hu hy ia id ie ik is it iu ja jw ka kk kl km kn ko ks ku ky la ln lo lt lv mg mi mk ml mn mo mr ms mt my na ne nl no oc om or pa pl ps pt qu rm rn ro ru rw sa sd sg sh si sk sl sm sn so sq sr ss st su sv sw ta te tg th ti tk tl tn to tr ts tt tw ug uk ur uz vi vo wo xh yi yo za zh zu'
+
+	if [[ ${prev} == --* ]] ; then
+		case $prev in
+			### bool_longopts ###
+			--add-meta-charset | --add-xml-decl | --add-xml-space | --anchor-as-name | --ascii-chars | --assume-xml-procins | --bare | --break-before-br | --clean | --coerce-endtags | --decorate-inferred-ul | --drop-empty-elements | --drop-empty-paras | --drop-proprietary-attributes | --enclose-block-text | --enclose-text | --escape-cdata | --escape-scripts | --fix-backslash | --fix-style-tags | --fix-uri | --force-output | --gdoc | --gnu-emacs | --hide-comments | --indent-attributes | --indent-cdata | --indent-with-tabs | --input-xml | --join-classes | --join-styles | --keep-tabs | --keep-time | --literal-attributes | --logical-emphasis | --markup | --merge-emphasis | --mute-id | --ncr | --numeric-entities | --omit-optional-tags | --output-html | --output-xhtml | --output-xml | --preserve-entities | --punctuation-wrap | --quiet | --quote-ampersand | --quote-marks | --quote-nbsp | --replace-color | --show-info | --show-meta-change | --show-warnings | --skip-nested | --strict-tags-attributes | --tidy-mark | --uppercase-tags | --warn-proprietary-attributes | --word-2000 | --wrap-asp | --wrap-attributes | --wrap-jste | --wrap-php | --wrap-script-literals | --wrap-sections | --write-back)
+				# TODO: split up
+				COMPREPLY=($(compgen -W "auto yes no" -- $cur))
+				# Ring the bell if there are no completions available for the current string
+				[ ${#COMPREPLY[@]} -eq 0 ] && tput bel && return 1
+				return 0
+				;;
+			### autobool_longopts ###
+			--vertical-space) ;&
+			--indent) ;&
+			--fix-bad-comments) ;&
+			--merge-spans) ;&
+			--merge-divs) ;&
+			--output-bom) ;&
+			--show-body-only)
+				case $cur in
+					"")
+						# Initially suggest just 'yes' and 'no'
+						COMPREPLY=($(compgen -W "yes no"))
+						return 0
+						;;
+					0 | 1)
+						# Don't suggest these at all, but if given, silently accept them and move on
+						COMPREPLY=("")
+						return 0
+						;;
+					*)
+						# Attempt to complete the current string to any of 'yes', 'no', 'true', or 'false'; this works even though only 'yes' and 'no' are provided as suggestions
+						COMPREPLY=($(compgen -W "yes no true false" -- $cur))
+						# Ring the bell if there are no completions available for the current string
+						[ ${#COMPREPLY[@]} -eq 0 ] && tput bel && return 1
+						return 0
+						;;
+				esac
+				;;
+			### int_longopts ###
+			--wrap | --tab-size | --indent-spaces | --show-errors)
+				# ?TODO?
+				COMPREPLY=()
+				return 0
+				;;
+			### enum_longopts ###
+			--sort-attributes)
+				COMPREPLY=($(compgen -W "${sort_attributes}" -- $cur))
+				return 0
+				;;
+			--repeated-attributes)
+				COMPREPLY=($(compgen -W "${attribute_repetition}" -- $cur))
+				return 0
+				;;
+			--uppercase-attributes)
+				COMPREPLY=($(compgen -W "${attribute_uppercase_mode}" -- $cur))
+				return 0
+				;;
+			--custom-tags)
+				COMPREPLY=($(compgen -W "${custom_tags}" -- $cur))
+				return 0
+				;;
+			--newline)
+				COMPREPLY=($(compgen -W "${line_endings}" -- $cur))
+				return 0
+				;;
+			--accessibility-check)
+				COMPREPLY=($(compgen -W "${accessibility_lvl}" -- $cur))
+				return 0
+				;;
+			--doctype)
+				COMPREPLY=($(compgen -W "${doc_types}" -- $cur))
+				return 0
+				;;
+			### encoding_longopts ###
+			--char-encoding | --output-encoding | --input-encoding)
+				COMPREPLY=($(compgen -W "${encodings}" -- $cur))
+				return 0
+				;;
+			### str_longopts ###
+			--priority-attributes) ;&
+			--new-blocklevel-tags) ;&
+			--new-empty-tags) ;&
+			--new-inline-tags) ;&
+			--new-pre-tags) ;&
+			--css-prefix) ;&
+			--alt-text)
+				COMPREPLY=()
+				return 0
+				;;
+			--error-file | --output-file)
+				_filedir
+				return 0
+				;;
+			--mute)
+				#TODO?
+				COMPREPLY=()
+				return 0
+				;;
+			#default case: previous option is unrecognized
+#			*)
+#				#TODO
+#				COMPREPLY=($(compgen -W "${longopts}" -- $cur))
+#				return 0
+#				;;
+		esac
+		# If no completions have been found thus far, try completing filepaths
+		_filedir
+		return 0
+	elif [[ ${prev} == -* ]] ; then
+		case $prev in
+			-config)
+				_filedir
+				return 0
+				;;
+			-language)
+				COMPREPLY=($(compgen -W "${langs}" -- $cur))
+				return 0
+				;;
+			-help-option)
+				# Causes all other options to be ignored
+				COMPREPLY=($(compgen -W "${longopts//--}" -- $cur))
+				return 0
+				;;
+			-xml-help | -xml-config | -xml-strings | -xml-error-strings | -xml-options-strings ) ;&
+			-version | -help | -help-config | -help-env | -show-config | -export-config | -export-default-config)
+				# No arguments; disregard further completions unless explicitly subsequent argument(s) begin with a hyphen
+				COMPREPLY=()
+				return 0
+				;;
+		esac
+	fi
+
+	case $cur in
+		# --)
+			# COMPREPLY=($(compgen -W "${longopts}" -- $cur))
+			# return 0
+			# ;;
+		--*)
+			COMPREPLY=($(compgen -W "${longopts}" -- $cur))
+			return 0
+			;;
+		-*)
+			COMPREPLY=($(compgen -W "${shortopts} --" -- $cur))
+			return 0
+			;;
+	esac
+
+	# If no completions have been found thus far, try completing filepaths
+	_filedir
+	return 0
+} && complete -F _tidy tidy

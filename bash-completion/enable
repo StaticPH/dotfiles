@@ -1,0 +1,5 @@
+complete -A disabled -X 'enable' enable enable
+
+#[ "$(command -v disable 2>/dev/null)" = "alias disable='enable -n'" ] && complete -A enabled -X 'enable' disable disable
+# I REALLY don't like that gating this behind a check causes it not to be loaded automatically by Bash.
+complete -A enabled -X 'enable' disable disable

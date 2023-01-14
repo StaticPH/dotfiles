@@ -1,0 +1,36 @@
+#! /bin/sh
+
+__PROGNAME__="$(basename "$0")"
+
+# Convenience wrapper for creating an xz-compressed tarball, with verbose output enabled by default.
+_tarxz(){
+	usageStr="Usage: $__PROGNAME__ [-h|--help] [--quiet] TARFILE_OUTPUT INPUT_FILE... [tar options]..."
+	verbosityFlag='-v'
+
+	case "$1" in
+		-h|--help)    echo "$usageStr" && return 0;;
+		--quiet)      shift; verbosityFlag='';;
+	esac
+
+	if [ $# -lt 2 ]; then
+		echo "$__PROGNAME__: Not enough arguments."
+		echo "$usageStr" && return 1;
+	fi
+
+	outputFile="$1"
+	shift
+
+	## Unfortunately, tar can't verify the archive if it is compressed upon creation.
+	# tar --create "$verbosityFlag" --atime-preserve --verify -I "xz -kz -T 0" --totals --file "$outputFile" "$@"
+
+	# If $verbosityFlag is quoted to prevent expansion, tar interprets the empty string as an archive member to-be, and complains
+	# shellcheck disable=SC2086
+	tar --create $verbosityFlag --atime-preserve -I "xz -kz -T 0" --totals --file "$outputFile" "$@"
+
+#	# if a file is intended to be decompressed on an embedded system, you may need to use --check=none or --check=crc32
+#	# xz -3 for fast compression and cheap decompression
+#	# xz -6 for default compression. Higher numbers aren't worth it for files smaller than 8MiB
+#	# xz -9 for great compression, and fast decompression.
+}
+
+_tarxz "$@"

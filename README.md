@@ -4,7 +4,7 @@
 * cargo-show			—	Should really be a built-in feature.
 * cargo-update			—	Should really be a built-in feature.
 * cargo-whatfeatures	—	Should really be a built-in feature.
-* hyperfine				—	Benchmarking tool.
+* ~~hyperfine				—	Benchmarking tool.~~ Installed via some package manager in all cases.
 * ripgrep				—	A `grep`-like tool which is much better for searching recursively.
 * fd-find				—	Find files within a path fast, maybe do something with them.
 * cargo-cache			—	When `cargo clean` isn't good enough.
@@ -14,7 +14,7 @@
 * bat					—	Like `cat`, but with syntax highlighting and a few other niceties.
 * genact				—	Honestly, this one I just keep for the amusement.
 * git-delta				—	Powerful diff tool with support for side-by-side view and Git repository diffs <sup>[1]</sup>.
-* sccache				—	Basically `ccache` with support for cloud storage and Rust binaries <sup>[1]</sup>.
+* ~~sccache				—	Basically `ccache` with support for cloud storage and Rust binaries <sup>[1]</sup>.~~ Installed via some package manager in all cases.
 * ptail					—	`tail -f`, but only show a certain number of lines at a time.
 * miniserve				—	Easy and surprisingly capable http server with support for file uploading <sup>[1]</sup>.
 * runiq					—	Filter duplicate entries from textual input without inherently sorting the output.
@@ -181,6 +181,8 @@ NOTE: This script and the patch it applies are intended ONLY for use on Microsof
 * Investigate pipipxx, pyvenv, rbenv.
 * Rewrite nanorc file for markdown; probably reference my existing one and the version provided by nano itself.
 * Finagle with nanorc syntax for nanorc files in an attempt to eliminate highlighting overlap between menus, functions, and options.
+* Add script (or at least put together a thorough guide) for symlinking various config files to the appropriate locations required for their utilization by `sudo`/root user on relevant environments; reasonable as it is, it irritates me that my user-customized defaults for programs like `nano` and `gdb` can't just magically _know_ that I want to load config files from the _normal_ user's home-directory despite not being executed as that user.
+* Add alternate .nanorc with slightly modified interface coloring for use by `sudo`/root user on relevant environments.
 
 # Notes:
 

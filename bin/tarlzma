@@ -1,0 +1,50 @@
+#! /bin/sh
+
+__PROGNAME__="$(basename "$0")"
+
+# Convenience wrapper for creating an lzma-compressed tarball, with verbose output and link dereferencing enabled by default.
+_tarlzma(){
+	verbosityFlag='-v'
+	checkpointFrequency=500
+	linkResolution='-l --dereference --hard-dereference'
+	lzmaCmdline='lzma -zk9e'
+
+	# shellcheck disable=SC2059
+	usage(){
+		printf "Usage: $__PROGNAME__ [-h|--help] [--quiet] [--nolinks] TARFILE_OUTPUT INPUT_FILE... [tar options]...\n"
+		printf "    Unrecognized flags will be considered an error.\n"
+		printf "    The first argument not beginning with a dash, '-', will be considered the name of the output file.\n"
+		printf "    Any subsequent arguments will be passed directly to tar.\n"
+	}
+
+	for arg in "$@"; do
+		case "$arg" in
+			-h|--help)    usage; return 0;;
+			--quiet)      shift; verbosityFlag='';;
+#			--checkin)    Not feeling like bothering with this as long as I'm also sticking strictly to posix.
+#				https://unix.stackexchange.com/questions/598036/how-to-check-if-variable-is-integer-avoid-problem-with-spaces-around-in-posix
+			--nolinks)    shift; linkResolution='';;
+#			--)           shift; break;; # Any subsequent arguments are meant for tar
+			-*)           printf '%s: Unrecognized flag: "%s"\n' "$__PROGNAME__" "$arg"; return 1;;
+			*)            break;; # This argument and the any subsequent arguments are to be passed along to tar
+		esac
+	done
+
+	if [ $# -lt 2 ]; then
+		echo "$__PROGNAME__: Not enough arguments."
+		usage
+		return 1
+	fi
+
+	outputFile="$1"
+	shift
+
+	# If $verbosityFlag is quoted to prevent expansion, tar interprets the empty string as an archive member to-be, and complains
+	# shellcheck disable=SC2086
+	tar --create $verbosityFlag --atime-preserve --totals $linkResolution --checkpoint="$checkpointFreq" \
+		--sparse --exclude-vcs --ignore-case --show-omitted-dirs \
+		-I "$lzmaCmdline" \
+		--file "$outputFile" "$@"
+}
+
+_tarlzma "$@"

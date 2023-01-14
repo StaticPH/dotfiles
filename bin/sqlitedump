@@ -1,0 +1,27 @@
+#! /bin/sh
+__PROGNAME__="$(basename "$0")"
+
+# Convenience wrapper for dumping the contents of a sqlite database
+_sqlitedump(){
+	usageStr(){
+		printf "%s\n" "Usage: $__PROGNAME__ [-h|--help] DATABASE_FILE [options]..."
+		printf "%s\n" "  Dumps the contents of a sqlite3 database to stdout."
+		printf "%s\n" "  Options (except -h|--help) will be passed along to sqlite3."
+	}
+
+	case "$1" in
+		-h|-help|--help)    usageStr && return 0;;
+	esac
+
+	if [ $# -eq 0 ]; then
+		echo "$__PROGNAME__: Not enough arguments."
+		usageStr && return 1;
+	fi
+
+	databaseFile="$1"
+	shift
+
+	sqlite3 -readonly "$@" "$databaseFile" .dump
+}
+
+_sqlitedump "$@"
