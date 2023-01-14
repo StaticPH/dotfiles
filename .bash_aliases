@@ -110,7 +110,7 @@ alias ll="ls -Alhv --group-directories-first --no-group -o" #g: don't list owner
 alias lsdir='ls --recursive'
 
 if [ -n "$(type -t tree)" ]; then
-	alias tree="tree -C -uhal --dirsfirst -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_mdoules'"    #  Nice alternative to 'recursive ls' ...
+	alias tree="tree -C -uhal --dirsfirst -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_modules'"    #  Nice alternative to 'recursive ls' ...
 	# alias treeOccupied="tree --prune -FC -I '.git|.svn|.ssh|.gnupg|build'"
 	alias treeOccupied="tree --prune -F"
 else
@@ -177,7 +177,7 @@ alias pointswhere="readlink"
 alias findBrokenLinks='find . -maxdepth 1 -type l ! -exec test -e {} \; -printf "%-15p  ->  %l\n"'
 
 #-------------------------
-# Compression related
+# Archive related
 #-------------------------
 
 if [ -n "$(type -t tar)" ]; then
@@ -187,6 +187,8 @@ if [ -n "$(type -t tar)" ]; then
 	alias untz="tar --extract --gzip --verbose --file"
 	alias untxz='tar --extract -v --atime-preserve -I "xz -c -T 0" --totals '
 fi
+
+alias tarlist='bsdcpio -itF'
 
 #--------------------------
 # Diff Related Aliases
@@ -295,19 +297,27 @@ fi
 if [ -n "$(type -t python)" ]; then
 	#TODO: Find out a way to disable these while ANY virtual environment is activated; already found a way that needs to be manually set up for each venv
 	if [[ "$OSTYPE" == 'msys' ]]; then
-		alias dumbpy="$PY38/python"
-		alias dumpy="$PY38/python"
-		alias python38="winpty $PY38/python"
+		# Expanding to an empty string when PY38 is null/unset and checking if the result is executable may be marginally more performant than checking
+		# "if PY38 is a directory AND it contains an executable file, 'python'" ( [-d "$PY38" && -x "$PY38/python" ] )
+		if [ -x "${PY38:+$PY38/python}" ]; then
+			alias dumbpy="$PY38/python"
+			alias dumpy="$PY38/python"
+			alias python38="winpty $PY38/python"
+		fi
 
-		alias dumbpy="$PY37/python"
-		alias dumpy="$PY37/python"
-		alias python37="winpty $PY37/python"
+		if [ -x "${PY37:+$PY37/python}" ]; then
+			alias dumbpy="$PY37/python"
+			alias dumpy="$PY37/python"
+			alias python37="winpty $PY37/python"
+		fi
 
-		alias dumbpy36="$PY36/python"
-		alias dumpy36="$PY36/python"
-		alias python36="winpty $PY36/python"
+		if [ -x "${PY36:+$PY36/python}" ]; then
+			alias dumbpy36="$PY36/python"
+			alias dumpy36="$PY36/python"
+			alias python36="winpty $PY36/python"
+		fi
 
-		alias python="winpty $PY37/python"
+		alias python="winpty $PY37/python" # FIXME: be smarter about this...which I'll need to be if this is to work on machines with less chaotic setup.
 
 		# alias pip="$PY36/Scripts/pip"		# For inexplicable reasons, this alias completely breaks any attempts at bash completion for pip
 	else
@@ -316,12 +326,13 @@ if [ -n "$(type -t python)" ]; then
 		[ -n "$(type -t python3.8)" ] && alias python38="python3.8"
 		[ -n "$(type -t python3)" ]   && alias python="python3"
 	fi
-	alias pip36="$PY36/Scripts/pip"
-	alias pip37="$PY37/Scripts/pip"
-	alias pip38="$PY38/Scripts/pip"
-	[ -f "$PY36/Scripts/pipenv" ] && alias pipenv36="$PY36/Scripts/pipenv"
-	[ -f "$PY37/Scripts/pipenv" ] && alias pipenv37="$PY37/Scripts/pipenv"
-	[ -f "$PY38/Scripts/pipenv" ] && alias pipenv38="$PY38/Scripts/pipenv"
+
+	[ -x "${PY36:+$PY36/Scripts/pip}" ] && alias pip36="$PY36/Scripts/pip"
+	[ -x "${PY37:+$PY37/Scripts/pip}" ] && alias pip37="$PY37/Scripts/pip"
+	[ -x "${PY38:+$PY38/Scripts/pip}" ] && alias pip38="$PY38/Scripts/pip"
+	[ -x "${PY36:+$PY36/Scripts/pipenv}" ] && alias pipenv36="$PY36/Scripts/pipenv"
+	[ -x "${PY37:+$PY37/Scripts/pipenv}" ] && alias pipenv37="$PY37/Scripts/pipenv"
+	[ -x "${PY38:+$PY38/Scripts/pipenv}" ] && alias pipenv38="$PY38/Scripts/pipenv"
 	alias py="python "
 
 	# And for ipython specifically...
