@@ -65,20 +65,28 @@ spacer(){
 	fullWidthLineUnicode
 }
 
+function toggle_hist_expansion(){
+	case "$-" in
+		*H*) set +H;;
+		*)   set -H;;
+	esac
+}
+
 function locateFunc(){
 	(shopt -s extdebug; declare -F "$1";)
 } && complete -A function locateFunc;
 
+# shellcheck disable=SC2206
 function editfunc(){
 	### Look for the function definition, and store the results in an array
 	local found=( $(shopt -s extdebug; declare -F "$1") )
 	### Fail if function definition cannot be found
 	if [ "${#found[@]}" -eq 0 ]; then
-		printf '\033[31m%s: Unable to find function: "%s"\033[0m\n' "$FUNCNAME" "$1"
+		printf '\033[31m%s: Unable to find function: "%s"\033[0m\n' "${FUNCNAME[0]}" "$1"
 		return 1;
 	fi
 	### Remove function name from $found
-	unset found[0];
+	unset "found[0]";
 	### Ensure array indices are current; in this particular case,
 	### quoting the variable to prevent expansion results in a single array
 	### element, so don't do that.
@@ -100,8 +108,7 @@ function editfunc(){
 
 __showColor(){
 	if [ $# -ne 1 ]; then
-		# shellcheck disable=SC2128
-		printf "$FUNCNAME takes exactly 1 argument\n";
+		printf "${FUNCNAME[0]} takes exactly 1 argument\n";
 		return 1;
 	fi
 	printf "\e[48;5;${1}m $1 \033[m"
@@ -109,8 +116,7 @@ __showColor(){
 
 function showColorRange(){
 	if [ $# -ne 2 ]; then
-		# shellcheck disable=SC2128
-		printf "Usage: '$FUNCNAME START_NUM END_NUM'\n"
+		printf "Usage: '${FUNCNAME[0]} START_NUM END_NUM'\n"
 		printf "\tSTART_NUM AND END_NUM must be integers in the range of [0,256).\n"
 		return 1
 	fi
@@ -124,10 +130,9 @@ function showColorRange(){
 	printf "\e[0m\n"
 }
 
-# shellcheck disable=SC2128
 echoChar (){
 	if [ $# -ne 1 ]; then
-		printf "Usage: $FUNCNAME UNICODE_NUMBER\n" && return 1
+		printf "Usage: ${FUNCNAME[0]} UNICODE_NUMBER\n" && return 1
 	fi
 	printf "\U${1}"
 }
@@ -142,19 +147,16 @@ setTitle(){
 	#printf '\[\033]1;$@\007\]' #set minimized title
 }
 
-# shellcheck disable=SC2128
 setTextColor(){
-	[ $# -eq 1 ] && printf "\e]10;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
+	[ $# -eq 1 ] && printf "\e]10;$1\a" || echo "${FUNCNAME[0]} only accepts a single color parameter."
 }
 
-# shellcheck disable=SC2128
 setBackgroundColor(){
-	[ $# -eq 1 ] && printf "\e]11;$1\a" || echo "$FUNCNAME only accepts a single color parameter."	#seagreen is pretty
+	[ $# -eq 1 ] && printf "\e]11;$1\a" || echo "${FUNCNAME[0]} only accepts a single color parameter."	#seagreen is pretty
 }
 
-# shellcheck disable=SC2128
 setCursorColor(){
-	[ $# -eq 1 ] && printf "\e]12;$1\a" || echo "$FUNCNAME only accepts a single color parameter."
+	[ $# -eq 1 ] && printf "\e]12;$1\a" || echo "${FUNCNAME[0]} only accepts a single color parameter."
 }
 
 function moveCursorTo(){
@@ -200,13 +202,12 @@ function filecount() {
 	find "${1-.}" -type f | wc -l
 }
 
-# shellcheck disable=SC2128
 findByName(){
 	if [ $# -lt 1 ]; then
 		printf "Equivalent to 'find PATH -name PATTERN'\n"
 		printf "If only 1 arguement is provided, PATH defaults to the current directory\n"
 		printf "Only supports up to two arguments.\n"
-		printf "Usage: '$FUNCNAME [PATH] -name PATTERN'\n"
+		printf "Usage: '${FUNCNAME[0]} [PATH] -name PATTERN'\n"
 		return 1
 	elif [ $# -eq 1 ]; then
 		find "$PWD" -name "$1"
@@ -215,13 +216,12 @@ findByName(){
 	fi
 }
 
-# shellcheck disable=SC2128
 curlup(){
 	echo "NOTE: This function is WIP."
 	if [ $# -eq 0 ]; then
-		echo "$FUNCNAME is a wrapper around the curl command for uploading local files to a remote url."
+		echo "${FUNCNAME[0]} is a wrapper around the curl command for uploading local files to a remote url."
 		# echo "Usage: $FUNCNAME --file <file> --dest <url> [--non-blocking]"
-		echo "Usage: $FUNCNAME --dest URL [--file FILE]" #dont bother with the non-blocking case for now
+		echo "Usage: ${FUNCNAME[0]} --dest URL [--file FILE]" #dont bother with the non-blocking case for now
 		#might eventually decide to ditch the --dest and --file in favor of just requiring the parameters in a specific order
 		return
 	fi
@@ -236,15 +236,14 @@ curlup(){
 	fi
 }
 
-# shellcheck disable=SC2128
 epochTime(){
 	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
-		printf "Usage: $FUNCNAME [-h|--help] [TIME_STRING]\n"
+		printf "Usage: ${FUNCNAME[0]} [-h|--help] [TIME_STRING]\n"
 		printf "  A convenience function for converting a human-readable time to the equivalent unix epoch time.\n" | fold -s
 		printf "  Without a parameter, converts the current time to unix epoch form.\n"
 		return 0
 	elif [ "$#" -gt 1 ]; then
-		printf "$FUNCNAME accepts at most 1 argument.\n"
+		printf "${FUNCNAME[0]} accepts at most 1 argument.\n"
 		return 1
 	fi
 
@@ -252,16 +251,15 @@ epochTime(){
 	date -d "${1:-now}" "+%s"
 }
 
-# shellcheck disable=SC2128
 fromEpoch(){
 	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
-		printf "Usage: $FUNCNAME [-h|--help] [UNIX_EPOCH]\n"
+		printf "Usage: ${FUNCNAME[0]} [-h|--help] [UNIX_EPOCH]\n"
 		printf "  A convenience function for converting a unix epoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
 		# printf "  Output format is determined by the values of LC_TIME and TIME_STYLE.\n"	# Determine order of precedence
 		# printf "  Time zone rules are indicated by the TZ environment variable, or by the system default rules if TZ is not set.\n"
 		return 0
 	elif [ "$#" -ne 1 ]; then
-		printf "$FUNCNAME requires exactly 1 argument.\n"
+		printf "${FUNCNAME[0]} requires exactly 1 argument.\n"
 		return 1
 	fi
 
@@ -281,24 +279,21 @@ function strlen(){
 	# Alternatively: expr length + "$1"
 }
 
-# shellcheck disable=SC2128
 function strtail(){
-	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tget last N characters of STRING\n" && return 1
-	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to get cannot exceed length of the string.\n" && return 1
+	[ $# -ne 2 ] && printf "Usage: ${FUNCNAME[0]} STRING N\t:\tget last N characters of STRING\n" && return 1
+	[ "$2" -gt "${#1}" ] && printf "Error: ${FUNCNAME[0]}: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1: ${#1}-$2}"
 }
 
-# shellcheck disable=SC2128
 function strhead(){
-	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tget first N characters of STRING\n" && return 1
-	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to get cannot exceed length of the string.\n" && return 1
+	[ $# -ne 2 ] && printf "Usage: ${FUNCNAME[0]} STRING N\t:\tget first N characters of STRING\n" && return 1
+	[ "$2" -gt "${#1}" ] && printf "Error: ${FUNCNAME[0]}: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1:0:$2}"
 }
 
-# shellcheck disable=SC2128
 function skipNchars(){
-	[ $# -ne 2 ] && printf "Usage: $FUNCNAME STRING N\t:\tTrim the first N characters of STRING, and return the rest\n" && return 1
-	[ "$2" -gt "${#1}" ] && printf "Error: $FUNCNAME: The number of characters to skip cannot exceed length of the string.\n" && return 1
+	[ $# -ne 2 ] && printf "Usage: ${FUNCNAME[0]} STRING N\t:\tTrim the first N characters of STRING, and return the rest\n" && return 1
+	[ "$2" -gt "${#1}" ] && printf "Error: ${FUNCNAME[0]}: The number of characters to skip cannot exceed length of the string.\n" && return 1
 	echo "${1:$2:${#1}}"
 }
 
@@ -317,8 +312,20 @@ function excuse(){
 	echo "${str2:0:${#str2}-4}"
 }
 
+# shellcheck disable=SC2016
+odz(){
+	# Majorly convoluted wrapper function to color 00 bytes of a "pretty" hexdump in gray
+#	[2m == tput dim
+#	[0m == tput sgr0
+	#	s/([^0-9A-F ][^ ]{,2})(00) /\1[2m\2([^0-9A-F ][^ ]{,2})(00) /\1\2[0m /g; # matches trailing "00" bytes while also ignoring the address column
+	od -t x2z "$@" | sed -E '{
+		s/ (00|0000)/ [2m\1[0m/g; # matches leading "00" byte and "0000" adjacent bytes
+		s/([^0-9A-F ][^ ]{,2})(00) /\1[2m\2[0m /g; # matches trailing "00" bytes while also ignoring the address column; inexplicably, the former is unreliable if od is passed `--endian=big`
+	}'
+}
+
 # shellcheck disable=SC2046
-if [ $(seemsLikeWSL) ]; then
+if [ "$(seemsLikeWSL)" ] && [ ! "$(command -v wslpath &>/dev/null)" ]; then
 	function wslpath(){
 		if [ $# -eq 0 ]; then
 			### https://github.com/Microsoft/WSL/issues/2715
@@ -390,7 +397,7 @@ if command -v fd >/dev/null 2>&1; then
 				--help | -h)
 					printf "Wrapper around fd and treef.\n"
 					printf "Lists all files in a directory in the form of a tree using the fd command and the treef tree-formatter.\n"
-					printf "   $FUNCNAME [-h|--help] [-g|--git] DIRECTORY\n"
+					printf "   ${FUNCNAME[0]} [-h|--help] [-g|--git] DIRECTORY\n"
 					printf "      -h|--help     Shows this help text.\n"
 					printf "      -g|--git      Include the contents of any .git directories"
 					;;
@@ -439,7 +446,7 @@ rl-cfg-dump(){
 # redirect to stdout with >&1
 # redirect to stderr with >&2
 # "^" is equivalent to "2>", at least for the Fish shell
-# "|&" is shorthand for "2>&1 |"
+# As of Bash 4, "|&" is shorthand for "2>&1 |"
 # delete a function, but NOT a variable of the same name, with "unset -f functionName"
 # redirecting with ">|" instead of ">" will force file clobbering, ignoring whether noclobber is enabled(via set)
 # "&>fileName" is equivalent to ">fileName 2>&1"
