@@ -10,6 +10,24 @@
 #-------------------------------------------------------------
 ##############################################################
 
+# For filename expansion, ignore filename matches that match any of the colon-separated globs in 'GLOBIGNORE'. Honors the setting of the extglob shell options
+#-------------------------------------------------------------
+#export GLOBIGNORE=".:.."	#How often do you REALLY want a glob to match "." or ".."?
+
+# Don't auto-complete files with the following file extensions
+#-------------------------------------------------------------
+export FIGNORE=".dll:.DLL:.ax" #:.DS_Store:.pyc:.pyd:
+
+# Treat files (with executable-bit set) matching these globs as not being on the PATH.
+# Does not affect commands already in the hash, or bash's `[` `[[` and `test` commands.
+#-------------------------------------------------------------
+#export EXECIGNORE=""
+
+# Must press ctrl+D 1+$IGNOREEOF times to exit shell...
+# because I've accidentally'd my shell a few times too many when trying to send ctrl+D while suffering input delay
+#-------------------------------------------------------------
+export IGNOREEOF="1"
+
 # Set arguments to automatically pass to the less pager; git pager needs to include -R and -F for git commands to behave nicely, but including -F in LESS affects man, so the -F should be handled in the gitconfig and/or aliases for less/man/git.
 export LESS="-R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\: %x.:?pB%pB\%..   ?f(Press v to open with default editor).%t"
 
@@ -24,6 +42,8 @@ export LESS="-R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s
 #export LESS_TERMCAP_ue=$'\E[0m'           # end underline
 #export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 
+export LESSCHARSET='utf-8'
+
 # Allow different preferred editors for local and remote sessions
 if [ -n "$SSH_CONNECTION" ]; then
 	export EDITOR="/usr/bin/nano"
@@ -37,42 +57,26 @@ fi
 
 export TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
 # export LANG='en_US.UTF-8'
-export LESSCHARSET='utf-8'
 export GCC_COLORS=1
 
 export CARGO_HOME="${HOME}/.cargo"
 export RUSTUP_HOME="${HOME}/.cargo"
 
-export HTML_TIDY="${HOME}/.config/html_tidy/.tidyrc"
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+
+# Make Python use UTF-8 encoding for output to stdin/stdout/stderr.
+#-------------------------------------------------------------
+export PYTHONIOENCODING="UTF-8"
 
 # Disallow pip from installing packages outside of a virtualenv
 #-------------------------------------------------------------
 #export PIP_REQUIRE_VIRTUALENV=true
 
-# For filename expansion, ignore filename matches that match any of the colon-separated globs in 'GLOBIGNORE'. Honors the setting of the extglob shell options
-#-------------------------------------------------------------
-#export GLOBIGNORE=".:.."	#How often do you REALLY want a glob to match . or .. ?
-
-
-# Don't auto-complete files with the following file extensions
-#-------------------------------------------------------------
-export FIGNORE=".dll:.DLL:.ax" #:.DS_Store:.pyc:.pyd:
-
-# Treat files (with executable-bit set) matching these globs as not being on the PATH.
-# Does not affect commands already in the hash, or bash's `[` `[[` and `test` commands.
-#-------------------------------------------------------------
-#export EXECIGNORE=""
-
-
-# Must press ctrl+D 1+$IGNOREEOF times to exit shell...
-# because I've accidentally'd my shell a few times too many when trying to send ctrl+D while suffering input delay
-#-------------------------------------------------------------
-export IGNOREEOF="1"
-
 # Config file path variables
 #-------------------------------------------------------------
 export BAT_CONFIG_PATH="${HOME}/.config/bat/config"
 export RIPGREP_CONFIG_PATH="${HOME}/.config/ripgrep/.ripgreprc"
+export HTML_TIDY="${HOME}/.config/html_tidy/.tidyrc"
 
 ##############################################################
 #-------------------------------------------------------------
@@ -174,7 +178,7 @@ if [ -r "/env/environment" ]; then
 	PATH=$(/usr/bin/cat /env/environment)
 	PATH="${PATH:6:-1}"
 else
-	if [[ $OSTYPE == 'msys' ]]; then
+	if [ "$OSTYPE" = 'msys' ]; then
 		# Best guess at a default path for msys (or cygwin, but I don't use that personally)
 		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"
 	else
@@ -202,18 +206,20 @@ elif [ -n "$MSYSTEM" ]; then
 		# If ever I want to use anything MINGW, I'll use MINGW64 when possible.
 		PATH="$PATH:/mingw32/bin"
 	else
+		# shellcheck disable=SC2016
 		printf 'WARNING: $MSYSTEM has been assigned to an unrecognized value of "%s". There may be unexpected or missing PATH entries.\n' "$MSYSTEM"
 	fi
 fi
 
+[ -v CARGO_HOME ] && PATH="$CARGO_HOME/bin:$PATH" # Insert before system binary locations, but not before user binary locations.
 [ -d "${HOME}/.local/bin" ] && PATH="${HOME}/.local/bin:$PATH"
-[ -d "$HOME/bin" ] && PATH="$HOME/bin:$PATH"
+[ -d "${HOME}/bin" ] && PATH="${HOME}/bin:$PATH"
 
 # Don't add this clutter to the path if aliases have already been generated through generateAll.sh;
 # the aliases will be sourced in .bashrc if they exist in the user's home directory
 if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
 	# !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
-	if [[ $OSTYPE == 'msys' ]]; then
+	if [ "$OSTYPE" = 'msys' ]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
 	elif [ $(seemsLikeWSL) ]; then
 		# System is most likely WSL
@@ -221,7 +227,7 @@ if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
 	fi
 fi
 
-[[ $OSTYPE == 'msys' ]] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
+[ "$OSTYPE" = 'msys' ] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
 
 ##############################################################
 #-------------------------------------------------------------

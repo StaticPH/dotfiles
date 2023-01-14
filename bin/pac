@@ -19,6 +19,15 @@ pacman(){
 	fi
 }
 
+PARTIAL_UPGRADE_DANGERS='https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported'
+
+grantAbortChance(){
+	local key
+	tput setaf 3 # Ignore NO_COLOR for serious warning messages
+	printf '%s\n' 'About to perform a potentially dangerous operation.' \
+	'To abort now, press Ctrl+C or Ctrl+D now. Enter any other key to continue.' 1>&2 && read -s -r -b 1 key
+}
+
 usage(){
 cat <<EOF
 FLAGS:
@@ -36,7 +45,7 @@ SUBCOMMANDS (Valid package operations):
              list-orphans|list-outdated|list-installed|
              list-explicitly-installed|list-dependencies|
              show-local
-   file    : provides-what|find-providers
+   file    : provides-what|find-providers|refresh-files
 EOF
 }
 
@@ -56,7 +65,7 @@ EOF
 	if [[ $# == 0 ]]; then
 		usage
 	else
-		operation="$1" # facillitate TODO second-level help function that accepts the operation as a paremeter. i.e. `remove --help` calls `operationHelp "remove"`
+		operation="$1" # Facillitate TODO second-level help function that accepts the operation as a paremeter. i.e. `remove --help` calls `operationHelp "remove"`.
 		case "$operation" in
 			remove | uninstall)
 				shift
@@ -74,7 +83,7 @@ EOF
 				shift
 				pacman -S --downloadonly $*
 				;;
-			install | update) # treat both install and update as the same; although perhaps at least 'update' should specifically use '--needed'
+			install | update) # Treat both install and update as the same; although perhaps at least 'update' should specifically use '--needed'.
 				shift
 				pacman -S $*
 				;;
@@ -91,20 +100,21 @@ EOF
 				pacman -S --clean $@
 				;;
 			list)
+				# TODO: Maybe this should require an additional argument or something, to prevent potential forever-long waits due to sheer package count...
 				shift
 				pacman -S --list #$@
 				;;
 			search)
 				shift
 				pacman -S --search $*
-				# TODO: change this to search separately for each distinct parameter group, collate the results, and remove duplicates
-				# multiple parameters can be grouped into a single parameter by enclosing them in quotes,
+				# TODO: Change this to search separately for each distinct parameter group, collate the results, and remove duplicates.
+				# Multiple parameters can be grouped into a single parameter by enclosing them in quotes,
 				# and pacman will exhibit its default search behavior of searching for packages containing ALL of the strings within the quotes.
-				# strings not within quotes are treated as separate search queries.
+				# Strings not within quotes are treated as separate search queries.
 				;;
-			refresh)
+			refresh|!refresh-files) # Match "refresh", but NOT "refresh-files".
 				shift
-				pacman -Sy # refresh the local sync database
+				pacman -Sy $@ # Refresh the local sync database; download a fresh copy of the master package database.
 				;;
 			check)
 				shift
@@ -129,15 +139,15 @@ EOF
 			search-installed)
 				shift
 				pacman -Q --search $*
-				# TODO: See TODO on "search"
+				# TODO: See TODO on "search".
 				;;
 			owner-of | who-owns)
 				# This functionality is also available through pkgfile.
 				shift
 				pacman -Q --owns $*
-				# TODO: for windows users, consider OR-ing || pacman -Q --owns (...something that tries again with ".exe" appended to every argument)
+				# TODO: for windows users, consider OR-ing || pacman -Q --owns (...something that tries again with ".exe" appended to every argument).
 				;;
-			list-package-owned) 	#TODO: May deprecate completely, since -Fl seems to give the same results for installed packages
+			list-package-owned) 	#TODO: May deprecate completely, since -Fl seems to give the same results for installed packages.
 				shift
 				pacman -Q --list $*
 				# I don't fully understand the difference between -Ql and -Fl, because it _sounds_ like -Q --list only works when you have the package installed,
@@ -158,8 +168,18 @@ EOF
 				;;
 			list-outdated) #list-out-of-date |
 				shift
-				pacman -Sy # refresh the local sync database
-				pacman -Q --upgrades $@ #  check for out-of-date packages on the local system
+				# Should probably favor use of the checkupdates script from pacman-contrib, as per https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported
+				if command -v checkupdates &>/dev/null ; then
+					checkupdates "${NO_COLOR:+--nocolor}" "$@"
+				else
+					tput setaf 1 # Ignore NO_COLOR for serious warning messages
+					printf "%s\n" 'Warning: Arch does not support partial upgrades!' \
+					'Please install pacman-contrib to provide a safer method of checking for updates without also running a system update.' \
+					"See $PARTIAL_UPGRADE_DANGERS for details."
+					grantAbortChance
+					pacman -Sy # Refresh the local sync database.
+					pacman -Q --upgrades $@ # Check for out-of-date packages on the local system.
+				fi
 				;;
 			list-installed)
 				shift
@@ -171,14 +191,18 @@ EOF
 				;;
 			provides-what)
 				shift
-				pacman -F --list $@ # Does not appear to be capable of finding SOME packages that don't show up with 'pacman -Q --search PKG_NAME', like pkgconf, but will for others, like dosfstools (at least from msys2)
+				pacman -F --list $@ # Does not appear to be capable of finding SOME packages that don't show up with 'pacman -Q --search PKG_NAME', like pkgconf, but will for others, like dosfstools (at least from msys2).
 				;;
 			find-providers)
 				# Find all packages IN THE SYNC DATABASE that provide the file(s) passed as arguments.
 				# Each file argument will yield its own set of results, so the user can search for multiple files not provided by any single package.
-				# Each package in the results will also list all files it provides that match the search term
+				# Each package in the results will also list all files it provides that match the search term.
 				shift
 				pacman -F $@
+				;;
+			refresh-files)
+				shift
+				pacman -Fy $@ # Download fresh package databases from the server. This will update the list of files associated with each package in the databases.
 				;;
 			-h | --help | help)
 				usage

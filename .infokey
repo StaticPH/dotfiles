@@ -1,5 +1,41 @@
+### Blank lines and lines starting with '#' are ignored, except for the special section header lines, "#info", "#var", "#echo-area".
+### A default key binding may be disabled by overriding it with the action "invalid".
+### The order in which key bindings are defined in the ".infokey" file is not important, except that the command summary produced by the "get-help-window" command only displays the FIRST key that is bound to each command.
+
+#info
+### Lines in this section take the following form:
+###   STRING whitespace ACTION [ whitespace [ # comment ] ] newline
+### Where STRING is a key sequence and ACTION is the name of an Info command to invoke.
+### The characters in STRING are interpreted literally or prefixed by a caret ('^') to indicate a control character. 
+### Recognized backslash-escaped sequences are:
+###    \b    Backspace    \e     Escape (ESC)
+###    \n    Newline      \r     Return
+###    \t    Tab          \kx    Delete
+###    \ku   Up Arrow     \kd    Down Arrow
+###    \kl   Left Arrow   \kr    Right Arrow
+###    \kU   Page Up      \kD    Page Down
+###    \kh   HOME         \ke    END
+###    \mX   Meta-X where X is any character as described above.
+### Other backslash-escaped characters are taken literally. Characters which must be preceeded by a backslash thus include the caret, space, tab (if not using \t), and backslash.
+
+: execute-command # call a command that allows running other commands by name; bound to Meta-x by default
+\\ get-help-window                # Show the help window; this is Shift+h by default
+\m` next-window                   # Focus another "window" using Alt+` (Meta+`)
+^\kU scroll-other-window-backward # Doesn't appear to work; use Escape+PageUp
+^\kD scroll-other-window          # Doesn't appear to work; use Escape+PageDown
+
+#echo-area
+^\kl echo-area-backward-word      # Doesn't appear to work
+^\kr echo-area-forward-word       # Doesn't appear to work
+\kd echo-area-delete              # Doesn't appear to work; Ctrl+d by default
+##^k echo-area-backward-kill-line
+
 #var
+highlight-searches=On
+search-skip-screen=Off
+### nodeline=print
+
+## Styling
 link-style=underline,magenta
 active-link-style=underline,bold,red
 match-style=underline,bold,bgyellow,black
-nodeline=print

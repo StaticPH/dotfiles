@@ -101,7 +101,9 @@
 
 ### Various files resulting from some form of compilation or linking
 --type-add
-	compiled:*.{a,bin,chm,class,d,[Ee]xe,EXE,lib,o,obj,pyc,pyd,rlib,rmeta,so}
+	compiled:*.{a,bin,chm,class,d,[Ee]xe,EXE,lib,o,obj,rlib,rmeta,so}
+--type-add
+	compiled:*.py[cdo]
 #*.winmd,*.mui
 
 ### Common config files
@@ -234,10 +236,11 @@
 ### Python
 # *.pyw files are used on Windows to prompt the use of pythonw rather than python, the former of which wont display a console.
 # *.pyi files are stub files
+# *.pyz are executable archives of files/directories containing python code.
 ## cython pyx and pxd files are roughly equivalent to C source and header files, respectively.
 ## cython pxi files are "include files"; these files are seemingly used for including entire blocks of code as though via substitution with a C/++ macro
 --type-add
-	py:*.py[iw]
+	py:*.py[iwz]
 #--type-add
 #	py:include:cython
 	
@@ -316,7 +319,7 @@
 ### Compressed files
 #Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
 --type-add
-	zip:*.{zip,jar,pak,rar,rar5,lrz,lz,lzop,z,zpaq,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl}
+	zip:*.{zip,jar,pak,rar,rar5,lrz,lz,lzop,z,zpaq,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl,pyz}
 --type-add
 	zip:include:7z,bzip2,gzip,lz4,lzma,xz,zstd
 --type-add

@@ -1,21 +1,35 @@
 #! /bin/bash
 
-__PROGNAME__="$(basename $0)"
+__PROGNAME__="$(basename "$0")"
 
 # Download a Google Chrome extension from the Chrome Web Store using its extension ID, but DON'T add it to Chrome.
 function _dlChromeExtension(){
+	# shellcheck disable=SC2059
+	usage(){
+		printf "Download a packaged Google Chrome extension from the Chrome Web Store into the current directory.\n"
+		printf "Usage: '$__PROGNAME__ [-2] TARGET_EXTENSION_ID'\n"
+		printf "    Use the -2 flag to request the extension in crx2 format instead of crx3.\n"
+	}
+
 	local fmtVal='acceptformat=crx3&';
-	if [ "$#" == '2' ]; then
-		if [ "$1" != '-2' ]; then # fall through to usage
-			:
+	if [ "$#" -eq '2' ]; then
+		if [ "$1" -ne '-2' ]; then
+			usage && exit 1
 		else
 			fmtVal='' # Don't add the crx3 format requirement
 			shift # Discard the '-2' argument, leaving just the extension hash
 		fi
+	elif [ "$#" -gt '2' ]; then
+		usage && exit 1
 	fi
-	if [ "$#" != '1' ]; then
-		printf "Usage: '$__PROGNAME__ [-2] TARGET_EXTENSION_ID'\n"
-		printf "    Use the -2 flag to request the extension in crx2 format instead of crx3.\n" && exit 1
+
+	if [ "$#" -ne '1' ]; then
+		usage && exit 1
+	else
+		case "$1" in
+			-h|--help|help)    usage && exit 0;;
+			-*)    usage && exit 1;;
+		esac
 	fi
 
 	local extensionID="$1"

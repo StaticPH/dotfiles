@@ -47,7 +47,7 @@
 [ptail]: https://github.com/orf/ptail
 [miniserve]: https://github.com/svenstaro/miniserve
 [runiq]: https://github.com/whitfin/runiq
-[mdcat]: https://github.com/lunaryorn/mdcat
+[mdcat]: https://github.com/swsnr/mdcat
 [desed]: https://github.com/SoptikHa2/desed
 [interactive_rebase]: https://github.com/MitMaro/git-interactive-rebase-tool
 [dprint]: https://github.com/dprint/dprint

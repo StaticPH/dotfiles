@@ -122,24 +122,25 @@ shopt -u sourcepath
 # HISTIGNORE is a colon-delimited list of patterns which should be excluded. Honors the setting of the extglob shell option.
 # The '&' is a special pattern which suppresses duplicate entries.
 # export HISTIGNORE=$'[ \t]*:&:[fb]g:exit'
-# export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls' # Ignore the ls command as well
-# export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls:which:pwd:clear:cls' # Ignore some other commands as well
+# export HISTIGNORE=$'[ \t]*:&:[fb]g:exit:ls:which:pwd:clear:cls' # Ignore some other commands as well.
 #
 HISTIGNORE=$'[ \t]*:&:[fb]g:j:jobs:exit:clear:cls:history:history -a'
 HISTIGNORE=$HISTIGNORE':path:la:ll:ls:env:[pc]wd'
 HISTIGNORE=$HISTIGNORE':svn status:git status:git log'
 export HISTIGNORE
-# export HISTFILESIZE=-1 # Enable this for unlimited history file length
+
+# Enable this for unlimited history file length.
+# export HISTFILESIZE=-1
 
 # I want to store command history forever, but having to parse really long history files can slow down bash.
 # To avoid that issue, when the history file exceeds 450 lines, dump the contents of the history file into another file that bash wont parse on load.
 # Then, truncate the history file.
 
-if [[ $( < $HISTFILE wc -l) -ge 450 ]]; then
+if [[ $( < "$HISTFILE" wc -l) -ge 450 ]]; then
 	echo Saving history to long term storage
 	[ ! -d ~/txts ] && mkdir ~/txts
 	cat ~/.bash_history >> ~/txts/full.bash_history
-	> $HISTFILE
+	> "$HISTFILE"
 fi
 
 ##############################################################

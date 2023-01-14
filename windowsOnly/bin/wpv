@@ -1,7 +1,7 @@
 #! /bin/bash
 
 limit=10	# Maximum number of files to open at once. Can be overriden with --limit
-__PROGNAME__="$(basename $0)"
+__PROGNAME__="$(basename "$0")"
 
 usage(){
 cat << EOF
@@ -16,7 +16,7 @@ Usage: $__PROGNAME__ [--help | -h | --limit NUM] FILEPATHS...
 EOF
 }
 
-if [[ $# == 0 ]]; then
+if [ $# -eq 0 ]; then
 	usage
 	exit
 fi
@@ -34,6 +34,7 @@ case "$1" in
 esac
 
 view(){
+	#shellcheck disable=SC2086
 	rundll32 "C:\Program Files\Windows Photo Viewer\PhotoViewer.dll" ImageView_Fullscreen $1 &
 }
 
@@ -53,8 +54,8 @@ i=0
 while read -r foo; do
 	# echo -e "\033[1;34mDisplaying $foo\033[0m"
 	view "$foo"
-	let i++
-	if [[ $i == $limit ]]; then
+	(( i++ ))
+	if [ "$i" -eq "$limit" ]; then
 		echo "Reached file open limit. Stopping..."
 		break
 	fi
