@@ -1,10 +1,10 @@
 ##! /bin/bash
 
-[ -n "$(type -t vmware-crap-ctrl)" ] && \
+command -v vmware-crap-ctrl >/dev/null 2>&1 && \
 complete -W "toggle start stop disableInterfaces enableInterfaces" vmware-crap-ctrl
 
 # # complete -W "start stop pause continue interrogate status" svc-ctrl
 # complete -W "start stop pause continue" svc-ctrl
 
-[ -n "$(type -t nwk-iface-ctrl)" ] && \
+command -v nwk-iface-ctrl >/dev/null 2>&1 && \
 complete -W "show enable disable" nwk-iface-ctrl

@@ -15,12 +15,12 @@ cat << 'EOF' > "${HOME}/.machine_specific"
 
 # NOTE: There ARE situations in which using winpty actually causes problems.
 # TODO: Figure out the rules for these situations, and disable these aliases under those situations
-if [ -n "$(type -t winpty)" ]; then
-	[ -n "$(type -t sqliterepl)" ] && alias sqliterepl="winpty ${HOME}/bin/sqliterepl -t fancy_grid -s fruity"
-	[ -n "$(type -t node)" ] && alias node="winpty node"
-	[ -n "$(type -t php)" ] && alias php="winpty php"
-	[ -n "$(type -t php5)" ] && alias php5="winpty php5"
-	[ -n "$(type -t psql)" ] && alias psql="winpty psql"
+if command -v winpty >/dev/null 2>&1; then
+	command -v sqliterepl >/dev/null 2>&1 && alias sqliterepl="winpty ${HOME}/bin/sqliterepl -t fancy_grid -s fruity"
+	command -v node >/dev/null 2>&1 && alias node="winpty node"
+	command -v php >/dev/null 2>&1 && alias php="winpty php"
+	command -v php5 >/dev/null 2>&1 && alias php5="winpty php5"
+	command -v psql >/dev/null 2>&1 && alias psql="winpty psql"
 fi
 
 ##############################################################
@@ -94,7 +94,7 @@ cat << 'EOF' > "${HOME}/.setup_machine_env"
 
 # If pipx is installed and available on the PATH, configure where it installs packages and binaries
 #-------------------------------------------------------------
-if [ "$(type -t pipx)" ]; then
+if command -v pipx >/dev/null 2>&1; then
 	export PIPX_BIN_DIR="${HOME}/.local/bin"	#default path explicitly enforced as ~/.local/bin
 #	export PIPX_HOME=""	#Override default path of ~/.local/pipx, because my HOME is already cluttered enough as is.
 fi
@@ -110,7 +110,7 @@ fi
 
 # If node.js is installed, configure the history file for the default Node REPL
 #-------------------------------------------------------------
-if [ "$(type -t node)" ]; then
+if command -v node >/dev/null 2>&1; then
 	# Enable persistent REPL history for `node`.
 	export NODE_REPL_HISTORY=~/.node_history;
 	# Allow 32^3 entries; the default is 1000.

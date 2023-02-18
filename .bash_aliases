@@ -20,20 +20,20 @@ alias free='free -th'
 # Allowing Alias-Expansion-ception!
 #---------------------------------------
 # From Bash's Info page, section 6.6 Aliases: "If the last character of the alias value is a BLANK, then the next command word following the alias is also checked for alias expansion."
-if [ -n "$(type -t sudo)" ]; then
+if command -v sudo >/dev/null 2>&1; then
 	# Enable aliases to be sudo'ed
 	alias sudo="sudo "
 	alias udo="sudo " # the 's' key on my laptop keyboard is tempermental
 fi
 
-if [ -n "$(type -t gksudo)" ]; then
+if command -v gksudo >/dev/null 2>&1; then
 	alias gksudo="gksudo "
 	alias gkudo="gksudo "  # the 's' key on my laptop keyboard is tempermental
 fi
 
 alias exec="exec " 			# Should allow calling exec on an alias
 alias nohup="nohup "
-[ -n "$(type -t winpty)" ] && alias winpty="winpty "
+command -v winpty >/dev/null 2>&1 && alias winpty="winpty "
 
 #-------------------------------
 # Safety (Stupid Proofing®)
@@ -50,22 +50,22 @@ alias rm='rm --preserve-root --one-file-system' # Try and stop total system anni
 #------------------
 
 alias grep='grep --color=auto'                     # show results in color
-if [ -n "$(type -t egrep)" ]; then
+if command -v egrep >/dev/null 2>&1; then
 	alias egrep='egrep --color=auto'
 else
 	alias egrep='grep -E --color=auto'
 fi
 
-if [ -n "$(type -t fgrep)" ]; then
+if command -v fgrep >/dev/null 2>&1; then
 	alias fgrep='fgrep --color=auto'
 else
 	alias fgrep='grep -F --color=auto'
 fi
 
-[ -n "$(type -t dmesg)" ]  && alias dmesg='dmesg --color=auto -T'
+command -v dmesg >/dev/null 2>&1 && alias dmesg='dmesg --color=auto -T'
 alias dir="dir --color=auto -Fh --group-directories-first --hide='*.dll' --hide='*.DLL'"
 
-if command -v shellcheck &>/dev/null ; then
+if command -v shellcheck >/dev/null 2>&1; then
 	alias shellcheck='shellcheck --color=always'
 	alias shc='shellcheck'
 fi
@@ -75,12 +75,6 @@ fi
 #---------------
 
 alias which='type -a'
-# may replace alias "which" with something like(not actually functional):
-# function which(){
-	# type -a "$@" 2>/dev/null ||\
-	# \which "$@" 2>/dev/null ||\
-	# hash -tl "$@"
-# }
 
 	#Recursively grep through directories, following symlinks, INCLUDING those encountered recursively.
 	#Depending on the version of grep available, -r may or may not be the same as -R
@@ -109,7 +103,7 @@ alias ll="ls -Alhv --group-directories-first --no-group -o" #g: don't list owner
 
 alias lsdir='ls --recursive'
 
-if [ -n "$(type -t tree)" ]; then
+if command -v tree >/dev/null 2>&1; then
 	alias tree="tree -C -uhal --dirsfirst -I '.cargo|.gem|.git|.gnupg|.ssh|.subversion|.svn|bower_components|build|emojis|node_modules'"    #  Nice alternative to 'recursive ls' ...
 	# alias treeOccupied="tree --prune -FC -I '.git|.svn|.ssh|.gnupg|build'"
 	alias treeOccupied="tree --prune -F"
@@ -180,7 +174,9 @@ alias findBrokenLinks='find . -maxdepth 1 -type l ! -exec test -e {} \; -printf 
 # Archive related
 #-------------------------
 
-if [ -n "$(type -t tar)" ]; then
+# What environment would I be running in that can't reasonably be expected to have tar?
+# It's not like I'm going to be setting up Arch from scratch; I like Arch, but not THAT much.
+if command -v tar >/dev/null 2>&1; then
 	alias untar="tar --extract --file"
 	alias tarzip="tar --create --gzip --file" # 1st argument is the resulting tarfile
 	alias tarball="tar --create --verbose --file" # 1st argument is the resulting tarfile
@@ -194,9 +190,9 @@ alias tarlist='bsdcpio -itF'
 # Diff Related Aliases
 #--------------------------
 
-[ -n "$(type -t icdiff)" ] && alias icdiff='icdiff --cols=$(tput cols)'
+command -v icdiff >/dev/null 2>&1 && alias icdiff='icdiff --cols=$(tput cols)'
 
-if [ -n "$(type -t colordiff)" ]; then
+if command -v colordiff >/dev/null 2>&1; then
 	#For some reason, i had both -s and --report-identical-files. Removed -s, but will re-add if it turns out to have been portability related.
 	alias diff="colordiff --ignore-space-change --report-identical-files --suppress-common-lines"
 	alias diffdir="colordiff --ignore-space-change --report-identical-files --suppress-common-lines --recursive"
@@ -204,22 +200,22 @@ if [ -n "$(type -t colordiff)" ]; then
 	alias diffcol2="colordiff --ignore-space-change --report-identical-files --suppress-common-lines --side-by-side | grep -n \|"
 else
     alias diff="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto"
-	# [ -n "$(type -t diff3)" ] && alias diff3="diff3 --ignore-space-change --report-identical-files --suppress-common-lines --color=auto"
+	# command -v diff3 >/dev/null 2>&1 && alias diff3="diff3 --ignore-space-change --report-identical-files --suppress-common-lines --color=auto"
     alias diffdir="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --recursive" # -b
     alias diffcol="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side"
     alias diffcol2="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side|grep -n \|"
 fi
-# [ -n "$(type -t diff-so-fancy)" ] && alias fancydiff="diff-so-fancy" # It turns out fancydiff is another program, and I haven't tried it to know if I'd ever want to use it
-[ -n "$(type -t bcompare)" ] && alias beyondcompare="bcompare"
+# command -v diff-so-fancy >/dev/null 2>&1 && alias fancydiff="diff-so-fancy" # It turns out fancydiff is another program, and I haven't tried it to know if I'd ever want to use it
+command -v bcompare >/dev/null 2>&1 && alias beyondcompare="bcompare"
 
 #--------------------------
 # Rust Program Aliases
 #--------------------------
 
-[ -n "$(type -t rg)" ] && alias ripgrep="rg"
-[ -n "$(type -t desed)" ] && alias desed="desed --sed-path /usr/bin/sed"
+command -v rg >/dev/null 2>&1 && alias ripgrep="rg"
+command -v desed >/dev/null 2>&1 && alias desed="desed --sed-path /usr/bin/sed"
 
-if [ -n "$(type -t fd)" ]; then
+if command -v fd >/dev/null 2>&1; then
 	alias fd="fd -HaL"
 
 	# Faster version of findLinks using fd instead of find
@@ -233,26 +229,26 @@ fi
 
 alias curl="curl --create-dirs"
 
-[ -n "$(type -t ngrep)" ] && alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"		# Sniff network info.
+command -v ngrep >/dev/null 2>&1 && alias sniff="sudo ngrep -d 'en1' -t '^(GET|POST) ' 'tcp and port 80'"		# Sniff network info.
 
 # alias wget='wget --no-check-certificate'			# Disable sertificate check for wget.
 
 # IP addresses
 # REMOVEME: apparently this 1st one no longer works for free users, may if you're a paying Cisco customer; see https://unix.stackexchange.com/questions/335371/how-does-dig-find-my-wan-ip-adress-what-is-myip-opendns-com-doing
-# [ -n "$(type -t dig)" ] && alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
+# command -v dig >/dev/null 2>&1 && alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 
 # Try this instead
-# [ -n "$(type -t dig)" ] && alias ip="dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com"
+# command -v dig >/dev/null 2>&1 && alias ip="dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com"
 
 # alias localip="ipconfig getifaddr en0"  sometimes en1, or some other interface...
-# if [ -n "$(type -t ifconfig)" ]; then
+# if command -v ifconfig >/dev/null 2>&1; then
 	# alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'"
-	# [ -n "$(type -t pcregrep)" ] && alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'" # Show active network interfaces
+	# command -v pcregrep >/dev/null 2>&1 && alias ifactive="ifconfig | pcregrep -M -o '^[^\t:]+:([^\n]|\n\t)*status: active'" # Show active network interfaces
 # fi
 
 alias globalip="curl -s http://checkip.dyndns.com/ | sed 's/[^0-9\.]//g'"
 
-# [ -n "$(type -t dscacheutil)" ] && alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder" # Flush Directory Service cache
+# command -v dscacheutil >/dev/null 2>&1 && alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder" # Flush Directory Service cache
 
 [ "$OSTYPE" == 'msys' ] && alias routetbl-show='netstat -r' # To be clear, this is WINDOWS netstat
 # [ "$OSTYPE" == 'msys' ] && alias netcon-stats='netstat -es'
@@ -272,9 +268,9 @@ else
 	alias psa='ps -la'
 fi
 
-[ -n "$(type -t pgrep)" ] && alias pgrep="pgrep -afi"
-#[ -n "$(type -t pkill)" ] && alias pkill="pkill -fx" # Be careful what you kill
-[ -n "$(type -t pkill)" ] && [ -z "$(type -t pk)" ] && alias pk="pkill"
+command -v pgrep >/dev/null 2>&1 && alias pgrep="pgrep -afi"
+#command -v pkill >/dev/null 2>&1 && alias pkill="pkill -fx" # Be careful what you kill
+command -v pkill >/dev/null 2>&1 && [ ! command -v pk >/dev/null 2>&1 ] && alias pk="pkill"
 
 #---------------------------------
 # Development Related Aliases
@@ -286,15 +282,15 @@ alias g++g="g++ -ggdb3"
 alias gpp="g++"
 alias gppg="g++ -ggdb3"
 
-if [ -n "$(type -t gdb)" ]; then
+if command -v gdb >/dev/null 2>&1; then
 	alias gdb="gdb -q"		#launch gdb without all the versioning and help printouts
 	alias gdba="gdb --args" #launch gdb while providing arguments to any target executable for debugging
 	alias gdbHelp="gdb -h"	#print gdb help and exit
 fi
 
-[ -n "$(type -t python2)" ] && alias py2="python2"
+command -v python2 >/dev/null 2>&1 && alias py2="python2"
 
-if [ -n "$(type -t python)" ]; then
+if command -v python >/dev/null 2>&1; then
 	#TODO: Find out a way to disable these while ANY virtual environment is activated; already found a way that needs to be manually set up for each venv
 	if [[ "$OSTYPE" == 'msys' ]]; then
 		# Expanding to an empty string when PY38 is null/unset and checking if the result is executable may be marginally more performant than checking
@@ -321,10 +317,10 @@ if [ -n "$(type -t python)" ]; then
 
 		# alias pip="$PY36/Scripts/pip"		# For inexplicable reasons, this alias completely breaks any attempts at bash completion for pip
 	else
-		[ -n "$(type -t python3.6)" ] && alias python36="python3.6"
-		[ -n "$(type -t python3.7)" ] && alias python37="python3.7"
-		[ -n "$(type -t python3.8)" ] && alias python38="python3.8"
-		[ -n "$(type -t python3)" ]   && alias python="python3"
+		command -v python3.6 >/dev/null 2>&1 && alias python36="python3.6"
+		command -v python3.7 >/dev/null 2>&1 && alias python37="python3.7"
+		command -v python3.8 >/dev/null 2>&1 && alias python38="python3.8"
+		command -v python3 >/dev/null 2>&1   && alias python="python3"
 	fi
 
 	[ -x "${PY36:+$PY36/Scripts/pip}" ] && alias pip36="$PY36/Scripts/pip"
@@ -336,26 +332,26 @@ if [ -n "$(type -t python)" ]; then
 	alias py="python "
 
 	# And for ipython specifically...
-	[ -n "$(type -t ipython3)" ] && alias ipython="ipython3"
-	[ -n "$(type -t ipython)" ] && alias ipy="ipython"
+	command -v ipython3 >/dev/null 2>&1 && alias ipython="ipython3"
+	command -v ipython >/dev/null 2>&1 && alias ipy="ipython"
 
 	alias webserv="py -m http.server"
 fi
 
-[ -n "$(type -t sqlite3)" ] && alias sqlite="sqlite3"
-[ -n "$(type -t sqliterepl)" ] && alias sqliterepl="sqliterepl -t fancy_grid -s fruity"
+command -v sqlite3 >/dev/null 2>&1 && alias sqlite="sqlite3"
+command -v sqliterepl >/dev/null 2>&1 && alias sqliterepl="sqliterepl -t fancy_grid -s fruity"
 
 #------------------------
 # Package Management
 #------------------------
 
-[ -n "$(type -t dpkg)" ] && alias purge="dpkg -P"	#dpkg purge is supposed to allow purging of configs when the package itself has already been removed.
-[ -n "$(type -t dpkg-query)" ] && alias dpkg-from-package="dpkg-query --listfiles" # Shows files from a specific installed package
-[ -n "$(type -t pacman)" ] && alias pacman='pacman --color=auto'
-[ -n "$(type -t update-alternatives)" ] && alias alternatives="update-alternatives"
+command -v dpkg >/dev/null 2>&1 && alias purge="dpkg -P"	#dpkg purge is supposed to allow purging of configs when the package itself has already been removed.
+command -v dpkg-query >/dev/null 2>&1 && alias dpkg-from-package="dpkg-query --listfiles" # Shows files from a specific installed package
+command -v pacman >/dev/null 2>&1 && alias pacman='pacman --color=auto'
+command -v update-alternatives >/dev/null 2>&1 && alias alternatives="update-alternatives"
 # get dependents with "apt rdepends --no-enhances --no-suggests --no-recommends --no-breaks --no-conflicts"
-[ -n "$(type -t pnpm)" ] && alias npm="pnpm"
-[ -n "$(type -t pnpx)" ] && alias npx="pnpx"
+command -v pnpm >/dev/null 2>&1 && alias npm="pnpm"
+command -v pnpx >/dev/null 2>&1 && alias npx="pnpx"
 
 #------------------------
 # Winpty Wrapping
@@ -364,7 +360,7 @@ fi
 if [ "$OSTYPE" == 'msys' ]; then
 # if [ "$TERM_PROGRAM" == 'mintty' ]; then
 	for name in sqliterepl node php php5 psql ipython litecli; do
-		[ -n "$(type -t $name)" ] && alias "$name"="winpty $name"
+		command -v "$name" >/dev/null 2>&1 && alias "$name"="winpty $name"
 	done
 	unset name
 fi
@@ -407,8 +403,8 @@ alias exitstatus="echo $?"            #print the error status for the last comma
 alias termbin="nc termbin.com 9999" # Pipe or file-redirect into this
 
 # alias returnToGuiMode='echo Try pressing alt+f7'     will probably use some environment variable check here
-[ -n "$(type -t setxkbmap)" ] && alias fixKeyboard='setxkbmap -model pc105 -layout us -rules evdev -option "lv3:ralt_switch" -option "numpad:microsoft"'
-[ -n "$(type -t timedatectl)" ] && alias fixTime="timedatectl --no-ask-password"
+command -v setxkbmap >/dev/null 2>&1 && alias fixKeyboard='setxkbmap -model pc105 -layout us -rules evdev -option "lv3:ralt_switch" -option "numpad:microsoft"'
+command -v timedatectl >/dev/null 2>&1 && alias fixTime="timedatectl --no-ask-password"
 
 alias getGibberish="head -n 1 /dev/random"
 

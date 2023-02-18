@@ -6,7 +6,7 @@ function __showUnusedManuals() {
 	local directory=$1
 	# local fileExt=$2
 
-	# if [ -n "$(type -t rg)" ]; then
+	# if command -v rg >/dev/null 2>&1; then
 		# function trimmer(){ 
 			# # return "echo $1 | rg --hidden --ignore-case \"\.[0-9]\.(gz|z|Z)\" --replace \"\""
 			# local trimName="$(echo $1 | rg --hidden --ignore-case '\.[0-9]\.(gz|z|Z)' --replace '')"
@@ -26,7 +26,7 @@ function __showUnusedManuals() {
 		# local trimName="$(echo $file | grep '\.[0-9]\.(gz|z|Z)')"
 		
 		#Horribly inelegant and inefficient, but I've spent enough time trying to be elegant that I don't care anymore
-		[ -n "$(type -t rg)" ] && \
+		command -v rg >/dev/null 2>&1 && \
 			local trimName="$(echo $file | rg '\.[0-9]\.(gz|z|Z)' --replace '')" || \
 			local trimName="$(echo $file | grep '\.[0-9]\.\(gz\|z\|Z\)'| sed s/'\.[0-9]\.\(gz\|z\|Z\)'//)"
 		
@@ -41,3 +41,5 @@ function __showUnusedManuals() {
 }
 __showUnusedManuals $@
 unset __showUnusedManuals
+
+#replace loop with `for file in $(printf '%s\n' $directory/* | sed stuff); do command -v $file &> /dev/null || echo could not find $file; done`

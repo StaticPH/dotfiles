@@ -9,7 +9,7 @@ generalInstall="asciidoc bash-completion bzip2 ca-certificates colordiff colorma
 ###########################
 # Pacman package manager
 ###########################
-if [ -n "$(type -t pacman)" ]; then
+if command -v pacman >/dev/null 2>&1; then
 	pacman -Syu
 	alias pinstall="pacman -S --needed --color=auto"
 	# Install these in general
@@ -31,8 +31,8 @@ fi
 # apt package manager
 ########################
 # TODO: stuff installed through apt or other system package managers
-if [ -n "$(type -t apt-get)" ]; then
-	if [ -z "$(type -t pacman)" ]; then
+if command -v apt-get >/dev/null 2>&1; then
+	if ! command -v pacman >/dev/null 2>&1; then
 		# Only try installing the packages in generalInstall with apt if they definitely were not already installed through pacman in this script.
 		apt-get install "$generalInstall"
 	fi
@@ -79,7 +79,7 @@ gem install --conservative --minimal-deps lolcat manpages rubygems-update
 #########################
 	# TODO: stuff installed through cargo
 	# GET RUSTUP
-	if [ -n "$(type -t rustup)" ]; then
+	if command -v rustup >/dev/null 2>&1; then
 		rustup update
 	else #rustup is not available; fix that
 		# VERIFY THE AVAILABILITY OF Visual Studio 2019 or the Visual C++ Build Tools 2019

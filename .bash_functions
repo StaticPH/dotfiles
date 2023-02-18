@@ -342,7 +342,7 @@ __EOF__
 	}
 fi
 
-if [ -n "$(type -t apt)" ]; then
+if command -v apt >/dev/null 2>&1; then
 	listinstalled(){
 		apt list --installed | grep -o ".*/" | tr -d '/' | column
 	}
@@ -364,14 +364,14 @@ if [ "$OSTYPE" == 'msys' ]; then
 	}
 fi
 
-if [ -n "$(type -t durt)" ]; then
+if command -v durt >/dev/null 2>&1; then
 	# durt should really just operate on the current directory if I don't specify one
 	function durt(){
 		command durt "${@:-$PWD}"
 	}
 fi
 
-if [ -n "$(type -t pip)" ]; then
+if command -v pip >/dev/null 2>&1; then
 	piphelp(){
 		# If I want to see the general help, I'll ask for it.
 		case $1 in
@@ -382,7 +382,7 @@ if [ -n "$(type -t pip)" ]; then
 fi
 
 if command -v fd >/dev/null 2>&1; then
-	if [ -n "$(type -t treef)" ]; then
+	if command -v treef >/dev/null 2>&1; then
 		fdtree(){
 			# You CAN simply pipe the current version of fd into tree (version >= 1.8.0), but both that and this function seem to have some quirks...
 			# If the locally available version of fd doesn't default to the Unix path separator in MSYS,
@@ -427,7 +427,7 @@ if command -v fd >/dev/null 2>&1; then
 fi
 
 rl-cfg-dump(){
-	if [ -n "$(type -t tabulate)" ]; then
+	if command -v tabulate >/dev/null 2>&1; then
 		# big sad: tabulate v1.1.1 does not seem to support ANSI escape codes in its input; it just displays them as plain text.
 		# So this method, which looks nicer overall, wont use --byte-subst='\033[37;40m<%X>\033[m' for iconv, which matched the
 		# coloring that is otherwise used on the hex value of potentially troublesome characters

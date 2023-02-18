@@ -5,11 +5,11 @@
 
 function __search() {
 	for file in $(ls $1); do 
-		if [ -z "$(type -t $file)" ]; then
+		if ! command -v "$file" >/dev/null 2>&1; then
 			
 			# YES this works, and doesnt catch things it shouldn't, but also makes this process much slower. And its already rather slow without this extra precision.
 			# local base=$(echo "$file" | sed s/"\.".*//)
-			# if [ -z "$(type -t $base)" ]; then
+			# if ! command -v "$base" >/dev/null 2>&1; then
 				# # echo "file=$file"
 				# # echo "basename=$base"
 

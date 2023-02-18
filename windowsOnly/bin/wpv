@@ -39,9 +39,9 @@ view(){
 }
 
 # Attempt path conversion (already Windows-like paths should remain unchanged), and fatally error if unable to find a tool for doing so.
-if [ -n "$(type -t cygpath)" ]; then
+if command -v cygpath >/dev/null 2>&1; then
 	winPath="$(cygpath --windows -a "$@")"
-elif [ -n "$(type -t wslpath)" ]; then
+elif command -v wslpath >/dev/null 2>&1; then
 	winPath="$(wslpath -wa "$@")"
 else
 	echo "Neither cygpath nor wslpath found. No known alternative for ensuring Windows-style file paths. Aborting..."

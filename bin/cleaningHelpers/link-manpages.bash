@@ -3,7 +3,7 @@
 
 #TODO: CLEANUP THIS MESS
 
-[ "$OSTYPE" == 'msys' -a -z "$(type -t winln)" ] && echo "Please install winln"; exit 1
+[ "$OSTYPE" == 'msys' -a ! command -v winln >/dev/null 2>&1 ] && echo "Please install winln"; exit 1
 
 if [ "$OSTYPE" == 'msys' ]; then
 	function lnk(){
@@ -68,7 +68,7 @@ function __lnkManuals(){
 			[[ -d "$destination/$tfolder/$tfolder" ]] || mkdir -p "$destination/$tfolder/"
 
 			for file in $(ls "$src"); do
-				if [ -z "$(type -t $file)" ]; then #not sure what should happen when this is false, but let's cross that bridge when we come to it
+				if ! command -v "$file" >/dev/null 2>&1; then #not sure what should happen when this is false, but let's cross that bridge when we come to it
 					[[ "$dbg" != 0 ]] && echo "$src/$file" to "$destination/$tfolder/$file"
 					lnk -s "$src/$file" "$destination/$tfolder/"
 				fi
@@ -99,7 +99,7 @@ function __lnkManuals(){
 
 				[[ -d "$destination/$tfolder/$tfolder" ]] || mkdir -p "$destination/$tfolder/"
 
-			elif [ -z "$(type -t $file)" ]; then
+			elif ! command -v "$file" >/dev/null 2>&1; then
 				[[ "$dbg" != 0 ]] && echo "$src/$file" to "$destination/$tfolder/$file"
 				lnk -s "$src/$file" "$destination/$tfolder/"
 			fi

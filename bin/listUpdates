@@ -39,7 +39,7 @@ echo "TODO: apt"
 # ?brew?
 # ?yum?
 # ?yaourt?
-if [ -n "$(type -t pacman)" ]; then
+if command -v pacman >/dev/null 2>&1; then
 	_section "Pacman packages"
 	env pacman -Q --upgrades
 fi;
@@ -47,7 +47,7 @@ fi;
 # ?npm?
 # ?go?
 
-if [ -n "$(type -t cargo)" ]; then
+if command -v cargo >/dev/null 2>&1; then
 	_section "Cargo executable crates"
 	printf 'Use "cargo install-update --all" to update all outdated executable crates.\n'
 	printf 'Use "cargo install-update {PACKAGE NAME]" to update a specific executable crate.\n'
@@ -56,17 +56,17 @@ if [ -n "$(type -t cargo)" ]; then
 	env cargo install-update --all --list
 fi
 
-if [ -n "$(type -t gem)" ]; then
+if command -v gem >/dev/null 2>&1; then
 	_section "Ruby gems"
 	env gem update --explain #--conservative
 fi
 
-if [ -n "$(type -t pip)" ]; then
+if command -v pip >/dev/null 2>&1; then
 	_section "Pip packages"
 	env pip list --outdated
 fi
 
-if [ -n "$(type -t pipx)" ]; then
+if command -v pipx >/dev/null 2>&1; then
 	_section "Pipx packages"
 	# Extracted from my own bash script, pipx-outdated
 	__pipx_find_outdated(){

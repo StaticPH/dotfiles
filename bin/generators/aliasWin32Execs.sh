@@ -77,7 +77,7 @@ function makeAlias(){
 
 		# If creating an alias with name=$replacedPath might override something that already exists,
 		# prepend the alias with an existance check, and only enable it in the absence of conflict
-		[ -n "$(type -t $replacedPath)" ] && printf "[ -z \$(type -t $replacedPath) ] && " >> "$__DESTDIR/.sys32Aliases"
+		command -v "$replacedPath" >/dev/null 2>&1 && printf "command -v $replacedPath >/dev/null 2>&1 || " >> "$__DESTDIR/.sys32Aliases"
 		printf 'alias '"$replacedPath=\"$item\"" >> "$__DESTDIR/.sys32Aliases"
 		printf '        Looking for description...'
 		addDescription "$exeName"

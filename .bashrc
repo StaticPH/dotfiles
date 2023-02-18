@@ -228,6 +228,7 @@ fi
 # See https://unix.stackexchange.com/questions/104018/set-dynamic-window-title-based-on-command-input for explanation
 
 [ -v CHERE_INVOKING_VISIBLE_FOR_USER ] && unset CHERE_INVOKING_VISIBLE_FOR_USER # set by my registry tweak that allows me to open the current directory in mintty(msys2) from Windows Explorer.
+# shellcheck disable=SC3028
 [ "$OSTYPE" == 'msys' ] && [ "$TERM_PROGRAM" == 'mintty' ] && COLORTERM="truecolor"
 
 ##############################################################
