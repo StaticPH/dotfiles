@@ -68,6 +68,7 @@ else
 	#	"$(if [ -n $DISPLAY ]; then echo GRAPHICAL_TEXT_EDITOR; else echo '/usr/bin/nano'; fi)"
 	# export VISUAL="/usr/bin/nano"
 fi
+command -v sudo >/dev/null 2>&1 && export SUDO_EDITOR="$EDITOR"
 
 export TIME_STYLE="+%b %_2d, %_Y %_2I:%02M %p"
 # export LANG='en_US.UTF-8'
@@ -170,7 +171,7 @@ function checkpath(){
 	esac
 }
 
-function seemsLikeWSL(){	# May want to add an OS check here too, just to be safe.
+seemsLikeWSL(){	# May want to add an OS check here too, just to be safe.
 	# Return 0 if the system appears to be WSL; return 1 otherwise
 	# [ -n $(command -v wsl) -o -n $(command -v wsl.exe) ] && \
 		# return 0 || \
@@ -192,6 +193,7 @@ if [ -r "/env/environment" ]; then
 	PATH=$(/usr/bin/cat /env/environment)
 	PATH="${PATH:6:-1}"
 else
+	# shellcheck disable=SC3028
 	if [ "$OSTYPE" = 'msys' ]; then
 		# Best guess at a default path for msys (or cygwin, but I don't use that personally)
 		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"
@@ -233,14 +235,16 @@ fi
 # the aliases will be sourced in .bashrc if they exist in the user's home directory
 if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
 	# !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
+	# shellcheck disable=SC3028
 	if [ "$OSTYPE" = 'msys' ]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
-	elif [ $(seemsLikeWSL) ]; then
+	elif seemsLikeWSL; then
 		# System is most likely WSL
 		PATH="$PATH:/mnt/c/Windows/System32:/mnt/c/Windows:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/"
 	fi
 fi
 
+# shellcheck disable=SC3028
 [ "$OSTYPE" = 'msys' ] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
 
 ##############################################################
@@ -262,7 +266,7 @@ fi
 ##############################################################
 
 if [ -r "${HOME}/.setup_machine_env" ]; then
-	source "${HOME}/.setup_machine_env"
+	. "${HOME}/.setup_machine_env"
 fi
 
 export PATH #MANPATH
