@@ -23,12 +23,13 @@ function isInGitBranch(){
 
 # If passed an argument, prepend the output with it, followed by 3 spaces
 parse_git_branch(){
-	local branch="$(git branch 2>/dev/null)"
+	branch="$(git branch 2>/dev/null)"
 	#TODO: compare above to $(git rev-parse --abbrev-ref HEAD)
 	if [ -n "$branch" ]; then
 		# The final sed replacement shouldn't lead to any strangeness, but if it does, I can just do something like ${1:-SOMETHING} instead of just $1; I'll have to wait and see if I missed any loopholes
 		echo "${branch}" | sed -e '/^[^*]/d' -e 's/\* \(.*\)/(\1)/' -e "s/^/$1   /"
 	fi
+	unset branch
 }
 
 # TODO BEFORE THIS IS USEFUL: Think of a good way to remove the prompt prefix from virtualenv only AFTER determining name
@@ -47,6 +48,14 @@ function __getVenvName(){
 	else
 		echo " 🐍"
 	fi
+}
+
+smartishTitle(){
+	# If this is an xterm, set the title to pwd, replacing the value of $HOME with the ~ character
+	case "$TERM" in
+		xterm*|rxvt*)
+			printf "\033]0;${PWD/$HOME/\~}\007";;
+	esac
 }
 
 function prunePromptFuncs(){
@@ -74,8 +83,8 @@ function subtlePrompt(){
 	local UNDERLINE='\[\033[4m\]'
 	local RST='\[\033[0m\]' # Reset formatting
 
-	# Display the username and hostname underlined and in bold when connected via SSH.
-	([ -v SSH_TTY ] && local hostStyle="${BOLD}${UNDERLINE}") || local hostStyle=''
+	# Display the hostname underlined and in bold when connected via SSH.
+	local hostStyle="${SSH_TTY:+${BOLD}${UNDERLINE}}"
 
 	if [ $EUID == 0 ]; then
 		local usr="${RED}\u"
@@ -112,10 +121,8 @@ function colorfulPrompt(){
 	# 24-bit true color support is assumed. If your terminal emulator doesn't support it, get a better terminal emulator!
 	local branchColor='\[\033[38;2;29;194;164m\]'  #currently hardcoded to an almost-teal blue-green color (29;194;164)
 
-	# Display the username and hostname underlined and in bold when connected via SSH.
-	([ -v SSH_TTY ] && local hostStyle="${BOLD}${UNDERLINE}") || local hostStyle='' #Not sure if this should also accept SSH_CLIENT or not
-
-	# Display the current branch when in a directory that is part of a git repository
+	# Display the hostname underlined and in bold when connected via SSH.
+	local hostStyle="${SSH_TTY:+${BOLD}${UNDERLINE}}"
 
 	if [ $EUID == 0 ]; then
 		local usr="${RED}\u"
@@ -127,12 +134,13 @@ function colorfulPrompt(){
 		local cmdMarker="${LPURPLE}λ${RST} "
 	fi
 
+	# Display the current branch when in a directory that is part of a git repository
 	local gitBranch="\$(parse_git_branch '${branchColor}')${RST}"
 	local delim="${delimColor}\$>"
 	local host="${GREEN}@${hostStyle}\H"
 	# shellcheck disable=SC2016
 	local exval="${RST}\[\033[7;31m\]"'$(getexitcode)'"${RST}"
-	local here="${YELLOW}\w"
+	local here="${YELLOW}\w"'$(smartishTitle)'
 #	local tmpVenvSeg='$(__getVenvName)'
 
 	PS1="${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}"
