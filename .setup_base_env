@@ -29,7 +29,18 @@ export FIGNORE=".dll:.DLL:.ax" #:.DS_Store:.pyc:.pyd:
 export IGNOREEOF="1"
 
 # Set arguments to automatically pass to the less pager; git pager needs to include -R and -F for git commands to behave nicely, but including -F in LESS affects man, so the -F should be handled in the gitconfig and/or aliases for less/man/git.
-export LESS="-R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\: %x.:?pB%pB\%..   ?f(Press v to open with default editor).%t"
+LESS="-R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s/%s. .?e(END) ?x- Next\: %x.:?pB%pB\%..   ?f(Press v to open with default editor).%t"
+# --show-preproc-errors --modelines 2?
+less_ver_compat(){
+	# Add various flags to LESS if the installed version is new enough to understand them (rather than complain and immediately exit with return code 0).
+	# Unfortunately, there seems to be no good way of removing both a suffix and a prefix in the same assignment,
+	# but assigning multiple times in the same command works.
+	ver="$(less -V)" ver="${ver#less }" ver="${ver%% (*}";
+	[ "0${ver}" -ge 549 ] && LESS="--no-histdups ${LESS}" # Really this should also include --wheel-lines=3, not my aliases...
+	[ "0${ver}" -ge 621 ] && LESS="--wordwrap ${LESS}"
+	[ "0${ver}" -ge 624 ] && LESS="--proc-backspace ${LESS}"
+}; less_ver_compat; unset -f less_ver_compat; unset ver;
+export LESS
 
 # Colored man pages: http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
 # Less Colors for Man Pages
@@ -43,6 +54,9 @@ export LESS="-R -PM ?f%f .?n?m(%T %i of %m) ..?ltlines %lt-%lb?L/%L. :byte %bB?s
 #export LESS_TERMCAP_us=$'\E[04;38;5;146m' # begin underline
 
 export LESSCHARSET='utf-8'
+
+# Wait 4000 ms without receiving input before displaying the status message to tell the user it's still waiting.
+export LESS_DATA_DELAY=4000
 
 # Allow different preferred editors for local and remote sessions
 if [ -n "$SSH_CONNECTION" ]; then
