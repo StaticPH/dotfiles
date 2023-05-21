@@ -366,6 +366,10 @@
 --type-add
 	python:include:py
 
+### "rb" as an alias for "ruby"
+--type-add
+	rb:include:ruby
+
 ### "typescript" as an alias for "ts"
 --type-add
 	typescript:include:ts
