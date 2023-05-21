@@ -143,7 +143,11 @@ function colorfulPrompt(){
 	local here="${YELLOW}\w"'$(smartishTitle)'
 #	local tmpVenvSeg='$(__getVenvName)'
 
-	PS1="${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}"
+	# Scroll markers for the first and last line of the multi-line prompt
+	local firstLineMarker='\[\033[?7711l\]'
+	local lastLineMarker='\[\033[?7711h\]'
+
+	PS1="${firstLineMarker}${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}${lastLineMarker}"
 }
 
 # Main prompt setup
