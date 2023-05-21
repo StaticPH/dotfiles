@@ -1,0 +1,46 @@
+#! /bin/bash
+__PROGNAME__="${0##*/git-}"
+
+if [ -d "$1" ]; then
+	printf 'Error: %s already exists!\n' "$1"
+	exit 1
+fi
+
+case "$1" in
+	-h|--help)
+		printf "USAGE: $__PROGNAME__ %s\n" "PATH_OR_NEW_BRANCH_NAME" "[-h|--help]"
+		printf 'Convenience script for creating git worktrees with disconnected histories.\n'
+		exit 0;;
+esac
+
+fail(){
+	# If given an argument, assume its a specific return code to use when exiting.
+	# Otherwise, use whatever was returned by the last command executed.
+	err="${1:-$?}"
+	popd
+	exit "$err"
+}
+
+# If $1 ends with a "/", assume it isn't actually intended to be part of the worktree name, and can be safely removed
+treeName="${1%%/}"
+# If $1 was a path with multiple directory levels, get everything after the last directory separator. Assume whatever path will never have an escaped directory separator...
+treeName="${treeName##*/}"
+
+# Create a new worktree located at "$1" with a detached HEAD
+git worktree add --detach "$1" || exit "$?"
+
+pushd "$1" >/dev/null 2>&1
+
+printf 'Creating and switching to new branch for work tree...\n'
+git checkout --orphan "$treeName" || fail
+
+printf 'Purging any remnant files...\n'
+# This command is allowed to fail
+git rm -rf . >/dev/null 2>&1 || true
+
+# Make a commit in order to truly "create" the new branch for the worktree.
+# Skip this step if the environment variable NO_COMMIT is defined.
+[ -v NO_COMMIT ] || git commit --no-verify --no-post-rewrite --quiet --allow-empty -m 'Initial commit for orphaned branch.' || fail
+
+printf 'Restoring initial working directory...\n'
+popd >/dev/null 2>&1
