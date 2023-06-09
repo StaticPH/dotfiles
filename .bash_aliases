@@ -132,7 +132,7 @@ alias multicp="cp -t"				#copy multiple things to the directory passed as the fi
 alias take="chown -hR $USER:$USER"
 alias gimme="chown -hR $USER:$USER"
 
-alias reloadbash="source ${HOME}/.bashrc"		#Reload bashrc without restarting bash
+alias reloadbash="source ${HOME}/.bashrc"		#Reload bashrc without restarting bash; this may be better off as a function that calls `pushd ~;source "${HOME}/.bashrc"; popd` instead, to ensure tools like direnv can modify the environment.
 
 alias listBuiltins="enable -pa"
 alias disable="enable -n"				#Shortcut for disabling a shell builtin

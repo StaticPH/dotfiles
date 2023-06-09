@@ -85,7 +85,8 @@
 	#     Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R),
 	#     have their type (i.e. regular file, symlink, submodule, etc) changed (T),
 	#     are Unmerged (U), are Unknown (X), or have had their pairing Broken (B)
-	# The case block here is responsible for changing behavior according to whether the first argument is a positive integer (and doesnt start with a '0'), a possible flag (starts with a dash '-'), or an empty string (or no argument at all). Any errors thrown are still from Git.
+	# The case block here is responsible for changing behavior according to whether the first argument is a positive integer (and doesnt start with a '0'),
+	# a possible flag (starts with a dash '-'), or an empty string (or no argument at all). Any errors thrown are still from Git.
 	flog = "!f(){ case $1 in ''|-*) arg1= ;; 0*|[!0-9]*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git log --name-status -n ${arg1:-1} $@; }; f"
 
 	# Stash all files, including files ignored or not yet tracked by git
@@ -143,7 +144,7 @@
 
 	added = green		#files which are added but not committed; AKA updated
 	changed = red		#files which are changed but not added in the index
-	untracked = yellow 	#files which are not tracked by Git
+	untracked = yellow	#files which are not tracked by Git
 	unmerged = 202		#files which have unmerged changes between remote and local branch content
 	branch = 129			#the current branch, somehow not the same as the localBranch color?
 
@@ -246,15 +247,17 @@
 #[help]
 #
 #	# Automatically correct and execute mistyped commands
-#	autocorrect = 1
+#	autocorrect = prompt
 
 [http]
-	sslVersion = tlsv1.2
+	sslVersion = tlsv1.2	# There was a reason not to use tlsv1.3, but I foolishly forgot to make a note explaining it.
 
 [icdiff]
 	# Used only by git-icdiff script; don't provide the "$LOCAL" "$REMOTE" arguments here.
-	options = -Ns --strip-trailing-cr --cols=\"$(tput cols)\"
+	options = -Ns --strip-trailing-cr --cols="\"$(tput cols)\""
+
 	# Specifically EXCLUDE the -R/--RAW-CONTROL-CHARS flag, as git-icdiff adds that automatically
+	# The -J/--status-column flag may cause unnecessary line breaks to be added...
 	pager = less -iJM --tilde --shift .25 --wheel-lines 3 --quit-if-one-screen
 
 [init]
