@@ -1,0 +1,16 @@
+#! /bin/sh
+
+# See https://unix.stackexchange.com/questions/22834/how-to-uncompress-zlib-data-in-unix
+
+if [ -t 1 ]; then
+	# Poor man's substitute for isatty: test -t 1
+	# If stdin is available, assume zlib compressed data is being piped in.
+	exec cat - | perl -MCompress::Zlib -E 'undef $/;print uncompress(<>)'
+else
+	# If stdin is not available, assume arguments are flags or files to pass to `cat`
+	exec cat "$@" | perl -MCompress::Zlib -E 'undef $/;print uncompress(<>)'
+fi
+
+#printf "\x1f\x8b\x08\x00\x00\x00\x00\x00" |cat - "$@" |gzip -dc
+
+
