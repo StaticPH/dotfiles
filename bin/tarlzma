@@ -26,7 +26,7 @@ _tarlzma(){
 			--nolinks)    shift; linkResolution='';;
 #			--)           shift; break;; # Any subsequent arguments are meant for tar
 			-*)           printf '%s: Unrecognized flag: "%s"\n' "$__PROGNAME__" "$arg"; return 1;;
-			*)            break;; # This argument and the any subsequent arguments are to be passed along to tar
+			*)            break;; # This argument and any subsequent arguments are to be passed along to tar
 		esac
 	done
 
