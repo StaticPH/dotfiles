@@ -2,30 +2,52 @@
 
 __PROGNAME__="$(basename "$0")"
 
-# Convenience wrapper for creating an xz-compressed tarball, with verbose output enabled by default.
+# Convenience wrapper for creating an xz-compressed tarball, with verbose output and link dereferencing enabled by default.
 _tarxz(){
-	usageStr="Usage: $__PROGNAME__ [-h|--help] [--quiet] TARFILE_OUTPUT INPUT_FILE... [tar options]..."
 	verbosityFlag='-v'
+	checkpointFrequency=500
+	linkResolution='-l --dereference --hard-dereference'
+	xzCmdline='xz -kz -T 0'
 
-	case "$1" in
-		-h|--help)    echo "$usageStr" && return 0;;
-		--quiet)      shift; verbosityFlag='';;
-	esac
+	# shellcheck disable=SC2059
+	usage(){
+		printf "Usage: $__PROGNAME__ [-h|--help] [-q|--quiet] [--nolinks] TARFILE_OUTPUT INPUT_FILE... [tar options]...\n"
+		printf "    Unrecognized flags will be considered an error.\n"
+		printf "    The first argument not beginning with a dash, '-', will be considered the name of the output file.\n"
+		printf "    Any subsequent arguments will be passed directly to tar.\n"
+	}
+
+	for arg in "$@"; do
+		case "$arg" in
+			-h|--help)    usage; return 0;;
+			-q|--quiet)   shift; verbosityFlag='';;
+#			--checkin)    Not feeling like bothering with this as long as I'm also sticking strictly to posix.
+#				https://unix.stackexchange.com/questions/598036/how-to-check-if-variable-is-integer-avoid-problem-with-spaces-around-in-posix
+			--nolinks)    shift; linkResolution='';;
+#			--)           shift; break;; # Any subsequent arguments are meant for tar
+			-*)           printf '%s: Unrecognized flag: "%s"\n' "$__PROGNAME__" "$arg"; return 1;;
+			*)            break;; # This argument and any subsequent arguments are to be passed along to tar
+		esac
+	done
 
 	if [ $# -lt 2 ]; then
 		echo "$__PROGNAME__: Not enough arguments."
-		echo "$usageStr" && return 1;
+		usage
+		return 1
 	fi
 
 	outputFile="$1"
 	shift
 
 	## Unfortunately, tar can't verify the archive if it is compressed upon creation.
-	# tar --create "$verbosityFlag" --atime-preserve --verify -I "xz -kz -T 0" --totals --file "$outputFile" "$@"
+	# tar --create "$verbosityFlag" --atime-preserve --verify -I "$xzCmdline" --totals --file "$outputFile" "$@"
 
 	# If $verbosityFlag is quoted to prevent expansion, tar interprets the empty string as an archive member to-be, and complains
 	# shellcheck disable=SC2086
-	tar --create $verbosityFlag --atime-preserve -I "xz -kz -T 0" --totals --file "$outputFile" "$@"
+	tar --create $verbosityFlag --atime-preserve --totals $linkResolution --checkpoint="$checkpointFreq" \
+		--sparse --exclude-vcs --ignore-case --show-omitted-dirs \
+		-I "$xzCmdline" \
+		--file "$outputFile" "$@"
 
 #	# if a file is intended to be decompressed on an embedded system, you may need to use --check=none or --check=crc32
 #	# xz -3 for fast compression and cheap decompression

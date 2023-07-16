@@ -11,7 +11,7 @@ _tarzstd_(){
 
 	# shellcheck disable=SC2059
 	usage(){
-		printf "Usage: $__PROGNAME__ [-h|--help] [--quiet] [--nolinks] TARFILE_OUTPUT INPUT_FILE... [tar options]...\n"
+		printf "Usage: $__PROGNAME__ [-h|--help] [-q|--quiet] [--nolinks] TARFILE_OUTPUT INPUT_FILE... [tar options]...\n"
 		printf "    Unrecognized flags will be considered an error.\n"
 		printf "    The first argument not beginning with a dash, '-', will be considered the name of the output file.\n"
 		printf "    Any subsequent arguments will be passed directly to tar.\n"
