@@ -362,6 +362,10 @@
 --type-add
 	pkgconf:include:pkgconfig
 
+### "pl" as an alias for "perl"
+--type-add
+	pl:include:perl
+
 ### "python" as an alias for "py"
 --type-add
 	python:include:py
