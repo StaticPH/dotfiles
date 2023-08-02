@@ -1,0 +1,300 @@
+#########################################################
+#########################################################
+# ALL FUNCTIONS CONTAINED HEREIN SHOULD EITHER BE
+# OS-AGNOSTIC, OR WRAPPED IN AN OS CHECK
+#########################################################
+#########################################################
+# shellcheck disable=SC2059
+
+getexitcode() {
+	# if [ $? -eq 0 ]; then
+		# echo -n
+	# else
+		# echo -n "{err:$?}"
+	# fi
+	err="$?"; [ "$err" -ne 0 ] && printf "{err:$err}"; unset err;
+}
+
+# Better PATH printout
+path(){
+	# shellcheck disable=SC3060,3003
+	if [ "x$BASH_VERSION" != 'x' ]; then echo "${PATH//:/$'\n'}";
+	elif [ "x$ZSH_VERSION" != 'x' ]; then echo "${PATH//:/\n}";
+	else # Fallback; can't remember my reason for bothering with trying to avoid an external call, anyways.
+		echo "$PATH" | tr -s ":" "\n"
+		# Or the more verbose equivalent (Bash):
+		# local old=$IFS
+		# IFS=:
+		# printf "%s\n" $PATH
+		# IFS=$old
+	fi
+}
+
+manpath(){
+	if [ "$#" -eq 0 ]; then
+		env manpath | tr -s ":" "\n"
+	else
+		env manpath "$@"
+	fi
+}
+
+pause(){
+	# shellcheck disable=SC2034
+	if [ "x$BASH_VERSION" != 'x' ]; then
+		builtin printf "Press any key to continue..." >&2 && builtin read -r -s -n 1 pause_char >/dev/null >&2
+		builtin echo
+	elif [ "x$ZSH_VERSION" != 'x' ]; then
+		builtin printf "Press any key to continue..." >&2 && builtin read -r -s -k 1 pause_char >/dev/null >&2
+		builtin echo;
+	else
+		printf "Press Enter to continue..." >&2 && read -r pause_char >/dev/null >&2
+	fi
+	unset pause_char;
+}
+
+fullWidthLine(){
+	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "${1:--}"
+}
+
+# shellcheck disable=SC2120
+fullWidthLineUnicode(){
+	yes "${1:--}" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
+}
+
+# shellcheck disable=SC2119
+spacer(){
+	fullWidthLineUnicode
+	printf "%s\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" ' ' " " ' ' " "
+	fullWidthLineUnicode
+}
+
+setTitle(){
+	[ $# -ge 1 ] && printf "\e]2;$*\a"
+	#printf '\[\033]0;$@\007\]' #set maximized title
+	#printf '\[\033]1;$@\007\]' #set minimized title
+}
+
+moveCursorTo(){
+	# This function name is something of a misnomer; it's actually more of an "insert at"
+	[ $# -lt 2 ] && return 1
+
+	line="$1" col="$2"    # $1 is Line; $2 is Column
+	shift 2               # Remove the arguments for line and column positions
+	text="$*"             # The text inserted is comprised of any remaining arguments
+
+	printf "$(tput sc)\033[${line};${col}H${text}$(tput rc)"
+	unset line col text
+}
+
+useAltScreenBuf(){
+	printf "\e[?1049h" # This should be equivalent to `tput smcup`.
+}
+
+useMainScreenBuf(){
+	printf "\e[?1049l" # This should be equivalent to `tput rmcup`.
+}
+
+#Check if root user has root privelege.
+isRoot(){
+	# POSIX sh does not define $UID
+	# shellcheck disable=SC3028
+	if [ "x$UID" != 'x' ] && [ "$UID" != '0' ] ; then
+		# echo "You need to be root to run this script!"
+		return 1
+	elif [ "$(id -u)" -ne 0 ]; then
+		# Could simply skip the $UID check in favor of this...
+		return 1
+	else
+		# echo "You are root."
+		return 0
+	fi
+}
+
+# Tools
+#-------------------------------------------------------------
+
+# Count the number of files in a directory
+filecount() {
+	find "${1-.}" -type f | wc -l
+}
+
+# shellcheck disable=SC3033
+remove-blank-lines(){
+	sed '/^\s*$/d'
+}
+
+mancat(){
+	# man --nj --nh "$@" | unexpand --first-only --tabs=4 | tr -s ' '
+	# shellcheck disable=SC1007
+	MANPAGER= man --nj --nh "$@"
+}
+
+# shellcheck disable=SC2016
+odz(){
+	# Majorly convoluted wrapper function to color 00 bytes of a "pretty" hexdump in gray
+#	[2m == tput dim
+#	[0m == tput sgr0
+	#	s/([^0-9A-F ][^ ]{,2})(00) /\1[2m\2([^0-9A-F ][^ ]{,2})(00) /\1\2[0m /g; # matches trailing "00" bytes while also ignoring the address column
+	od -t x2z "$@" | sed -E '{
+		s/ (00|0000)/ [2m\1[0m/g; # matches leading "00" byte and "0000" adjacent bytes
+		s/([^0-9A-F ][^ ]{,2})(00) /\1[2m\2[0m /g; # matches trailing "00" bytes while also ignoring the address column; inexplicably, the former is unreliable if od is passed `--endian=big`
+	}'
+}
+
+zip2zst(){
+	if ! command -v unzip >/dev/null 2>&1 ; then
+		printf '%s\n' "Command 'unzip' not found"
+		return 1
+	fi
+	if ! command -v zstd >/dev/null 2>&1 ; then
+		printf '%s\n' "Command 'zstd' not found"
+		return 1
+	fi
+	unzip -pKX "$1" | zstd -19k --check > "${1%zip}zst";
+}
+
+if command -v apt >/dev/null 2>&1; then
+	listinstalled(){
+		apt list --installed | sed -Ee '/Listing.../ {1d;}' -e 's/\/.*//' | column
+	}
+
+	lessinstalled(){
+		apt list --installed | sed -Ee "/^(Listing...|lib|(python[23]|perl|xserver|x11|gedit|r|apertium|dict-freedict|elpa|firefox-locale|fusiondirectory|gambas3|gccgo|geany|gfortran|gir1\.2|gnat|gnustep|gobjc\+*|golang|hunspell|hyphen|icinga|kamailio|kodi|language-pack|linux|mbrola|node|nvidia|octave|php(8.1)?|prometheus|puppet|qml|ruby|tesseract|thunderbird|tryton|ubuntu|unity)-)/d" -e 's/\/.*//' | column
+	}
+fi
+
+if [ -e "/etc/environment" ]; then
+	getbasepath(){
+		sed -E "s/^[^=]+=//" /etc/environment
+	}
+fi
+
+# shellcheck disable=SC3028
+if [ "$OSTYPE" = 'msys' ]; then
+	incmd(){
+		echo "$@" | cmd; echo
+	}
+fi
+
+if command -v durt >/dev/null 2>&1; then
+	# durt should really just operate on the current directory if I don't specify one
+	durt(){
+		command durt "${@:-$PWD}"
+	}
+fi
+
+if command -v pip >/dev/null 2>&1; then
+	piphelp(){
+		# If I want to see the general help, I'll ask for it.
+		case $1 in
+			help|-h|--help|'')	pip --help; echo ;;
+			*)	COLUMNS=$(tput cols) pip "$@" --help | sed -n '/General Options:/q;p' ;;
+		esac
+	}
+fi
+
+rehist(){
+	# Attempt to clear the session history and reread it from the history file
+	if [ "x$BASH_VERSION" != 'x' ]; then
+		history -c; history -r "${HISTFILE:-~/.bash_history}"
+	elif [ "x$ZSH_VERSION" != 'x' ]; then
+		# shellcheck disable=SC3043
+		resetHist(){ local HISTSIZE=0; }; resetHist
+		fc -IR "${HISTFILE:-~/.zsh_history}"
+	else
+		printf "Whatever shell this is, I don't know how it's history command works. Fix it.\n"
+		return 1;
+	fi		
+}
+
+histfix(){
+	if [ "x$BASH_VERSION" != 'x' ]; then
+		history -a && "$EDITOR" "${HISTFILE:-~/.bash_history}"
+	elif [ "x$ZSH_VERSION" != 'x' ]; then
+		fc -IA && "$EDITOR" "${HISTFILE:-~/.zsh_history}"
+	else
+		printf "Whatever shell this is, I don't know how it's history command works. Fix it.\n"
+		return 1;
+	fi
+}
+
+locateFunc(){
+	# shellcheck disable=SC3044
+	if [ "x$BASH_VERSION" != 'x' ]; then
+		( shopt -s extdebug; declare -F "$@" )
+	elif [ "x$ZSH_VERSION" != 'x' ]; then
+		echo WIP
+		### The file containing a function definition can be found with `echo $functions_source[NAME]` from the `zsh/parameter` module, but that doesn't include the line number for jumping to in an editor...
+		### I guess the "simple" solution is to get the path to the file containing the definition, take the first line of the definition itself from something that returns it, then use `grep -n "FIRST_LINE" FILE` | cut -d ':' -f1` to get the line number?
+		### I could probably also use awk instead of grep+cut.
+
+		# shellcheck disable=SC3060,2296
+		for func in "$@"; do
+			firstLine="$(whence -c "$func" | head -n 1)"
+			### Jump through hoops because Zsh inexplicably reformats function definitions (either when storing or printing, unimportant), which then no longer match the exact original declaration.
+			### Replace all whitespace with "\s ", removing consecutive whitespace characters
+			firstLine="${firstLine//[[:space:]]##/\s }"
+			### Quote or escape all "special" characters in the string
+			firstLine="${(q)firstLine}"
+			### Replace escaped space characters with asterisks; due to earlier substitutions, this produces regex with non-alphanumeric characters escaped
+			firstLine="${firstLine//\\ /*}"
+
+			### Minimum Zsh version supported is 5.4, which introduced the $functions_source array variable. TODO: enforce version check.
+			# shellcheck disable=SC1087,SC2154
+			file=$functions_source[$func];
+
+			printf '\e[31m%s]n' "line1='$firstLine'" "file=$file" "$(grep -nE "$firstLine" "$file")" >&2
+			lineNo="$(grep -nE "$firstLine" "$file"| cut -d ':' -f1)";
+			echo "$func $lineNo $file";
+		done;
+		unset file firstLine lineNo func
+	else
+		tput setaf 1; echo "$0: This function is not supported by the current shell."; tput sgr0;
+	fi
+}
+
+
+### Define non-default completion behavior
+# shellcheck disable=SC3044
+if [ "x$BASH_VERSION" != 'x' ]; then
+	complete -A function locateFunc
+elif [ "x$ZSH_VERSION" != 'x' ]; then
+	# compdef ???? locateFunc
+	true # Temporary no-op
+fi
+
+
+# reminder, $@ is an array of arguments, while $* is a single string containing all the arguments.
+# $# is the number of arguments after the program call
+# redirect to stdin with >&0
+# redirect to stdout with >&1
+# redirect to stderr with >&2
+# "^" is equivalent to "2>", at least for the Fish shell
+# BASHISM: As of Bash 4, "|&" is shorthand for "2>&1 |"
+# BASHISM: delete a function, but NOT a variable of the same name, with "unset -f functionName"
+# BASHISM: redirecting with ">|" instead of ">" will force file clobbering, ignoring whether noclobber is enabled(via set)
+# BASHISM: "&>fileName" is equivalent to ">fileName 2>&1"
+# BASHISM: "&>>fileName" is equivalent to ">>fileName 2>&1"
+
+# BASHISM: "hash -p FILEPATH NAME" can be used to remember individual executables, as if they were included in PATH.
+# BASHISM: The caveat to this is that hashed functions ARE NOT FOUND BY "type -a" or tab-completion
+
+# In here-documents, if the redirection operator is ‘<<-’,
+# then all leading tab characters are stripped from input lines and the line containing delimiter.
+# This allows here-documents within shell scripts to be indented in a natural fashion
+
+# BASHISM: set -u	treats attempts to expand previously unset variables/parameters as errors, and causes non-interactive shells to exit. Use this as part of making bash stricter.
+#
+# BASHISM: local -	makes it so that shell options changed using the 'set' builtin inside the function are restored to their original values when the function returns; does not effect 'shopt'
+# BASHISM: echo $-	to see the current flags applied by the 'set' command
+#
+# BASHISM: when debugging scripts, try adding this after handling positional parameters:
+# BASHISM: local -; set -uxv # strict mode; trace; print shell input as encountered
+
+# ${var1:+"$var1"}		if $var1 is unset or null, yield null; otherwise expand $var1
+# ${var1:-defaultValue} if $var1 is unset or null, yield defaultValue; otherwise expand $var1
+
+# xdg-open is your friend
+# bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'
+
+# BASHISM: `complete -W '' COMMAND_NAME` is one of several ways to disallow any argument completion options for COMMAND_NAME.

@@ -16,54 +16,38 @@
 #########################################################
 # shellcheck disable=SC2059
 
-function getexitcode {
-	# if [ $? -eq 0 ]; then
-		# echo -n
-	# else
-		# echo -n "{err:$?}"
-	# fi
-	local err=$?; [ $err -ne 0 ] && printf "{err:$err}"
-}
-
-# Better PATH printout
-path(){
-	echo "$PATH" | tr -s ":" "\n"
-	# Or the more verbose equivalent:
-	# local old=$IFS
-	# IFS=:
-	# printf "%s\n" $PATH
-	# IFS=$old
-}
-
-manpath(){
-	if [ $# -eq 0 ]; then
-		env manpath | tr -s ":" "\n"
-	else
-		env manpath "$@"
+# BASH ARRAY FUNCNAME
+__showColor(){
+	if [ $# -ne 1 ]; then
+		printf "${FUNCNAME[0]} takes exactly 1 argument\n";
+		return 1;
 	fi
+	printf "\e[48;5;${1}m $1 \033[m"
 }
 
-# shellcheck disable=SC2034
-function pause() {
-	local dummy
-#	read -s -r -p "Press any key to continue..." -n 1 dummy
-	printf "Press any key to continue..." >&2 && read -s -r -n 1 dummy
+# BASH ARRAY FUNCNAME
+function showColorRange(){
+	if [ $# -ne 2 ]; then
+		printf "Usage: '${FUNCNAME[0]} START_NUM END_NUM'\n"
+		printf "\tSTART_NUM AND END_NUM must be integers in the range of [0,256).\n"
+		return 1
+	fi
+	#for i in `seq 0 5`; do printf "\e[48;5;${i}m   ";done;printf "\033[m\n"
+	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do printf "\e[48;5;${i}m   \033[m";done;);done;
+	# for i in `seq $1 $2`;
+	local i;
+	for ((i=$1; i <= $2; i++)); do
+		printf "\e[48;5;${i}m $i "
+	done
+	printf "\e[0m\n"
 }
 
-fullWidthLine(){
-	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "${1:--}"
-}
-
-# shellcheck disable=SC2120
-fullWidthLineUnicode(){
-	yes "${1:--}" | head "-${COLUMNS:-$(tput cols)}" | paste -s -d ''
-}
-
-# shellcheck disable=SC2119
-spacer(){
-	fullWidthLineUnicode
-	printf "%s\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n" ' ' " " ' ' " "
-	fullWidthLineUnicode
+# BASH ARRAY FUNCNAME
+echoChar(){
+	if [ $# -ne 1 ]; then
+		printf "Usage: ${FUNCNAME[0]} UNICODE_NUMBER\n" && return 1
+	fi
+	printf "\U${1}"
 }
 
 function toggle_hist_expansion(){
@@ -72,10 +56,6 @@ function toggle_hist_expansion(){
 		*)   set -H;;
 	esac
 }
-
-function locateFunc(){
-	(shopt -s extdebug; declare -F "$1";)
-} && complete -A function locateFunc;
 
 # shellcheck disable=SC2206
 function editfunc(){
@@ -94,8 +74,15 @@ function editfunc(){
 	found=( ${found[*]} )
 
 	#printf "found=\033[32m%s\033[0m\nlen found=\033[33m%s\033[0m\n" "${found[@]}" "${#found[@]}";
-	### Open nano to the line containing the function definition
-	nano "+${found[0]}" "${found[1]}"
+	case "$EDITOR" in
+		subl)
+			"$EDITOR" "${found[1]}:${found[0]}";;
+		*/nano|nano) ;&
+		*)
+			### Open nano to the line containing the function definition
+			"$EDITOR" "+${found[0]}" "${found[1]}"
+			;;
+	esac
 } && complete -A function editfunc;
 
 # Look, I forget things, okay?
@@ -107,102 +94,34 @@ function editfunc(){
 	# printf "╚═════╧═════════════╩═════╧══════════╝\n"
 # }
 
-__showColor(){
-	if [ $# -ne 1 ]; then
-		printf "${FUNCNAME[0]} takes exactly 1 argument\n";
-		return 1;
-	fi
-	printf "\e[48;5;${1}m $1 \033[m"
-}
-
-function showColorRange(){
-	if [ $# -ne 2 ]; then
-		printf "Usage: '${FUNCNAME[0]} START_NUM END_NUM'\n"
-		printf "\tSTART_NUM AND END_NUM must be integers in the range of [0,256).\n"
-		return 1
-	fi
-	#for i in `seq 0 5`; do printf "\e[48;5;${i}m   ";done;printf "\033[m\n"
-	#for n in `seq 0 20`; do \(for i in `seq 0 256`; do printf "\e[48;5;${i}m   \033[m";done;);done;
-	# for i in `seq $1 $2`;
-	local i;
-	for ((i=$1; i <= $2; i++)); do
-		printf "\e[48;5;${i}m $i "
-	done
-	printf "\e[0m\n"
-}
-
-echoChar (){
-	if [ $# -ne 1 ]; then
-		printf "Usage: ${FUNCNAME[0]} UNICODE_NUMBER\n" && return 1
-	fi
-	printf "\U${1}"
-}
-
-samplePrompt(){
+function samplePrompt(){
 	echo "${PS1@P}"
 }
 
-setTitle(){
-	[ $# -ge 1 ] && printf "\e]2;$*\a"
-	#printf '\[\033]0;$@\007\]' #set maximized title
-	#printf '\[\033]1;$@\007\]' #set minimized title
-}
-
+# BASH ARRAY FUNCNAME
 setTextColor(){
 	[ $# -eq 1 ] && printf "\e]10;$1\a" || echo "${FUNCNAME[0]} only accepts a single color parameter."
 }
 
+# BASH ARRAY FUNCNAME
 setBackgroundColor(){
 	[ $# -eq 1 ] && printf "\e]11;$1\a" || echo "${FUNCNAME[0]} only accepts a single color parameter."	#seagreen is pretty
 }
 
+# BASH ARRAY FUNCNAME
 setCursorColor(){
 	[ $# -eq 1 ] && printf "\e]12;$1\a" || echo "${FUNCNAME[0]} only accepts a single color parameter."
 }
 
-function moveCursorTo(){
-	# This function name is something of a misnomer; it's actually more of an "insert at"
-	[ $# -lt 2 ] && return 1
-
-	local line="$1" col="$2"    # $1 is Line; $2 is Column
-	shift 2            # Remove the arguments for line and column positions
-	local text="$*"    # The text inserted is comprised of any remaining arguments
-
-	printf "$(tput sc)\033[${line};${col}H${text}$(tput rc)"
-}
-
-useAltScreenBuf(){
-	printf "\e[?1049h" # This should be equivalent to `tput smcup`.
-}
-
-useMainScreenBuf(){
-	printf "\e[?1049l" # This should be equivalent to `tput rmcup`.
-}
-
-#Check if root user has root privelege. Remember that for bash, 0 is true
-isRoot(){
-	if [ "$UID" -ne 0 ] ; then
-		# echo "You need to be root to run this script!"
-		return 1
-	else
-		# echo "You are root."
-		return 0
-	fi
-}
-
-# Send text to the system clipboard
+# Send text to the system clipboard; /dev/clipboard may not reliably exist outside MSYS2 :(
 sendToClipboard(){
 	(echo "$@") >> /dev/clipboard
 }
 
-# Clear the system clipboard by explicitly writing an empty string to it
+# Clear the system clipboard by explicitly writing an empty string to it; /dev/clipboard may not reliably exist outside MSYS2 :(
 alias clearClipboard="sendToClipboard ''"
 
-# Count the number of files in a directory
-function filecount() {
-	find "${1-.}" -type f | wc -l
-}
-
+# BASH ARRAY FUNCNAME
 findByName(){
 	if [ $# -lt 1 ]; then
 		printf "Equivalent to 'find PATH -name PATTERN'\n"
@@ -217,6 +136,7 @@ findByName(){
 	fi
 }
 
+# BASH ARRAY FUNCNAME
 curlup(){
 	echo "NOTE: This function is WIP."
 	if [ $# -eq 0 ]; then
@@ -237,8 +157,9 @@ curlup(){
 	fi
 }
 
+# BASH ARRAY FUNCNAME
 epochTime(){
-	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
+	if [ "${1,,}" = "-h" ] || [ "${1,,}" = "--help" ]; then
 		printf "Usage: ${FUNCNAME[0]} [-h|--help] [TIME_STRING]\n"
 		printf "  A convenience function for converting a human-readable time to the equivalent unix epoch time.\n" | fold -s
 		printf "  Without a parameter, converts the current time to unix epoch form.\n"
@@ -252,8 +173,9 @@ epochTime(){
 	date -d "${1:-now}" "+%s"
 }
 
+# BASH ARRAY FUNCNAME
 fromEpoch(){
-	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
+	if [ "${1,,}" = "-h" ] || [ "${1,,}" = "--help" ]; then
 		printf "Usage: ${FUNCNAME[0]} [-h|--help] [UNIX_EPOCH]\n"
 		printf "  A convenience function for converting a unix epoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
 		# printf "  Output format is determined by the values of LC_TIME and TIME_STYLE.\n"	# Determine order of precedence
@@ -275,35 +197,31 @@ fromEpoch(){
 	# echo ${*@E}
 # }
 
-function strlen(){
+strlen(){
+	# Sometimes it's just more convenient to have this in the form of a function than a variable.
 	echo "${#1}"
 	# Alternatively: expr length + "$1"
 }
 
+# BASH ARRAY FUNCNAME
 function strtail(){
 	[ $# -ne 2 ] && printf "Usage: ${FUNCNAME[0]} STRING N\t:\tget last N characters of STRING\n" && return 1
 	[ "$2" -gt "${#1}" ] && printf "Error: ${FUNCNAME[0]}: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1: ${#1}-$2}"
 }
 
+# BASH ARRAY FUNCNAME
 function strhead(){
 	[ $# -ne 2 ] && printf "Usage: ${FUNCNAME[0]} STRING N\t:\tget first N characters of STRING\n" && return 1
 	[ "$2" -gt "${#1}" ] && printf "Error: ${FUNCNAME[0]}: The number of characters to get cannot exceed length of the string.\n" && return 1
 	echo "${1:0:$2}"
 }
 
+# BASH ARRAY FUNCNAME
 function skipNchars(){
 	[ $# -ne 2 ] && printf "Usage: ${FUNCNAME[0]} STRING N\t:\tTrim the first N characters of STRING, and return the rest\n" && return 1
 	[ "$2" -gt "${#1}" ] && printf "Error: ${FUNCNAME[0]}: The number of characters to skip cannot exceed length of the string.\n" && return 1
 	echo "${1:$2:${#1}}"
-}
-
-remove-blank-lines(){
-	sed '/^\s*$/d'
-}
-
-mancat(){
-	man --nj --nh "$@" | unexpand --first-only --tabs=4 | tr -s ' '
 }
 
 function excuse(){
@@ -313,23 +231,12 @@ function excuse(){
 	echo "${str2:0:${#str2}-4}"
 }
 
-# shellcheck disable=SC2016
-odz(){
-	# Majorly convoluted wrapper function to color 00 bytes of a "pretty" hexdump in gray
-#	[2m == tput dim
-#	[0m == tput sgr0
-	#	s/([^0-9A-F ][^ ]{,2})(00) /\1[2m\2([^0-9A-F ][^ ]{,2})(00) /\1\2[0m /g; # matches trailing "00" bytes while also ignoring the address column
-	od -t x2z "$@" | sed -E '{
-		s/ (00|0000)/ [2m\1[0m/g; # matches leading "00" byte and "0000" adjacent bytes
-		s/([^0-9A-F ][^ ]{,2})(00) /\1[2m\2[0m /g; # matches trailing "00" bytes while also ignoring the address column; inexplicably, the former is unreliable if od is passed `--endian=big`
-	}'
-}
-
 # shellcheck disable=SC2046
-if [ "$(seemsLikeWSL)" ] && [ ! "$(command -v wslpath &>/dev/null)" ]; then
+if seemsLikeWSL && ! command -v wslpath &>/dev/null; then
 	function wslpath(){
 		if [ $# -eq 0 ]; then
 			### https://github.com/Microsoft/WSL/issues/2715
+			### Once upon a time, wslpath lacked helpful output when called without arguments.
 cat << '__EOF__'
 Usage: wslpath [-a] [-u|-w|-m] path
 	-a    output absolute path
@@ -337,9 +244,9 @@ Usage: wslpath [-a] [-u|-w|-m] path
 	-w    translate from a WSL path to a Windows path
 	-m    translate from a WSL path to a mixed Windows path using slashes
 __EOF__
-		   return 0
+			return 0
 		fi
-	/bin/wslpath "$@"
+		/bin/wslpath "$@"
 	}
 fi
 
@@ -384,6 +291,7 @@ fi
 
 if command -v fd >/dev/null 2>&1; then
 	if command -v treef >/dev/null 2>&1; then
+# BASH ARRAY FUNCNAME
 		fdtree(){
 			# You CAN simply pipe the current version of fd into tree (version >= 1.8.0), but both that and this function seem to have some quirks...
 			# If the locally available version of fd doesn't default to the Unix path separator in MSYS,
@@ -447,26 +355,26 @@ rl-cfg-dump(){
 # redirect to stdout with >&1
 # redirect to stderr with >&2
 # "^" is equivalent to "2>", at least for the Fish shell
-# As of Bash 4, "|&" is shorthand for "2>&1 |"
-# delete a function, but NOT a variable of the same name, with "unset -f functionName"
-# redirecting with ">|" instead of ">" will force file clobbering, ignoring whether noclobber is enabled(via set)
-# "&>fileName" is equivalent to ">fileName 2>&1"
-# "&>>fileName" is equivalent to ">>fileName 2>&1"
+# BASHISM: As of Bash 4, "|&" is shorthand for "2>&1 |"
+# BASHISM: delete a function, but NOT a variable of the same name, with "unset -f functionName"
+# BASHISM: redirecting with ">|" instead of ">" will force file clobbering, ignoring whether noclobber is enabled(via set)
+# BASHISM: "&>fileName" is equivalent to ">fileName 2>&1"
+# BASHISM: "&>>fileName" is equivalent to ">>fileName 2>&1"
 
-# "hash -p FILEPATH NAME" can be used to remember individual executables, as if they were included in PATH.
-# The caveat to this is that hashed functions ARE NOT FOUND BY "type -a" or tab-completion
+# BASHISM: "hash -p FILEPATH NAME" can be used to remember individual executables, as if they were included in PATH.
+# BASHISM: The caveat to this is that hashed functions ARE NOT FOUND BY "type -a" or tab-completion
 
 # In here-documents, if the redirection operator is ‘<<-’,
 # then all leading tab characters are stripped from input lines and the line containing delimiter.
 # This allows here-documents within shell scripts to be indented in a natural fashion
 
-# set -u	treats attempts to expand previously unset variables/parameters as errors, and causes non-interactive shells to exit. Use this as part of making bash stricter.
+# BASHISM: set -u	treats attempts to expand previously unset variables/parameters as errors, and causes non-interactive shells to exit. Use this as part of making bash stricter.
 #
-# local -	makes it so that shell options changed using the 'set' builtin inside the function are restored to their original values when the function returns; does not effect 'shopt'
-# echo $-	to see the current flags applied by the 'set' command
+# BASHISM: local -	makes it so that shell options changed using the 'set' builtin inside the function are restored to their original values when the function returns; does not effect 'shopt'
+# BASHISM: echo $-	to see the current flags applied by the 'set' command
 #
-# when debugging scripts, try adding this after handling positional parameters:
-# local -; set -uxv # strict mode; trace; print shell input as encountered
+# BASHISM: when debugging scripts, try adding this after handling positional parameters:
+# BASHISM: local -; set -uxv # strict mode; trace; print shell input as encountered
 
 # ${var1:+"$var1"}		if $var1 is unset or null, yield null; otherwise expand $var1
 # ${var1:-defaultValue} if $var1 is unset or null, yield defaultValue; otherwise expand $var1
@@ -474,4 +382,4 @@ rl-cfg-dump(){
 # xdg-open is your friend
 # bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'
 
-# `complete -W '' COMMAND_NAME` is one of several ways to disallow any argument completion options for COMMAND_NAME.
+# BASHISM: `complete -W '' COMMAND_NAME` is one of several ways to disallow any argument completion options for COMMAND_NAME.
