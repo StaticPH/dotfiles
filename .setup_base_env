@@ -35,7 +35,7 @@ less_ver_compat(){
 	# Add various flags to LESS if the installed version is new enough to understand them (rather than complain and immediately exit with return code 0).
 	# Unfortunately, there seems to be no good way of removing both a suffix and a prefix in the same assignment,
 	# but assigning multiple times in the same command works.
-	ver="$(less -V)" ver="${ver#less }" ver="${ver%% (*}";
+	ver="$(less -V)" ver="${ver#less }" ver="${ver%% \(*}"; # The parenthesis in the 3rd assignment needs to be escaped for Zsh compat.
 	[ "0${ver}" -ge 549 ] && LESS="--no-histdups ${LESS}" # Really this should also include --wheel-lines=3, not my aliases...
 	[ "0${ver}" -ge 621 ] && LESS="--wordwrap ${LESS}"
 	[ "0${ver}" -ge 624 ] && LESS="--proc-backspace ${LESS}"
