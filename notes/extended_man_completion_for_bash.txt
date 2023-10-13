@@ -1,0 +1,10 @@
+if [ -r '/usr/share/bash-completion/completions/man' ]; then
+	. '/usr/share/bash-completion/completions/man'
+
+	# ?Improve? completion for the `man` suite of commands by including completion for command names and files.
+	# Unfortunate about the substantial slowdown that doing so incurs, though.
+	complete -F _man -A command -A file man apropos whatis
+fi
+
+# ex: filetype=sh
+
