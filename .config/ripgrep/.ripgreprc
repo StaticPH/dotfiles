@@ -24,6 +24,7 @@
 --glob=!_metadata/verified_contents.json
 --glob=!*-journal
 --glob=!*.db-journal
+--glob=!~BROMIUM
 
 ###########################
 # END GLOB EXCLUSION ARGS
