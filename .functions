@@ -209,9 +209,9 @@ rehist(){
 
 histfix(){
 	if [ "x$BASH_VERSION" != 'x' ]; then
-		history -a && "$EDITOR" "${HISTFILE:-~/.bash_history}"
+		history -a && "${EDITOR:-nano}" "${HISTFILE:-~/.bash_history}"
 	elif [ "x$ZSH_VERSION" != 'x' ]; then
-		fc -IA && "$EDITOR" "${HISTFILE:-~/.zsh_history}"
+		fc -IA && "${EDITOR:-nano}" "${HISTFILE:-~/.zsh_history}"
 	else
 		printf "Whatever shell this is, I don't know how it's history command works. Fix it.\n"
 		return 1;
@@ -223,13 +223,18 @@ locateFunc(){
 	if [ "x$BASH_VERSION" != 'x' ]; then
 		( shopt -s extdebug; declare -F "$@" )
 	elif [ "x$ZSH_VERSION" != 'x' ]; then
-		echo WIP
 		### The file containing a function definition can be found with `echo $functions_source[NAME]` from the `zsh/parameter` module, but that doesn't include the line number for jumping to in an editor...
-		### I guess the "simple" solution is to get the path to the file containing the definition, take the first line of the definition itself from something that returns it, then use `grep -n "FIRST_LINE" FILE` | cut -d ':' -f1` to get the line number?
-		### I could probably also use awk instead of grep+cut.
+		### I guess the "simple" solution is to get the path to the file containing the definition, take the first line of the definition itself from something that returns it, then use `grep -n "FIRST_LINE" "FILE" | cut -d ':' -f1` to get the line number?
+		### I could also replace grep+cut with awk.
 
+		### FIXME: For some reason, this seems to fail at finding functions declared specifically in .zshrc, and in /usr/share/zsh/functions/*; this behavior has yet to be seen elsewhere.
+		### FIXME: Hangs indefinitely on functions not yet autoloaded
 		# shellcheck disable=SC3060,2296
 		for func in "$@"; do
+			### Minimum Zsh version supported is 5.4, which introduced the $functions_source array variable. TODO: enforce version check.
+			# shellcheck disable=SC1087,SC2154
+			file="$functions_source[$func]";
+
 			firstLine="$(whence -c "$func" | head -n 1)"
 			### Jump through hoops because Zsh inexplicably reformats function definitions (either when storing or printing, unimportant), which then no longer match the exact original declaration.
 			### Replace all whitespace with "\s ", removing consecutive whitespace characters
@@ -238,14 +243,15 @@ locateFunc(){
 			firstLine="${(q)firstLine}"
 			### Replace escaped space characters with asterisks; due to earlier substitutions, this produces regex with non-alphanumeric characters escaped
 			firstLine="${firstLine//\\ /*}"
+			### \\s => \s
+			firstLine="${firstLine//\\\\s/\s}"
 
-			### Minimum Zsh version supported is 5.4, which introduced the $functions_source array variable. TODO: enforce version check.
-			# shellcheck disable=SC1087,SC2154
-			file=$functions_source[$func];
+			### Use awk instead of grep + cut
+			funcname="$func" line1="$firstLine" awk '($0 ~ ENVIRON["line1"]) { printf("%s %d %s\n", ENVIRON["funcname"], FNR, FILENAME); }' "$file"
 
-			printf '\e[31m%s]n' "line1='$firstLine'" "file=$file" "$(grep -nE "$firstLine" "$file")" >&2
-			lineNo="$(grep -nE "$firstLine" "$file"| cut -d ':' -f1)";
-			echo "$func $lineNo $file";
+			#lineNo="$(grep -nE "$firstLine" "$file"| cut -d ':' -f1)";
+			#echo "$func $lineNo $file";
+
 		done;
 		unset file firstLine lineNo func
 	else
@@ -259,8 +265,9 @@ locateFunc(){
 if [ "x$BASH_VERSION" != 'x' ]; then
 	complete -A function locateFunc
 elif [ "x$ZSH_VERSION" != 'x' ]; then
-	# compdef ???? locateFunc
-	true # Temporary no-op
+	# compdef is not actually loaded at this point; delay until later in zshrc
+	compdef _functions locateFunc
+	# true # Temporary no-op
 fi
 
 
@@ -298,3 +305,5 @@ fi
 # bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'
 
 # BASHISM: `complete -W '' COMMAND_NAME` is one of several ways to disallow any argument completion options for COMMAND_NAME.
+# BASHISM: Iterate bash array indices like so: `for i in "${!VAR[@]}"; do echo $i; done`
+# ZSHISM:  Iterate associative array keys in Zsh like so: `for k in "${(@k)VAR}"; do print $k; done`
