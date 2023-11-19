@@ -38,7 +38,7 @@
 # NOTE: *.profile REALLY SHOULD cover .profile (as should other similar cases behave)
 # TODO: raw image formats
 # TODO: _video
-# TODO: db, *.msi, *.msu
+# TODO: db, *.msu
 # TODO: Doxyfile
 #cat		security catalog
 #add *.tmpl to template files; for cheetah
@@ -89,6 +89,10 @@
 ### Batchfile
 --type-add
 	batch:*.{bat,cmd}
+
+### Bzip2
+#--type-add
+#	bzip2:*.{tb2,tbz,tz2}
 
 ### Certificate files
 --type-add
@@ -161,6 +165,10 @@
 #--type-add
 #	gnuplot:*.{plot,plt}
 
+### Gzip
+#--type-add
+#	gzip:*.taz
+
 ### C/++ header files
 --type-add
 	h:*.{hxx,H,hh}
@@ -218,6 +226,10 @@
 #--type-add
 #	lua:*.wlua
 
+### Lzip
+#--type-add
+#	lz:*.lz
+
 ### Makefiles
 --type-add
 	make:include:cmake
@@ -225,10 +237,19 @@
 --type-add
 	make:*.qmake,mkfile
 
+### Perl Old Documentation
+--type-add
+	perl:*.pod
+
 ### Image (as in graphics) files
 --type-add
-	pic:*.{jpg,jpeg,png,apng,gif,bmp,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb}
+	pic:*.{jpg,jpeg,png,apng,gif,bmp,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb,riff}
 # *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
+
+### Installation Packages
+## Does not include spec files, plaintext modules, or the like; no perl modules, gemspecs, ebuilds, etcetera
+--type-add
+	pkg:*.{apk,app,AppImage,crate,deb,dmg,egg,gem,ipa,msi,msix,opk,pkg,rpm,wheel,xpak}
 
 ### Pkg-config
 --type-add
@@ -291,11 +312,13 @@
 --type-add
 	tar:*.tar
 --type-add
-	tar:*.tar.{bz,bz2,br,gz,lz,lz4,xz}
+	tar:*.tar.{br,bz,bz2,gz,lz,lz4,lzma,lzo,xz,Z,zst}
 --type-add
-	#tar:*.t{bz,bz2,br,gz,lz,lz4,xz}
-	#tar:*.t[bglx]z,.*t{bz2,lz4}
-	tar:*.t{[bglx]z,bz2,lz4}
+	#tar:*.t{bz,bz2,br,gz,lz,lz4,xz,zst}
+	#tar:*.t[bglx]z,.*t{bz2,lz4,zst}
+	tar:*.t{[bglx]z,bz2,lz4,zst}
+#---type-add
+#	tar:*.{tb2,tz2,taz,taZ,tZ}
 
 ### Assorted template files
 #--type-add
@@ -320,7 +343,7 @@
 ### Compressed files
 #Yes,I know that some of these aren't actually compressed types, but I'm grouping them together anyways
 --type-add
-	zip:*.{zip,jar,pak,rar,rar5,lrz,lz,lzop,z,zpaq,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl,pyz}
+	zip:*.{zip,jar,pak,rar,rar5,lrz,lz,lzop,z,Z,zpaq,rbz,cab,bin,deb,dmg,ipg,paf,rpm,ipa,apk,xpi,pkg,crate,egg,whl,pyz}
 --type-add
 	zip:include:7z,bzip2,gzip,lz4,lzma,xz,zstd
 --type-add
