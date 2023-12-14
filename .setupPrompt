@@ -17,18 +17,20 @@
 	# source "$PY36/Scripts/virtualenvwrapper.sh"
 # fi
 
-function isInGitBranch(){
+isInGitBranch(){
 	git symbolic-ref --short HEAD >/dev/null 2>&1
 }
 
 # If passed an argument, prepend the output with it, followed by 3 spaces
 parse_git_branch(){
-	branch="$(git branch 2>/dev/null)"
-	#TODO: compare above to $(git rev-parse --abbrev-ref HEAD)
-	if [ -n "$branch" ]; then
-		# The final sed replacement shouldn't lead to any strangeness, but if it does, I can just do something like ${1:-SOMETHING} instead of just $1; I'll have to wait and see if I missed any loopholes
-		echo "${branch}" | sed -e '/^[^*]/d' -e 's/\* \(.*\)/(\1)/' -e "s/^/$1   /"
-	fi
+	#branch="$(git branch 2>/dev/null)"
+	#if [ -n "$branch" ]; then
+	#	# The final sed replacement shouldn't lead to any strangeness, but if it does, I can just do something like ${1:-SOMETHING} instead of just $1; I'll have to wait and see if I missed any loopholes
+	#	echo "${branch}" | sed -e '/^[^*]/d' -e 's/\* \(.*\)/(\1)/' -e "s/^/$1   /"
+	#fi
+	# Functionally equivalent to:
+	branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+	[ "$branch" != '' ] && printf "$1   (%s)\n" "$branch"
 	unset branch
 }
 
@@ -37,9 +39,9 @@ function __getVenvName(){
 	# This function is intended for eventually replacing the default python venv prompt
 	[ ! -v VIRTUAL_ENV ] && return
 
-	#If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, but the normal prompt change is disabled, just return the unicode snake emoji 🐍
+	# If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, but the normal prompt change is disabled, just return the unicode snake emoji 🐍
 	if [ ! -v VIRTUAL_ENV_DISABLE_PROMPT ]; then
-		#If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, remove it from the prompt and return the name of the active virtualenv
+		# If displaying the default '(venv)' string at the start of the line to indicate an active virtualenv, remove it from the prompt and return the name of the active virtualenv
 		local norm="${PS1#(*)}" #"${PS1/\(venv\)/}"
 		local namelen=$(( "${#PS1}-${#norm}" ))
 		local name="${PS1:1:$((namelen-2))}"
@@ -50,12 +52,13 @@ function __getVenvName(){
 	fi
 }
 
-smartishTitle(){
+__smartishTitle(){
 	# If this is an xterm, set the title to pwd, replacing the value of $HOME with the ~ character
-	case "$TERM" in
-		xterm*|rxvt*)
-			printf "\033]0;${PWD/$HOME/\~}\007";;
-	esac
+	#case "$TERM" in
+	#	xterm*|rxvt*)
+	#		printf "\033]0;${PWD/$HOME/\~}\007";;
+	#esac
+	printf "\033]0;${PWD/$HOME/\~}\007";
 }
 
 function prunePromptFuncs(){
@@ -86,7 +89,7 @@ function subtlePrompt(){
 	# Display the hostname underlined and in bold when connected via SSH.
 	local hostStyle="${SSH_TTY:+${BOLD}${UNDERLINE}}"
 
-	if [ $EUID == 0 ]; then
+	if [ $EUID -eq 0 ]; then
 		local usr="${RED}\u"
 		local sep="${LRED}@"
 		local host="${RED}${hostStyle}\H"
@@ -119,12 +122,9 @@ function colorfulPrompt(){
 	local UNDERLINE='\[\033[4m\]'
 
 	# 24-bit true color support is assumed. If your terminal emulator doesn't support it, get a better terminal emulator!
-	local branchColor='\[\033[38;2;29;194;164m\]'  #currently hardcoded to an almost-teal blue-green color (29;194;164)
+	local branchColor='\[\033[38;2;29;194;164m\]'  # Currently hardcoded to an almost-teal blue-green color (29;194;164)
 
-	# Display the hostname underlined and in bold when connected via SSH.
-	local hostStyle="${SSH_TTY:+${BOLD}${UNDERLINE}}"
-
-	if [ $EUID == 0 ]; then
+	if [ $EUID -eq 0 ]; then
 		local usr="${RED}\u"
 		local delimColor="${RED}"
 		local cmdMarker="${RED}Ω${RST} "
@@ -137,17 +137,19 @@ function colorfulPrompt(){
 	# Display the current branch when in a directory that is part of a git repository
 	local gitBranch="\$(parse_git_branch '${branchColor}')${RST}"
 	local delim="${delimColor}\$>"
-	local host="${GREEN}@${hostStyle}\H"
+	# Display the username and hostname underlined and in bold when connected via SSH.
+	local host="${GREEN}@${SSH_TTY:+${BOLD}${UNDERLINE}}\H${RST}"
 	# shellcheck disable=SC2016
 	local exval="${RST}\[\033[7;31m\]"'$(getexitcode)'"${RST}"
-	local here="${YELLOW}\w"'$(smartishTitle)'
+	local here="${YELLOW}\w"'$(__smartishTitle)'
 #	local tmpVenvSeg='$(__getVenvName)'
 
-	# Scroll markers for the first and last line of the multi-line prompt
+	# Scroll markers for the first and last line of the multi-line prompt; may only work with mintty...
+	# Semantic prompt zone sequences that work in other terminals just seem much more, err, messy and cumbersome. Future work, perhaps?
 	local firstLineMarker='\[\033[?7711l\]'
 	local lastLineMarker='\[\033[?7711h\]'
 
-	PS1="${firstLineMarker}${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}${lastLineMarker}"
+	PS1="${firstLineMarker}${exval}${usr}${host} ${here}${RST}${tmpVenvSeg} ${delim}${gitBranch}"$'\n'"${delimColor}${RST}${cmdMarker}${lastLineMarker}" # FIXME: delimColor looks unused here
 }
 
 # Main prompt setup
