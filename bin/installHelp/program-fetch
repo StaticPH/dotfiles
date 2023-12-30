@@ -112,7 +112,8 @@ getAndroidSDK_PlatformTools(){
 	#
 	# Android SDK Platform Tools available at: https://developer.android.com/studio/releases/platform-tools
 
-	let latest_platform_tools_link="$(command curl -Ls 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip' -H 'authority: dl.google.com' -H 'upgrade-insecure-requests: 1' -H 'dnt: 1' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -H 'referer: https://dl.google.com/' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-US,en;q=0.9' -H 'cookie: ANID=OPT_OUT' --compressed | command sed -E 's/.*href=\"([^"]+)\".*/\1/')"
+	# shellcheck disable=SC2155
+	local latest_platform_tools_link="$(command curl -s 'https://dl.google.com/android/repository/platform-tools-latest-windows.zip' -H 'authority: dl.google.com' -H 'upgrade-insecure-requests: 1' -H 'dnt: 1' -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' -H 'referer: https://dl.google.com/' -H 'accept-encoding: gzip, deflate, br' -H 'accept-language: en-US,en;q=0.9' -H 'cookie: ANID=OPT_OUT' --compressed | command sed -E 's/.*href=\"([^"]+)\".*/\1/')"
 	command wget --progress=bar:noscroll --show-progress --no-verbose "$latest_platform_tools_link"
 }
 androidSDK_PlatformTools_entry=( 'Android SDK Platform Tools' '' 'off' )
