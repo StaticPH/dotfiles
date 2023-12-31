@@ -65,7 +65,8 @@ getTermToSvgManpage(){
 
 getPandocManpage(){
 	echo "Fetching Pandoc manpage from Pandoc GitHub repository..." > /dev/stderr
-	curl -Ls https://github.com/jgm/pandoc/raw/master/man/pandoc.1 > ~/.local/share/man/man1/pandoc.1
+	# curl -Ls https://github.com/jgm/pandoc/raw/master/man/pandoc.1 > ~/.local/share/man/man1/pandoc.1   # OLD URL
+	curl -Ls https://github.com/jgm/pandoc/raw/main/pandoc-cli/man/pandoc.1 > ~/.local/share/man/man1/pandoc.1
 }
 
 getWget2Manpage(){
@@ -75,7 +76,7 @@ getWget2Manpage(){
 	set -u
 	set -e
 
-	local ver="$(wget2 --version | sed -Ee '/^GNU/!d' -e 's/[^0-9]+$//')"
+	ver="$(wget2 --version | sed -Ee '/^GNU/!d' -e 's/[^0-9]+$//')"
 	(
 	  echo "% WGET2(1) GNU Wget2 User Manual|${ver}"
 	  echo ""
@@ -83,6 +84,7 @@ getWget2Manpage(){
 	) | \
 	sed '/# Wget2/,/^#/{/^# </!d}' | \
 	pandoc -s -f markdown -t man -o ~/.local/share/man/man1/wget2.1
+	unset ver
 }
 # Fetch these as needed:
 #	bat.1 for sharkdp/bat; may already have locally, but may also need to patch for correct header and footer; TBD
