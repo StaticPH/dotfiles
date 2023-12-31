@@ -14,7 +14,8 @@ gh_downloadFile(){
 
 gh_getLatestVersionNumber(){
 	# $1 in format of "user_or_orgname/repo_name", such as "stedolan/jq"
-	version="$(curl -s https://github.com/"${1}"/releases/latest/ | sed -Ee 's#.*\"([^"]*)\".*#\1#' -e 's#.*/##' )"
+	# version="$(curl -s https://github.com/"${1}"/releases/latest/ | sed -Ee 's#.*\"([^"]*)\".*#\1#' -e 's#.*/##' )"
+	version="$(curl -Is https://github.com/"${1}"/releases/latest/ | sed -nE '/^location/{s#.+/##; p}' )"
 	echo "$version"
 }
 
