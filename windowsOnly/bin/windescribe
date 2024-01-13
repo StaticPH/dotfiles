@@ -29,4 +29,4 @@ files=$(
 )
 
 #TODO: Try to make this also work for aliases to things that are on the system path; may utilize 'type -a' and 'type -t'?
-powershell "echo $files | foreach {(gi \$_).VersionInfo.FileDescription}"
+powershell.exe "echo $files | foreach {(gi \$_).VersionInfo.FileDescription}"

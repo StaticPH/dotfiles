@@ -35,7 +35,7 @@ esac
 
 view(){
 	#shellcheck disable=SC2086
-	rundll32 "C:\Program Files\Windows Photo Viewer\PhotoViewer.dll" ImageView_Fullscreen $1 &
+	rundll32.exe "C:\Program Files\Windows Photo Viewer\PhotoViewer.dll" ImageView_Fullscreen $1 &
 }
 
 # Attempt path conversion (already Windows-like paths should remain unchanged), and fatally error if unable to find a tool for doing so.

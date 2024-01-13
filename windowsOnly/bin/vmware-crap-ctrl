@@ -8,12 +8,12 @@ usage(){
 }
 
 ifExistsThenToggle(){
-	service=$(sc query "$*" | tr -d "\r\n")
+	service=$(sc.exe query "$*" | tr -d "\r\n")
 	if ! (echo "$service" | grep -q "does not exist"); then
 		if (echo "$service" | grep -q "STATE\s*:.*STOPPED"); then
-			net start "$*"
+			net.exe start "$*"
 		else
-			net stop "$*"
+			net.exe stop "$*"
 		fi
 	else
 		echo 'No service named "'"$1"'" exists.'
@@ -27,18 +27,18 @@ ifExistsThenToggle(){
 
 # I changed my mind; I dont care what state the service is in, or even if it exists at all. Just TRY to do stuff to it and disregard any failures.
 start(){
-	net start "$*" 2>/dev/null #2>&1
+	net.exe start "$*" 2>/dev/null #2>&1
 }
 stop(){
-	net stop "$*" 2>/dev/null #2>&1
+	net.exe stop "$*" 2>/dev/null #2>&1
 }
 
 enableAdapter(){
-	netsh interface set interface "$*" enable
+	netsh.exe interface set interface "$*" enable
 }
 
 disableAdapter(){
-	netsh interface set interface "$*" disable
+	netsh.exe interface set interface "$*" disable
 }
 
 doForAll(){

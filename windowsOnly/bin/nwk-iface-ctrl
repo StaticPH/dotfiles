@@ -16,15 +16,15 @@ usage(){
 [ $# -lt 1 ] && usage && exit 1
 
 enableInterface(){
-	netsh interface set interface "$*" enable
+	netsh.exe interface set interface "$*" enable
 }
 
 disableInterface(){
-	netsh interface set interface "$*" disable
+	netsh.exe interface set interface "$*" disable
 }
 
 show(){
-	netsh interface show interface
+	netsh.exe interface show interface
 }
 
 case $1 in

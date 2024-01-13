@@ -31,16 +31,16 @@ __winps(){
 		1)
 			case "$1" in
 				-a | --all)
-					printf 'tasklist\n' | cmd; echo
+					printf 'tasklist\n' | cmd.exe; echo
 					;;
 				--all-services)
-					printf 'tasklist /SVC\n' | cmd; echo
+					printf 'tasklist /SVC\n' | cmd.exe; echo
 					;;
 				-h | --help)
 					__usage
 					;;
 				--internal)
-					printf 'tasklist /?\n' | cmd; echo  # directly calling `tasklist //\?` would also work here
+					printf 'tasklist /?\n' | cmd.exe; echo  # directly calling `tasklist //\?` would also work here
 					;;
 				*)
 					__unknown "$1"
@@ -50,10 +50,10 @@ __winps(){
 		2)
 			case "$1" in
 				-g | --glob)
-					printf 'tasklist /FI "IMAGENAME eq %s"\n' "$2" | cmd; echo
+					printf 'tasklist /FI "IMAGENAME eq %s"\n' "$2" | cmd.exe; echo
 					;;
 				-s | --svc)
-					printf 'tasklist /SVC /FI "SERVICES eq %s"' "$2" | cmd; echo
+					printf 'tasklist /SVC /FI "SERVICES eq %s"' "$2" | cmd.exe; echo
 					;;
 				*)
 					__unknown "$1"
