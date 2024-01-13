@@ -1,6 +1,7 @@
 # dotfiles
 <!-- TODO: DECIDE HOW TO SHOW LINKS TO EXTERNAL TOOLS AND INFORMATION WITHOUT ALSO MAKING THE RAW MARKDOWN FEEL TOO CLUTTERED-->
 ### Cargo crates:
+* cargo-clone			—	Should really be a built-in feature. Seriously, there should be a builtin way to just download an arbitrary crate without needing a `Cargo.toml` file.
 * cargo-show			—	Should really be a built-in feature.
 * cargo-update			—	Should really be a built-in feature.
 * cargo-whatfeatures	—	Should really be a built-in feature.
@@ -25,11 +26,14 @@
 * gping					—	Ping command, but with a graph <sup>[1]</sup>.
 * git-hist				—	A CLI tool to quickly browse the git history of files on a terminal.
 * shellharden			—	A syntax highlighter and a tool to semi-automate the rewriting of scripts to ShellCheck conformance, mainly focused on quoting.
+* tailspin				—	Smart log file highlighter.
+* oxipng				—	Multithreaded lossles (and optionally lossy) PNG/APNG optimizer
 
 <sub>(1): Standalone binary can also be downloaded with the `program-fetch` utility.</sub><br>
 <sub>(2): NOTE: This does not appear to work in Mintty, or at least not with my current setup (but I suspect the former).</sub><br>
 <sub>(3): Because of how I have my current Windows machine set up, I am unable to use this by configuring Git's `sequence.editor` to call it automatically for `git rebase -i`; use the `irebase` wrapper script instead.</sub>
 
+[cargo_clone]: https://github.com/janlikar/cargo-clone
 [cargo_show]: https://github.com/g-k/cargo-show
 [cargo_update]: https://github.com/nabijaczleweli/cargo-update
 [cargo_whatfeatures]: https://github.com/museun/whatfeatures
@@ -54,10 +58,12 @@
 [gping]: https://github.com/orf/gping
 [git_hist]: https://github.com/arkark/git-hist
 [shellharden]: https://github.com/anordal/shellharden
+[tailspin]: https://github.com/bensadeh/tailspin
+[oxipng]: https://github.com/shssoichiro/oxipng
 
 [spotify_tui]: https://github.com/Rigellute/spotify-tui
 <!-- ?spotifyd / librespot? -->
-<!-- mandown -->
+<!-- [mandown]: https://gitlab.com/kornelski/mandown -->
 <!-- cargo-xwin, cargo-lock -->
 <!-- On windows, copycat can be useful for clipboard i/o -->
 

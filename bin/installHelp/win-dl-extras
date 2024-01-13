@@ -35,3 +35,6 @@
 #
 git-filter-repo  MID-LOW   Install via pipx
 dprint           MID-HIGH  Install via cargo if possible; else as standalone binary
+tailspin         MID       Install via cargo if possible; else as standalone binary
+showterm         MID-LOW   Specifically get the shellscript, not the Ruby gem
+
