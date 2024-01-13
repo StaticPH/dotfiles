@@ -243,7 +243,7 @@
 
 ### Image (as in graphics) files
 --type-add
-	pic:*.{jpg,jpeg,png,apng,gif,bmp,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb,riff}
+	pic:*.{jpg,jpeg,png,apng,gif,bmp,qoi,ff,jxl,tiff,webp,bpg,pgf,xwd,xpm,xbm,wmf,emf,wmz,emz,wmv,pcx,dng,ciff,flif,fli,flc,tga,pbm,pgm,ppm,pnm,ora,mng,jp2,jpx,fits,cdr,cdt,cdx,cmx,gbr,gih,heic,heif,kra,miff,pat,pct,pic,pict,psb,psd,xcf,ani,cur,icns,ico,thumb,riff}
 # *.JPG, *.JPEG, *.PNG, *.BMP, *.SVG, *.svg, *.svgz, *.swf, *.ps, *.eps, *.epsf, *.epsi, *.MIFF, *.avi, *.img (unusual, but does exist), *.raw, *.pdf, *.dicom
 
 ### Installation Packages
