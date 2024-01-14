@@ -96,7 +96,7 @@
 	local-only-branch = branch --no-track
 
 	# Something with git-icdiff has been misbehaving following an update I did, seemingly causing it to misinterpret all arguments. This seems to do what I need in the mean time.
-	jcdiff = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd='"icdiff --is-git-diff -Ns --cols=$(tput cols) --strip-trailing-cr"' ${arg1:-} $@; }; f"
+	jcdiff = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd='"icdiff --is-git-diff -Ns --tabsize 4 --cols=$(tput cols) --strip-trailing-cr"' ${arg1:-} $@; }; f"
 
 	# Formatted log showing all branches
 	grog = log --graph --abbrev-commit --decorate --all --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
@@ -225,11 +225,11 @@
 [difftool "icdiff"]
 	# icdiff provides colorized side-by-side diffs on the command line
 	# Assumes that icdiff is available in PATH
-	cmd = icdiff -Ns --strip-trailing-cr --cols="$(tput cols)" "$LOCAL" "$REMOTE"
-	#cmd = icdiff -Ns --strip-trailing-cr --cols=\"$(tput cols)\" -L '{basename} (OLD)' -L '{basename} (NEW)' $LOCAL $REMOTE
+	cmd = icdiff -Ns --tabsize 4 --strip-trailing-cr --cols="$(tput cols)" "$LOCAL" "$REMOTE"
+	#cmd = icdiff -Ns --tabsize 4 --strip-trailing-cr --cols=\"$(tput cols)\" -L '{basename} (OLD)' -L '{basename} (NEW)' $LOCAL $REMOTE
 
 	# Still somewhat broken on Windows, sadly. The good news is that the following command does exactly what the cmd SHOULD do:
-	# git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd="icdiff --is-git-diff -Ns --cols=$(tput cols) --strip-trailing-cr"
+	# git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd="icdiff --is-git-diff -Ns --tabsize 4 --cols=$(tput cols) --strip-trailing-cr"
 
 	# Whether to prompt before each invocation of the (any) diff tool.
 	# Default behavior is true.
@@ -254,7 +254,7 @@
 
 [icdiff]
 	# Used only by git-icdiff script; don't provide the "$LOCAL" "$REMOTE" arguments here.
-	options = -Ns --strip-trailing-cr --cols="\"$(tput cols)\""
+	options = -Ns --tabsize 4 --strip-trailing-cr --cols="\"$(tput cols)\""
 
 	# Specifically EXCLUDE the -R/--RAW-CONTROL-CHARS flag, as git-icdiff adds that automatically
 	# The -J/--status-column flag may cause unnecessary line breaks to be added...

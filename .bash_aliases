@@ -190,7 +190,7 @@ alias tarlist='bsdcpio -itF'
 # Diff Related Aliases
 #--------------------------
 
-command -v icdiff >/dev/null 2>&1 && alias icdiff='icdiff --cols=$(tput cols)'
+command -v icdiff >/dev/null 2>&1 && alias icdiff='icdiff --tabsize 4 --cols=$(tput cols)'
 
 if command -v colordiff >/dev/null 2>&1; then
 	#For some reason, i had both -s and --report-identical-files. Removed -s, but will re-add if it turns out to have been portability related.
