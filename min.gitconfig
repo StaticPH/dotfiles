@@ -31,7 +31,7 @@
 	clean = clean -i
 
 	# Effectively equivalent to `git add` for each changed file; mark all files already being tracked by Git as staged.
-	stage-changed = "!f(){ git add $(git ls-files); }; f"
+	stage-changed = "!f(){ git add $(git diff --name-only --diff-filter=AM); }; f"
 
 	#  %(authordate:format:%Y-%m-%d %I:%M %p)										:  Prints authordate in a format like `2019-10-28 10:13 PM`
 	###  %(authordate:human)														:  Prints authordate in a format like `Mon Oct 28 22:13`
@@ -51,14 +51,14 @@
 	# See https://stackoverflow.com/questions/2221658
 	undo-destructive = reset --hard HEAD^
 
-	# Uncommit the last commit, but retain all changes made in the committed files.
+	# Uncommit the last commit, but retain all changes made in the committed files. Literally just "uncommit"
 	undo = reset --soft HEAD^
 
 	# Unstage one or more files from commit
 	unstage = restore --staged
 
 	# Unstage any and all changes from commit
-	unstage-all = "!f(){ git restore --staged $(git ls-files); }; f"
+	unstage-all = "!f(){ git unstage $( git diff --cached --name-only ); }; f"
 
 	# Print the path of the repository root
 	root = rev-parse --show-toplevel
@@ -89,6 +89,21 @@
 	# a possible flag (starts with a dash '-'), or an empty string (or no argument at all). Any errors thrown are still from Git.
 	flog = "!f(){ case $1 in ''|-*) arg1= ;; 0*|[!0-9]*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git log --name-status -n ${arg1:-1} $@; }; f"
 
+	# Formatted log graph showing all branches
+	grog = log --graph --abbrev-commit --decorate --all --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
+
+	# git grog, but only for a single branch
+	bgrog = log --graph --abbrev-commit --decorate --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
+
+	# Show the change history of one or more specific files, including both commit messages and diff
+	filehist = log --follow -p
+
+	# Remove a file from the local repository index (and unstage it) without deleting the file itself; Follow this with a commit and push.
+	# Note that the file in question MUST also be added to .gitignore to prevent changing/deleting the local file during future merges/pulls.
+	# Afterwards, local changes to the file should no longer be tracked by git.
+	# Also see https://stackoverflow.com/a/21477287
+	rmFromIndex = rm --cached
+
 	# Stash all files, including files ignored or not yet tracked by git
 	stash-all = stash push --all
 
@@ -97,21 +112,6 @@
 
 	# Something with git-icdiff has been misbehaving following an update I did, seemingly causing it to misinterpret all arguments. This seems to do what I need in the mean time.
 	jcdiff = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd='"icdiff --is-git-diff -Ns --tabsize 4 --cols=$(tput cols) --strip-trailing-cr"' ${arg1:-} $@; }; f"
-
-	# Formatted log showing all branches
-	grog = log --graph --abbrev-commit --decorate --all --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
-
-	# git grog, but only for a single branch
-	bgrog = log --graph --abbrev-commit --decorate --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
-
-	# Remove a file from the local repository index (and unstage it) without deleting the file itself; Follow this with a commit and push.
-	# Note that the file in question MUST also be added to .gitignore to prevent changing/deleting the local file during future merges/pulls.
-	# Afterwards, local changes to the file should no longer be tracked by git.
-	# Also see https://stackoverflow.com/a/21477287
-	rmFromIndex = rm --cached
-
-	# Show the change history of one or more specific files, including both commit messages and diff
-	filehist = log --follow -p
 
 	# List all files being ignored by standard ignore files.
 	# Very similar to "fd --no-ignore --exclude '.git' --exec-batch '/usr/lib/git-core/git-check-ignore' '-v' '{}' ';'"
@@ -159,7 +159,8 @@
 	# Normally only porcelain commands and a few select others are completed.
 	# You can add more commands, separated by space, in this variable.
 	# Prefixing the command with - will remove it from the existing list
-	commands = ls-files -ls -st check-ignore
+	commands = ls-files -ls -st check-ignore \
+			   -bundle -format-patch -instaweb -notes -repack -send-email -am
 
 [core]
 
@@ -174,7 +175,7 @@
 	fscache = true
 	symlinks = true
 	ignorecase = false
-	whitespace = blank-at-eol
+	whitespace = blank-at-eol,space-before-tab
 
 	# Including -F in LESS screws with the man command, but some git commands really should have less auto-exit if the full command output fits on one screen.
 	# Might as well enforce all the default flags git passes to less when LESS is unset, I guess?
@@ -193,6 +194,7 @@
 
 [delta]
 	features = side-by-side line-numbers
+	tabs = 4
 	syntax-theme = Monokai Extended
 
 [delta "line-numbers"]
@@ -254,6 +256,7 @@
 
 [icdiff]
 	# Used only by git-icdiff script; don't provide the "$LOCAL" "$REMOTE" arguments here.
+	# Note that --cols should be unneccessary except on Windows, and even then, may not be with the availability of ConPTY
 	options = -Ns --tabsize 4 --strip-trailing-cr --cols="\"$(tput cols)\""
 
 	# Specifically EXCLUDE the -R/--RAW-CONTROL-CHARS flag, as git-icdiff adds that automatically
@@ -313,7 +316,8 @@
 #	# https://git-scm.com/docs/git-config#git-config-pushdefault
 #	default = simple
 
-	# Make `git push` push relevant annotated tags when pushing branches out. Generally speaking, you create tags locally with the intention of including them in subsequent pushes.
+	# Make `git push` push relevant annotated tags when pushing branches out.
+	# Generally speaking, you create tags locally with the intention of including them in subsequent pushes.
 	followTags = true
 
 [status]
@@ -323,9 +327,17 @@
 
 [url "git@github.com:"]
 
+	# Any url starting with "gh:" will be rewritten to start with "git@github.com:" instead
 	insteadOf = "gh:"
+	insteadOf = "github.com/"
+	insteadOf = "http://github.com/"
+
+	# Any url starting with "github:" will not be pushed to; when pushing to such an address,
+	# the url will be rewritten to start with "git@github.com:" instead, and the resulting address will be pushed to instead.
+	# This does not affect pulling from urls beginning with "github:"
 	pushInsteadOf = "github:"
 	pushInsteadOf = "git://github.com/"
+	pushInsteadOf = "https://github.com/"
 
 [url "git://github.com/"]
 
