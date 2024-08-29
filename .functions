@@ -223,9 +223,10 @@ locateFunc(){
 	if [ "x$BASH_VERSION" != 'x' ]; then
 		( shopt -s extdebug; declare -F "$@" )
 	elif [ "x$ZSH_VERSION" != 'x' ]; then
+		### Emulate zsh with LOCAL_OPTIONS set to shut up any warnings when WARN_CREATE_GLOBAL is set.
+		emulate -L zsh
 		### The file containing a function definition can be found with `echo $functions_source[NAME]` from the `zsh/parameter` module, but that doesn't include the line number for jumping to in an editor...
-		### I guess the "simple" solution is to get the path to the file containing the definition, take the first line of the definition itself from something that returns it, then use `grep -n "FIRST_LINE" "FILE" | cut -d ':' -f1` to get the line number?
-		### I could also replace grep+cut with awk.
+		### I guess the "simple" solution is to get the path to the file containing the definition, take the first line of the definition itself from something that returns it, then use `grep -n "FIRST_LINE" "FILE" | cut -d ':' -f1` or Awk to get the line number?
 
 		### FIXME: For some reason, this seems to fail at finding functions declared specifically in .zshrc, and in /usr/share/zsh/functions/*; this behavior has yet to be seen elsewhere.
 		### FIXME: Hangs indefinitely on functions not yet autoloaded
@@ -236,24 +237,22 @@ locateFunc(){
 			file="$functions_source[$func]";
 
 			firstLine="$(whence -c "$func" | head -n 1)"
-			### Jump through hoops because Zsh inexplicably reformats function definitions (either when storing or printing, unimportant), which then no longer match the exact original declaration.
-			### Replace all whitespace with "\s ", removing consecutive whitespace characters
+			### Jump through hoops because Zsh (and Bash; probably others too) inexplicably reformats function definitions
+			### (either when storing or printing, unimportant), which then no longer match the exact original declaration.
+			### Replace all whitespace with "\s ", removing consecutive whitespace characters.
 			firstLine="${firstLine//[[:space:]]##/\s }"
-			### Quote or escape all "special" characters in the string
+			### Quote or escape all "special" characters in the string.
 			firstLine="${(q)firstLine}"
-			### Replace escaped space characters with asterisks; due to earlier substitutions, this produces regex with non-alphanumeric characters escaped
+			### Replace escaped space characters with asterisks;
+			### due to earlier substitutions, this produces regex with non-alphanumeric characters escaped.
 			firstLine="${firstLine//\\ /*}"
 			### \\s => \s
 			firstLine="${firstLine//\\\\s/\s}"
 
 			### Use awk instead of grep + cut
 			funcname="$func" line1="$firstLine" awk '($0 ~ ENVIRON["line1"]) { printf("%s %d %s\n", ENVIRON["funcname"], FNR, FILENAME); }' "$file"
-
-			#lineNo="$(grep -nE "$firstLine" "$file"| cut -d ':' -f1)";
-			#echo "$func $lineNo $file";
-
 		done;
-		unset file firstLine lineNo func
+		unset file firstLine func
 	else
 		tput setaf 1; echo "$0: This function is not supported by the current shell."; tput sgr0;
 	fi

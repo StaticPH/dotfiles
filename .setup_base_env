@@ -55,6 +55,7 @@ export LESS
 export LESSCHARSET='utf-8'
 
 # Wait 4000 ms without receiving input before displaying the status message to tell the user it's still waiting.
+# Depending on how long this has been a feature, it might be best to move this into less_ver_compat
 export LESS_DATA_DELAY=4000
 
 # Allow different preferred editors for local and remote sessions
