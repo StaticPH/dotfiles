@@ -171,11 +171,11 @@ function moveCursorTo(){
 }
 
 useAltScreenBuf(){
-	printf "\e[?1049h"
+	printf "\e[?1049h" # This should be equivalent to `tput smcup`.
 }
 
 useMainScreenBuf(){
-	printf "\e[?1049l"
+	printf "\e[?1049l" # This should be equivalent to `tput rmcup`.
 }
 
 #Check if root user has root privelege. Remember that for bash, 0 is true

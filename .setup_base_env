@@ -78,6 +78,8 @@ export CARGO_HOME="${HOME}/.cargo"
 export RUSTUP_HOME="${HOME}/.cargo"
 
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
+# Proposed common opt-out: https://consoledonottrack.com
+export DO_NOT_TRACK=1
 
 # Make Python use UTF-8 encoding for output to stdin/stdout/stderr.
 #-------------------------------------------------------------

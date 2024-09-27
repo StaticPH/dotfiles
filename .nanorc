@@ -16,6 +16,7 @@
 ###############################################################
 
 set atblanks					# Command line flag -a
+set colonparsing 				# Command line flag --colonparsing; added in version 8.1
 set constantshow 				# Command line flag -c
 #set multibuffer				# Command line flag -F
 #set nonewlines					# Command line flag --nonewlines
@@ -172,6 +173,7 @@ unbind M-H main	# Prevent disabling smarthome in the main view; it should really
 unbind ^B  main	# Free up Ctrl+b for use of findbracket action
 unbind ^_  all	# Free up Ctrl+Shift+-, keeping Alt+g for the Go To Position command
 unbind ^J  main	# I pretty much never WANT to justify text, and I reflexively press this when I want to join lines, so this is an annoyance; keeping F4 for the rare instance.
+unbind ^L  main # Since nano version 8.1, this is bound to both refresh and cycle by default; I don't want cycle
 
 # Delete word to left of cursor with Ctrl+H (Ctrl+Backspace)
 bind ^H chopwordleft main	#TODO: may actually want to disable this for my main machine; further use required
@@ -189,6 +191,8 @@ bind M-Y redo main			# Use Alt/Meta+Y to redo actions
 bind M-U undo main			# Use Alt/Meta+U to undo actions
 
 bind ^Z suspend main		# Restore use of Ctrl+Z to suspend
+
+bind ^L refresh main		# Re-bind ^L to refresh, as it has been for so long.
 
 ##### I wish these worked :(
 # bind ^Enter complete all	# Attempt word completion with Ctrl+Enter
