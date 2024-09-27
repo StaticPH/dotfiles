@@ -370,8 +370,8 @@ fi
 #---------------------------
 
 # lessm and less are aliased to the same thing, with the exception that lessm wont exit less automatically if the output fits on the first screen.
-alias lessm='command -p less --ignore-case --status-column --LONG-PROMPT --tilde --shift .25 --wheel-lines=3 -+F'  # --use-backslash ?  --mouse ?
-alias less="less -iJM --tilde --shift .25 --wheel-lines=3 -F"
+alias lessm='command -p less --ignore-case --status-column --LONG-PROMPT --tilde --shift .25 -+F'  # --use-backslash ?  --mouse ?
+alias less="less -iJM --tilde --shift .25 -F"
 
 # alias more="more -d"	# Make more provide useful feedback when an invalid key is pressed.
 alias more="less" # insert obligatory "less is more" pun here

@@ -36,7 +36,7 @@ less_ver_compat(){
 	# Unfortunately, there seems to be no good way of removing both a suffix and a prefix in the same assignment,
 	# but assigning multiple times in the same command works.
 	ver="$(less -V)" ver="${ver#less }" ver="${ver%% \(*}"; # The parenthesis in the 3rd assignment needs to be escaped for Zsh compat.
-	[ "0${ver}" -ge 549 ] && LESS="--no-histdups ${LESS}" # Really this should also include --wheel-lines=3, not my aliases...
+	[ "0${ver}" -ge 549 ] && LESS="--no-histdups --wheel-lines=3 ${LESS}"
 	[ "0${ver}" -ge 621 ] && LESS="--wordwrap ${LESS}"
 	[ "0${ver}" -ge 624 ] && LESS="--proc-backspace ${LESS}"
 }; less_ver_compat; unset -f less_ver_compat; unset ver;
@@ -45,7 +45,7 @@ export LESS
 # Colored man pages: http://linuxtidbits.wordpress.com/2009/03/23/less-colors-for-man-pages/
 # Less Colors for Man Pages
 # Coloration seems to behave strangely at times, but oh well.
-# export LESS_TERMCAP_mb=$'\E[01;31m'      # begin blinking
+#export LESS_TERMCAP_mb=$'\E[01;31m'       # begin blinking
 #export LESS_TERMCAP_md=$'\E[01;38;5;74m'  # begin bold
 #export LESS_TERMCAP_me=$'\E[0m'           # end mode
 #export LESS_TERMCAP_se=$'\E[0m'           # end standout-mode
