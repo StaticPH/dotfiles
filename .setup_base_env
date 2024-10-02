@@ -81,6 +81,14 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 # Proposed common opt-out: https://consoledonottrack.com
 export DO_NOT_TRACK=1
 
+# Enable accessibility for Qt; not sure what this will actually do in the absence of an X11 session
+# This is commonly set by one of the startup scripts in /etc/X11/Xsession.d/
+QT_ACCESSIBILITY="${QT_ACCESSIBILITY:-1}"
+
+# Eventually, I'd like to move this to a dedicated "compat" file for sourcing
+# On some DE/WM, this package and variable will help maintain a uniform theme for Qt5 applications
+command -v qt5ct >/dev/null 2>&1 && export QT_QPA_PLATFORMTHEME=qt5ct
+
 # Make Python use UTF-8 encoding for output to stdin/stdout/stderr.
 #-------------------------------------------------------------
 export PYTHONIOENCODING="UTF-8"
