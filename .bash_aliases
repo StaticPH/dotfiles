@@ -216,7 +216,7 @@ command -v rg >/dev/null 2>&1 && alias ripgrep="rg"
 command -v desed >/dev/null 2>&1 && alias desed="desed --sed-path /usr/bin/sed"
 
 if command -v fd >/dev/null 2>&1; then
-	alias fd="fd -HaL"
+	alias fd="fd -HaL --hyperlink=auto"
 
 	# Faster version of findLinks using fd instead of find
 	alias findLinksFd="command fd -H --no-ignore --type symlink"
