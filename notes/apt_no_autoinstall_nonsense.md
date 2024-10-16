@@ -4,4 +4,4 @@ APT::Install-Recommends "false";
 APT::Install-Suggests "0";
 ```
 
-As a single command: `printf 'APT::%s;\n' 'Install-Recommends "false"' 'Install-Suggests "0"' | sudo tee /etc/apt/apt.conf.d/99z_auto_no_recommends`
+As a single command: `printf 'APT::%s;\n' 'Install-Recommends "false"' 'Install-Suggests "0"' | sudo tee /etc/apt/apt.conf.d/99z_auto_no_recommends > /dev/null`
