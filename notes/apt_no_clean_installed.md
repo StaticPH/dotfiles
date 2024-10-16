@@ -4,4 +4,4 @@ create `/etc/apt/apt.conf.d/99z_no_autoclean_installed` and write to it
 APT::Clean-Installed "off";
 ```
 
-As a single command: `printf 'APT::%s;\n' 'Clean-Installed "off"' | sudo tee /etc/apt/apt.conf.d/99z_no_autoclean_installed`
+As a single command: `printf 'APT::%s;\n' 'Clean-Installed "off"' | sudo tee /etc/apt/apt.conf.d/99z_no_autoclean_installed > /dev/null`
