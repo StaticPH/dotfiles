@@ -74,8 +74,8 @@ function editfunc(){
 	found=( ${found[*]} )
 
 	#printf "found=\033[32m%s\033[0m\nlen found=\033[33m%s\033[0m\n" "${found[@]}" "${#found[@]}";
-	case "$EDITOR" in
-		subl)
+	case "${EDITOR:-nano}" in
+		subl*)
 			"$EDITOR" "${found[1]}:${found[0]}";;
 		*/nano|nano) ;&
 		*)
@@ -383,3 +383,5 @@ rl-cfg-dump(){
 # bash 4+ builtin "coproc" may not have a man/info page; try 'help coproc'
 
 # BASHISM: `complete -W '' COMMAND_NAME` is one of several ways to disallow any argument completion options for COMMAND_NAME.
+# Iterate bash array indices like so: `for i in "${!VAR[@]}"; do echo $i; done`
+# Iterate associative array keys in Zsh like so: `for k in "${(@k)VAR}"; do print $k; done`

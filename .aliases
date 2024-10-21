@@ -46,18 +46,6 @@ command -v pacman >/dev/null 2>&1 && alias pacman='pacman --color=auto'
 
 command -v shellcheck >/dev/null 2>&1 && alias shellcheck='shellcheck --color=always'
 
-#---------------
-# Find-like
-#---------------
-
-	#Recursively grep through directories, following symlinks, INCLUDING those encountered recursively.
-	#Depending on the version of grep available, -r may or may not be the same as -R
-	#If they are different, -r will likely only follow symlinks on the command line itself.
-alias grepdir="grep -R"
-
-alias findEmptyDirs="find -depth -type d -empty"
-alias findManPage="man -w"
-
 #-------------------------------------------------------------
 # The 'ls' family (this assumes you use a recent GNU ls).
 #-------------------------------------------------------------
@@ -129,7 +117,7 @@ command -v bsdcpio >/dev/null 2>&1 && alias tarlist='bsdcpio -itF'
 # Diff Related Aliases
 #--------------------------
 
-#command -v icdiff >/dev/null 2>&1 && alias icdiff='icdiff --cols=$(tput cols)'
+#command -v icdiff >/dev/null 2>&1 && alias icdiff='icdiff --tabsize 4 --cols=$(tput cols)'
 
 if command -v colordiff >/dev/null 2>&1; then
 	# For some reason, I had both -s and --report-identical-files. Removed -s, but will re-add if it turns out to have been portability related.
@@ -325,10 +313,20 @@ alias ..="cd .."
 #alias which='command -V'
 # On the other hand, `type -a` is more verbose than `command -V`, so I'd prefer the former for interactively identifying what a command name will run.
 type -a type >/dev/null 2>&1 && alias which='type -a'
+if [ "x$ZSH_VERSION" != 'x' ]; then
+	# The behavior I want from "which" is more like what 'type -a' returns in Bash
+	# It looks like the closest I can get without a lot of manipulating is "whence -ac"
+	alias which='whence -ac'
+fi
+
+command -v jobs &>/dev/null && alias j='jobs -l'
 
 #######################
 # OTHER aliases
 #######################
+alias findEmptyDirs="find -depth -type d -empty"
+alias findManPage="man -w"
+
 # Try to claim full ownership of the target as $USER
 alias take='chown -hR $USER:$USER'
 alias gimme='chown -hR $USER:$USER'
@@ -367,3 +365,7 @@ if command -v fd >/dev/null 2>&1; then
 	# Faster version of findLinks using fd instead of find
 	alias findLinksFd="command fd -H --no-ignore --type symlink"
 fi
+	#Recursively grep through directories, following symlinks, INCLUDING those encountered recursively.
+	#Depending on the version of grep available, -r may or may not be the same as -R.
+	#If they are different, -r will likely only follow symlinks on the command line itself.
+alias grepdir="grep -R"
