@@ -1,0 +1,38 @@
+#! /bin/sh
+
+## Only use this with WSL.
+if ! command grep -qe Microsoft -e WSL2 /proc/version; then
+	tput setaf 1
+	echo "Abort: You probably don't actually want to do this, given you don't appear to be in WSL."
+	tput sgr0
+	exit 1
+fi
+
+if [ "$(id -u)" -ne 0 ]; then
+	echo 'Requesting elevated permissions in order to modify system files..'
+	sudo -v
+fi
+
+## Unbork NVIDIA GPU libraries required for lots of graphical things, and also to shut up ldconfig.
+## These are supposedly recreated whenever the WSL instance restarts, by default, so bear that in mind.
+## For the record, the related folder in the Windows NTFS filesystem seems to be "%SystemDrive%\Windows\System32\lxss"
+
+if [ ! -f /usr/lib/wsl/lib/libcuda.so ]; then
+	# No libcuda, so it's probably safe to assume that a non-NVIDIA gpu is in use, if any.
+	# In that case, just return immediately
+	echo 'This system does not appear to be using an NVIDIA gpu.'
+	exit 0
+elif command readlink --quiet /usr/lib/wsl/lib/libcuda.so.1.1 >/dev/null 2>&1 ; then
+	echo 'Ignored: Fix has already been applied, or is not necessary.'
+	exit 0
+else
+	# Move the perfectly fine but conventionally non-compliant copies of `libcuda.so` to `<filepath>.bak`,
+	# just in case something bizarre happens.
+	sudo mv /usr/lib/wsl/lib/libcuda.so.1 /usr/lib/wsl/lib/libcuda.so.1.bak
+	sudo mv /usr/lib/wsl/lib/libcuda.so.1.1 /usr/lib/wsl/lib/libcuda.so.1.1.bak
+	# Create symbolic links from `/usr/lib/wsl/lib/libcuda.so` to `<filepath>.1` and `<filepath>.1.1`,
+	# thus making ldconfig happy, and allowing all manner of graphical thingamajigs to actually render
+	# something other than a transparent or black background.
+	sudo ln -s /usr/lib/wsl/lib/libcuda.so /usr/lib/wsl/lib/libcuda.so.1
+	sudo ln -s /usr/lib/wsl/lib/libcuda.so /usr/lib/wsl/lib/libcuda.so.1.1
+fi
