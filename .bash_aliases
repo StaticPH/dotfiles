@@ -32,6 +32,5 @@ command -v winpty >/dev/null 2>&1 && alias winpty="winpty "
 
 alias reloadbash='. ${HOME}/.bashrc'		# Reload bashrc without restarting bash; this may be better off as a function that calls `pushd ~;source "${HOME}/.bashrc"; popd` instead, to ensure tools like direnv can modify the environment.
 alias listBuiltins="enable -pa"
-alias disable="enable -n"				# More obvious command name for disabling a shell builtin
+alias disable="enable -n"					# More obvious command name for disabling a shell builtin
 alias dumpExports="export -p"	# List all the variables being exported to child shells
-alias j='jobs -l'
