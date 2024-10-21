@@ -1,0 +1,18 @@
+#! /usr/bin/sh
+
+## Only use this with WSL.
+if ! command grep -qe Microsoft -e WSL2 /proc/version; then
+	tput setaf 1
+	echo "Abort: You probably don't actually want to do this, given you don't appear to be in WSL."
+	tput sgr0
+	exit 1
+fi
+
+if [ "$(id -u)" -ne 0 ]; then
+	echo 'Requesting elevated permissions in order to modify adapter settings...'
+	sudo -v
+fi
+
+echo 'WSL2 networking can be screwy for some reason (see https://github.com/microsoft/WSL/issues/5382#issuecomment-1234280706)'
+echo 'Applying likely fix to current WSL2 session: sudo ip link set eth0 mtu 1400'
+exec sudo ip link set eth0 mtu 1400
