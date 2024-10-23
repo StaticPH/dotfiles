@@ -46,7 +46,7 @@ color bold,normal "\<bold\>"
 color italic,normal "\<italic\>"
 
 ### Options
-color italic,brightblue "^(\<(un)?set\>).+?\<(afterends|allow_insecure_backup|atblanks|autoindent|backup|boldtext|bookstyle|breaklonglines|casesensitive|constantshow|cutfromcursor|emptyline|historylog|indicator|jumpyscrolling|linenumbers|locking|magic|minibar|mouse|multibuffer|noconvert|nohelp|nonewlines|positionlog|preserve|quickblank|rawsequences|rebinddelete|regexp|saveonexit|showcursor|smarthome|softwrap|stateflags|tabstospaces|trimblanks|unix|wordbounds|zap|zero)\>"
+color italic,brightblue "^(\<(un)?set\>).+?\<(afterends|allow_insecure_backup|atblanks|autoindent|backup|boldtext|bookstyle|breaklonglines|casesensitive|colonparsing|constantshow|cutfromcursor|emptyline|historylog|indicator|jumpyscrolling|linenumbers|locking|magic|minibar|modernbindings|mouse|multibuffer|noconvert|nohelp|nonewlines|positionlog|preserve|quickblank|rawsequences|rebinddelete|regexp|saveonexit|showcursor|smarthome|softwrap|stateflags|tabstospaces|trimblanks|unix|wordbounds|zap|zero)\>"
 #### Legacy Options
 color italic,brightblue "^(\<(un)?set\>)[[:blank:]]+(view)\>"
 
@@ -75,15 +75,15 @@ color green "\<(main|help|search|replace(with)?|yesno|goto(line|dir)|writeout|in
 color cyan "\<((error|function|key|mini|number|prompt|scroller|selected|spotlight|status|stripe|title)color)\>"
 
 ### Other keywords
-color blue "^(\<((un|)(set|bind))\>)"
+color blue "^\<((un)?(set|bind))\>\b"
 color yellow "\\<|\\>"
-color magenta "^(\<((extend|)syntax|header|magic|include)\>)"
+color magenta "^\<((extend)?syntax|header|magic|include)\>\b"
 color brightred "[|]"
 color brightgreen "#.*$"
-color brightblue "^i?color\s+"
+color brightblue "^\<(i?color)\>\b"
 color cyan "\<(start|end)\>="
-color brightblack "^(\<comment|tabgives\>)"
-color green "^(\<formatter|linter\>)"
+color brightblack "^\<(comment|tabgives)\>\b"
+color green "^\<(formatter|linter)\>\b"
 color normal "\\\\<|\\\\>"
 
 # Trailing whitespace

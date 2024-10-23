@@ -16,13 +16,12 @@
 ###############################################################
 
 set atblanks					# Command line flag -a
-set colonparsing 				# Command line flag --colonparsing; added in version 8.1
-set constantshow 				# Command line flag -c
+set colonparsing				# Command line flag --colonparsing; added in version 8.1
+set constantshow				# Command line flag -c
 #set multibuffer				# Command line flag -F
 #set nonewlines					# Command line flag --nonewlines
 set showcursor					# Command line flag -g
 set smarthome					# Command line flag -A
-#set stateflags					# Command line flag -%
 # set suspendable				# Command line flag -z; enabled by default in v6.0, but the default binding is Ctrl+T,Ctrl+Z
 set tabsize 4					# Command line flag -T 4
 set trimblanks					# Command line flag -M
@@ -33,6 +32,7 @@ unset breaklonglines			# Command line flag -w (or '--nowrap'); explicitly prohib
 # set smooth  -- This is now the default behavior as of nano v4.0; when needed, use 'unset jumpyscrolling' or command line flag '-j' instead
 unset jumpyscrolling			# Command line flag N/A; explicitly enforce smooth scrolling; opposite of 'unset jumpyscrolling' and command line flag '-j'
 unset nohelp					# Command line flag N/A; explicitly enforce display of help lines; opposite of command line flag -x
+unset stateflags				# Command line flag -% (or '--stateflags'); I don't find the '*' after the filename in the titlebar as obvious an indicator of a file's modified state as having "Modified" appear on the right. It's a shame, because part of me wants the stateflag characters too.
 
 ###############################################################
 ### Include syntax-specific nanorc files
@@ -48,6 +48,7 @@ include "~/.config/nano/csh.nanorc"
 include "~/.config/nano/css.nanorc"
 include "~/.config/nano/etc-hosts.nanorc"
 include "~/.config/nano/git.nanorc"
+include "~/.config/nano/gradle.nanorc"
 include "~/.config/nano/html.nanorc"
 include "~/.config/nano/inputrc.nanorc"
 include "~/.config/nano/java.nanorc"
@@ -78,6 +79,8 @@ include "~/.config/nano/xml.nanorc"
 include "~/.config/nano/yaml.nanorc"
 include "~/.config/nano/zsh.nanorc"
 
+## In Makefiles, the Tab key should always insert use the Tab character
+extendsyntax makefile tabgives "	"
 
 ############## Uncomment to enforce no syntax highlighting for txt files
 ##
