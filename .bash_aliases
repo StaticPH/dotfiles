@@ -31,7 +31,7 @@ if command -v gksudo >/dev/null 2>&1; then
 	alias gkudo="gksudo "  # the 's' key on my laptop keyboard is tempermental
 fi
 
-alias exec="exec " 			# Should allow calling exec on an alias
+alias exec="exec "			# Should allow calling exec on an alias
 alias nohup="nohup "
 command -v winpty >/dev/null 2>&1 && alias winpty="winpty "
 
@@ -121,9 +121,9 @@ fi
 #------------------------------------
 
 alias mkdir='mkdir -pv'
-alias frmdir="rm -iR"				#Remove directories, prompting before each file
-alias cpdir="cp -r"					#copy directories recursively
-alias multicp="cp -t"				#copy multiple things to the directory passed as the first parameter
+alias frmdir="rm -iR"				# Remove directories, prompting before each file
+alias cpdir="cp -a"					# Copy directories recursively while preserving all attributes
+alias multicp="cp -t"				# Copy multiple things to the directory passed as the first parameter
 
 #----------------------------------------
 # Does exactly what the name implies
@@ -199,11 +199,11 @@ if command -v colordiff >/dev/null 2>&1; then
 	alias diffcol="colordiff --ignore-space-change --report-identical-files --suppress-common-lines --side-by-side"
 	alias diffcol2="colordiff --ignore-space-change --report-identical-files --suppress-common-lines --side-by-side | grep -n \|"
 else
-    alias diff="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto"
+	alias diff="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto"
 	# command -v diff3 >/dev/null 2>&1 && alias diff3="diff3 --ignore-space-change --report-identical-files --suppress-common-lines --color=auto"
-    alias diffdir="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --recursive" # -b
-    alias diffcol="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side"
-    alias diffcol2="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side|grep -n \|"
+	alias diffdir="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --recursive" # -b
+	alias diffcol="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side"
+	alias diffcol2="diff --ignore-space-change --report-identical-files --suppress-common-lines --color=auto --side-by-side|grep -n \|"
 fi
 # command -v diff-so-fancy >/dev/null 2>&1 && alias fancydiff="diff-so-fancy" # It turns out fancydiff is another program, and I haven't tried it to know if I'd ever want to use it
 command -v bcompare >/dev/null 2>&1 && alias beyondcompare="bcompare"
