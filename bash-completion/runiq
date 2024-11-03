@@ -44,8 +44,12 @@ _runiq() {
 					COMPREPLY=($(compgen -f ${cur}))
 					return 0
 					;;
-				-f|--filter)
-					COMPREPLY=($(compgen -W "sorted bloom naive digest" -- ${cur}))
+				-f | --filter)
+					if runiq --version | awk -F' ' '{ gsub("\\.", "", $2); print $2 < 200 }'; then
+						COMPREPLY=($(compgen -W "sorted bloom naive digest" -- ${cur}))
+					else
+						COMPREPLY=($(compgen -W "compact quick simple sorted" -- ${cur}))
+					fi
 					return 0
 					;;
 				--)
