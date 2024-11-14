@@ -165,14 +165,6 @@ fi
 #fi
 
 
-# Aliases
-### Some people use a different file for aliases
-#-------------------------------------------------------------
-if [ -r "${HOME}/.bash_aliases" ]; then
-	source "${HOME}/.bash_aliases"
-fi
-
-
 # Umask
 #-------------------------------------------------------------
 # /etc/profile sets 022, removing write perms to group + others.
@@ -181,11 +173,23 @@ fi
 # Paranoid: neither group nor others have any perms:
 # umask 077
 
-# Functions
-### Some people use a different file for functions
+# Functions and Aliases
+### Some people use different files for functions and/or aliases
 #-------------------------------------------------------------
-if [ -r "${HOME}/.bash_functions" ]; then
-	source "${HOME}/.bash_functions"
+if [ -r ~/.functions ]; then
+	. ~/.functions
+fi
+
+if [ -r ~/.bash_functions ]; then
+	. ~/.bash_functions
+fi
+
+if [ -r ~/.aliases ]; then
+	. ~/.aliases
+fi
+
+if [ -r ~/.bash_aliases ]; then
+	. ~/.bash_aliases
 fi
 
 if [ "$OS" == 'Windows_NT' ]; then
