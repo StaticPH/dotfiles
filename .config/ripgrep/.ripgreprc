@@ -25,6 +25,8 @@
 --glob=!*-journal
 --glob=!*.db-journal
 --glob=!~BROMIUM
+--glob=!.__pycache__
+--glob=!.ruff_cache
 
 ###########################
 # END GLOB EXCLUSION ARGS
@@ -239,7 +241,7 @@
 
 ### Perl Old Documentation
 --type-add
-	perl:*.pod
+	perl:*.pod,*.plx
 
 ### Image (as in graphics) files
 --type-add
