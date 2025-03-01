@@ -49,7 +49,7 @@ color blue "\<(new|delete|import|export|await|debugger)\>"
 # "\<(Reflect|Proxy)\>"
 
 ### Indexed Collections
-# "\<Array\>" "\<(((Int|Uint)(8|16|32))Array)\>" "\<Uint8Array\>" "\<(Float(32|64)Array)\>" "\<(Big(Int|Uint)64Array)\>" 
+# "\<Array\>" "\<(((Int|Uint)(8|16|32))Array)\>" "\<Uint8Array\>" "\<(Float(32|64)Array)\>" "\<(Big(Int|Uint)64Array)\>"
 
 ### Keyed Collections
 # "\<(Weak)?(Map|Set)\>"
@@ -74,16 +74,16 @@ color brightred "\.\.\."
 color brightred "[!$%^&*=+|:<>,?/]" "-"
 # valid combinations of the above:
 # = == ===
-# ! != !== 
-# + += ++ 
-# - -= -- 
+# ! != !==
+# + += ++
+# - -= --
 # * *= ** **=
-# / /= 
+# / /=
 # % %=
 # ^ ^=
 # & &= && &&=
 # | |= || ||=
-# < <= << <<=     
+# < <= << <<=
 # > >= >> >>= >>> >>>= =>		note that => is NOT an operator, but the notation for an arrow function
 #   ??= ??
 # ? :

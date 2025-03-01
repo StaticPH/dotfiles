@@ -3,14 +3,14 @@
 # `GLOB text=auto` to explicitly set the text attribute to auto for files matching GLOB
 # `GLOB !text` to set the text attribute to unspecified
 # `GLOB binary` is equivalent to `GLOB -text -diff` which disables any end-of-line conversion and does not produce textual diffs
-# The 'eol' attribute controls which line-ending files should use in your working directory; 
+# The 'eol' attribute controls which line-ending files should use in your working directory;
 # 	that is, your LOCAL COPY of the repository. This is APPLIED TO FILES UPON CHECKOUT.
-# The 'text' attribute controls whether crlf->lf end-of-line normalization should APPLY UPON COMMIT; 
+# The 'text' attribute controls whether crlf->lf end-of-line normalization should APPLY UPON COMMIT;
 #	that is, if `text` is set, the REMOTE COPY of the matching files will always have its line endings normalized to the unix-style lf.
 
-### Don't muck with binary files by default; unless explicitly specified otherwise below, 
+### Don't muck with binary files by default; unless explicitly specified otherwise below,
 ### only modify files automatically detected as text, normalizing line-endings upon commit.
-### This also deals with files that often dont have extensions, 
+### This also deals with files that often dont have extensions,
 *                  text=auto eol=lf
 
 
@@ -92,7 +92,7 @@ Makefile           text eol=lf
 *.ico              binary
 
 # I assume this is considered a binary file by git, and should normally be in .gitignore, but better safe than sorry.
-desktop.ini        binary 
+desktop.ini        binary
 
 ### Don't do anything to these files
 # LICENSE          text eol=lf

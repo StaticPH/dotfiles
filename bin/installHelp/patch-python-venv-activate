@@ -70,7 +70,7 @@ cat << 'EOF'
 @@ -1,6 +1,16 @@
  # This file must be used with "source bin/activate" *from bash*
  # you cannot run it directly
- 
+
 +#The default venv activation script, located at
 +# "<PATH_TO_SYSTEM_PYTHON_INSTALL>/Lib/venv/scripts/common/activate"
 +# has been patched to:
@@ -87,7 +87,7 @@ cat << 'EOF'
 @@ -27,6 +37,21 @@
          unset _OLD_VIRTUAL_PS1
      fi
- 
+
 +############vvvv
 +    if [ -n "${_OLD_PYTHON_ALIAS:-}" ]; then
 +        unalias python 2>/dev/null
@@ -102,14 +102,14 @@ cat << 'EOF'
 +#   fi
 +    unalias _python
 +############^^^^
-+    
++
      unset VIRTUAL_ENV
      if [ ! "$1" = "nondestructive" ] ; then
      # Self destruct!
 @@ -52,6 +77,18 @@
      unset PYTHONHOME
  fi
- 
+
 +################vvvv
 +_OLD_PYTHON_ALIAS="$(command -v python)"
 +unalias python 2>/dev/null

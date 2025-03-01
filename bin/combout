@@ -2,7 +2,7 @@
 
 # Concatenate the output of multiple commands or file contents
 # Useful when trying to pass multiple inputs from separate sources into a single command
-_combout(){	
+_combout(){
 	for i in "$@"; do
 		[ -r "$i" ] && cat "$i" && continue;
 		echo "$i"

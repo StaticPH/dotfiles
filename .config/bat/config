@@ -25,7 +25,7 @@
 # 	  highlight   *.build   files  with  the  Python  syntax,  use  -m
 # 	  '*.build:Python'. To highlight files named '.myignore' with  the
 # 	  Git Ignore syntax, use -m '.myignore:Git Ignore'.
-# 
+#
 # Syntax mappings: map a certain filename pattern to a language.
 #   Example 1: use the C++ syntax for .ino files
 #--map-syntax "*.ino:C++"

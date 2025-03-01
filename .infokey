@@ -6,7 +6,7 @@
 ### Lines in this section take the following form:
 ###   STRING whitespace ACTION [ whitespace [ # comment ] ] newline
 ### Where STRING is a key sequence and ACTION is the name of an Info command to invoke.
-### The characters in STRING are interpreted literally or prefixed by a caret ('^') to indicate a control character. 
+### The characters in STRING are interpreted literally or prefixed by a caret ('^') to indicate a control character.
 ### Recognized backslash-escaped sequences are:
 ###    \b    Backspace    \e     Escape (ESC)
 ###    \n    Newline      \r     Return

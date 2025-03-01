@@ -1,1 +1,2 @@
 #! /usr/bin/env -S 'gzip' '-c'
+## Data in, gzip out

@@ -24,7 +24,7 @@ getPygmentsManpage(){
 
 # Ways I've found I can get manpages for nuitka and nuitka-run, without having to extract them from a deb/rpm/<pkg type here>:
 # http://manpages.ubuntu.com/manpages/hirsute/man1/nuitka.1.html	< has download for gzipped manpage at the top of the page
-#		Better yet, modify http://manpages.ubuntu.com/dman to just download manpages for the most recent Ubuntu preview, which is hirsute (hippo) as of December 3rd 2020; 
+#		Better yet, modify http://manpages.ubuntu.com/dman to just download manpages for the most recent Ubuntu preview, which is hirsute (hippo) as of December 3rd 2020;
 #			NOTE that a small handful of manpages are located at http://manpages.ubuntu.com/manpages.gz/hirsute/MANPAGE rather than where the dman script looks; probably want to try that as a fallback if using this; http://manpages.ubuntu.com/manpages.gz/hirsute/man1/  === http://manpages.ubuntu.com/manpages.gz/hirsute/en/man1/
 # https://manpages.debian.org/unstable/nuitka/nuitka.1.en.html	< has link to page with download for .deb package at the bottom of the page; EVEN BETTER: has link to "raw man page" just to the right of the manpage header; change unstable to stable if desired
 

@@ -1,14 +1,14 @@
 #! /bin/bash
 #-vfx
 
-check_yes_no () { 
+check_yes_no () {
 	local PS3="$1"
 	[ "${PS3:=Enter 1 for Yes, or 2 for No: }" ] # assign PS3 to a default if nothing is passed as an alternative
 	local yn
-    select yn in Yes No; do 
-        [[ $yn == 'Yes' ]] && echo "Accepted action" >&2 && return 0
-        [[ $yn == 'No' ]] && echo "Rejecting action" >&2 && return 1 # was "Skipping action"
-    done
+	select yn in Yes No; do
+		[[ $yn == 'Yes' ]] && echo "Accepted action" >&2 && return 0
+		[[ $yn == 'No' ]] && echo "Rejecting action" >&2 && return 1 # was "Skipping action"
+	done
 }
 $(check_yes_no) && \
 	# res=1 || \

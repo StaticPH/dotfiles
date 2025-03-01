@@ -48,7 +48,7 @@
 # deno extensions?
 # groff/troff/nroff/roff?
 # SCSS and SASS have a relationship that makes me question whether the "sass" type should include scss in its glob
-#nginx? squid proxy (squid.conf)? mysql? 
+#nginx? squid proxy (squid.conf)? mysql?
 #Should the "tex" type include *.aux,*.toc
 #Velocity template files *.{vm,fhtml} ?
 # Maybe include ts and coffeescript in js?
@@ -267,7 +267,7 @@
 	py:*.py[iwz]
 #--type-add
 #	py:include:cython
-	
+
 ### Qt makefile and related extensions
 # The default qmake type already includes *.prf, *.pri, and *.pro, but interestingly, not *.qmake
 --type-add
