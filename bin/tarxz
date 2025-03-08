@@ -44,7 +44,7 @@ _tarxz(){
 
 	# If $verbosityFlag is quoted to prevent expansion, tar interprets the empty string as an archive member to-be, and complains
 	# shellcheck disable=SC2086
-	tar --create $verbosityFlag --atime-preserve --totals $linkResolution --checkpoint="$checkpointFreq" \
+	tar --create $verbosityFlag --atime-preserve --totals $linkResolution --checkpoint="$checkpointFrequency" \
 		--sparse --exclude-vcs --ignore-case --show-omitted-dirs \
 		-I "$xzCmdline" \
 		--file "$outputFile" "$@"
