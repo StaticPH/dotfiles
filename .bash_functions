@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # Some example functions:
 #
 # a) function settitle
