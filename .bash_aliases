@@ -137,8 +137,8 @@ alias reloadbash="source ${HOME}/.bashrc"		#Reload bashrc without restarting bas
 alias listBuiltins="enable -pa"
 alias disable="enable -n"				#Shortcut for disabling a shell builtin
 
-if [[ $OSTYPE == 'msys' ]]; then
-	# For msys, return the WINDOWS-STYLE absolute path
+if [[ "$OSTYPE" == 'msys' ]] || [[ "$OSTYPE" == 'cygwin' ]]; then
+	# For msys/cygwin, return the WINDOWS-STYLE absolute path
 	alias cwd="pwd -PW"
 	alias here="pwd -PW"
 else
@@ -250,15 +250,17 @@ alias globalip="curl -s http://checkip.dyndns.com/ | sed 's/[^0-9\.]//g'"
 
 # command -v dscacheutil >/dev/null 2>&1 && alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder" # Flush Directory Service cache
 
-[ "$OSTYPE" == 'msys' ] && alias routetbl-show='netstat -r' # To be clear, this is WINDOWS netstat
-# [ "$OSTYPE" == 'msys' ] && alias netcon-stats='netstat -es'
+if [ "$OSTYPE" == 'msys' ] || [ "$OSTYPE" == 'cygwin' ]; then
+	alias routetbl-show='netstat -r' # To be clear, this is WINDOWS netstat
+	# alias netcon-stats='netstat -es'
+fi
 
 #--------------------------------
 # Process Management Aliases
 #--------------------------------
 
 alias ps='ps -l'
-if [ "$OSTYPE" == 'msys' ]; then
+if [ "$OSTYPE" == 'msys' ] || [ "$OSTYPE" == 'cygwin' ]; then
 	alias _ps="procps -a --format 'logname user pid jobc start command'"
 	alias myps="procps -a --format 'logname user pid jobc start command'"
 	alias psa='ps -lWa'
@@ -292,7 +294,7 @@ command -v python2 >/dev/null 2>&1 && alias py2="python2"
 
 if command -v python >/dev/null 2>&1; then
 	#TODO: Find out a way to disable these while ANY virtual environment is activated; already found a way that needs to be manually set up for each venv
-	if [[ "$OSTYPE" == 'msys' ]]; then
+	if [ "x$MSYSTEM" != 'x' ]; then
 		# Expanding to an empty string when PY38 is null/unset and checking if the result is executable may be marginally more performant than checking
 		# "if PY38 is a directory AND it contains an executable file, 'python'" ( [-d "$PY38" && -x "$PY38/python" ] )
 		if [ -x "${PY38:+$PY38/python}" ]; then
@@ -357,8 +359,7 @@ command -v pnpx >/dev/null 2>&1 && alias npx="pnpx"
 # Winpty Wrapping
 #------------------------
 # shellcheck disable=SC2140
-if [ "$OSTYPE" == 'msys' ]; then
-# if [ "$TERM_PROGRAM" == 'mintty' ]; then
+if [ "x$MSYSTEM" != 'x' ]; then
 	for name in sqliterepl node php php5 psql ipython litecli; do
 		command -v "$name" >/dev/null 2>&1 && alias "$name"="winpty $name"
 	done

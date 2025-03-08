@@ -358,9 +358,9 @@ if [ -e "/etc/environment" ]; then
 	}
 fi
 
-if [ "$OSTYPE" == 'msys' ]; then
+if [ "x$MSYSTEM" != 'x' ] || command -v cmd.exe >/dev/null 2>&1; then
 	incmd(){
-		echo "$@" | cmd; echo
+		echo "$@" | cmd.exe; echo
 	}
 fi
 

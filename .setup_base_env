@@ -1,5 +1,4 @@
-##!/bin/bash
-
+##### -*- shell-script -*-
 # ~/.setup_basic_env
 # Basic environment setup, including PATH
 
@@ -204,7 +203,7 @@ if [ -r "/env/environment" ]; then
 	PATH="${PATH:6:-1}"
 else
 	# shellcheck disable=SC3028
-	if [ "$OSTYPE" = 'msys' ]; then
+	if [ "x$MSYSTEM" != 'x' ]; then
 		# Best guess at a default path for msys (or cygwin, but I don't use that personally)
 		PATH="/usr/local/bin:/usr/bin:/bin:/opt/bin"
 	else
@@ -218,14 +217,14 @@ if [ -n "$MINGW_PREFIX" ]; then
 	# this MUST be before other standard system paths,
 	# but should still come AFTER paths used for personal scripts,
 	# such that a wrapper script can "shadow" a binary from the relevant MINGW environment.
-	
+
 	PATH="${MINGW_PREFIX}/bin:$PATH"
 elif [ -n "$MSYSTEM" ]; then
 	# If using MSYS2, specifically NOT MINGW, it may still be good to have MINGW binaries in the PATH.
 	# Of course, since I'll primarily be using things for MSYS2 in that case, the MINGW binaries
-	# should be AFTER the MSYS2 binaries on the PATH, such that only binaries installed for a MINGW 
+	# should be AFTER the MSYS2 binaries on the PATH, such that only binaries installed for a MINGW
 	# environment will be callable without explicit prefixing.
-	
+
 	if [ -r '/mingw64/bin' ]; then
 		PATH="$PATH:/mingw64/bin"
 	elif [ -r '/mingw32/bin' ]; then
@@ -246,7 +245,7 @@ fi
 if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
 	# !!TODO: Script that creates aliases for things in /c/Windows/System32/Wbem
 	# shellcheck disable=SC3028
-	if [ "$OSTYPE" = 'msys' ]; then
+	if [ "x$MSYSTEM" != 'x' ]; then
 		PATH="$PATH:/c/Windows/System32:/c/Windows:/c/Windows/System32/Wbem:/c/Windows/System32/WindowsPowerShell/v1.0/"
 	elif seemsLikeWSL; then
 		# System is most likely WSL
@@ -255,7 +254,9 @@ if [ ! -r ~/.winAliases ] || [ ! -r ~/.sys32Aliases ]; then
 fi
 
 # shellcheck disable=SC3028
-[ "$OSTYPE" = 'msys' ] && PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
+if [ "x$MSYSTEM" != 'x' ]; then
+	PATH="$PATH:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl"
+fi
 
 ##############################################################
 #-------------------------------------------------------------

@@ -36,7 +36,9 @@ shopt -s checkhash
 shopt -s cmdhist
 #
 # For any 'foo.exe' during completion, if 'foo' and 'foo.exe' are the same file, strip the '.exe' suffix
-[ "$OSTYPE" == 'msys' ] && shopt -s completion_strip_exe
+if [ "$OSTYPE" == 'msys' ] || [ "$OSTYPE" == 'cygwin' ]; then
+	shopt -s completion_strip_exe
+fi
 #
 # Include filenames beginning with '.' in the results of filename expansion.
 # shopt -s dotglob
@@ -232,8 +234,8 @@ fi
 # See https://unix.stackexchange.com/questions/104018/set-dynamic-window-title-based-on-command-input for explanation
 
 [ -v CHERE_INVOKING_VISIBLE_FOR_USER ] && unset CHERE_INVOKING_VISIBLE_FOR_USER # set by my registry tweak that allows me to open the current directory in mintty(msys2) from Windows Explorer.
-# shellcheck disable=SC3028
-[ "$OSTYPE" == 'msys' ] && [ "$TERM_PROGRAM" == 'mintty' ] && COLORTERM="truecolor"
+# shellcheck disable=SC3028,SC2034
+{ [ "$OSTYPE" == 'msys' ] || [ "$OSTYPE" == 'cygwin' ]; } && [ "$TERM_PROGRAM" == 'mintty' ] && COLORTERM="truecolor"
 
 ##############################################################
 #-------------------------------------------------------------
