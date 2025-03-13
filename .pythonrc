@@ -1,21 +1,63 @@
 import sys
-sys.ps1="\033[31m>>> "
+sys.ps1 = "\x01\x1b[32m\x02>>>\x01\x1b[m\x02 "
 
-import platform
+# import platform
 #print("THINGS ARE HAPPENING")
-if platform.system() == 'Windows':
-	import rlcompleter, readline
+
+### Also check out: https://github.com/lonetwin/pythonrc/blob/master/pythonrc_pre38.py
+# if platform.system() == 'Windows':
+#	import rlcompleter, readline
 
 	#try:
-	#    import readline
+	#	import readline
 	#except ImportError:
-    	# Silently ignore missing readline module
-	#	print('Unable to import readline; module not found')
-	#    pass
+	##	Silently ignore missing readline module
+	#	# print('Unable to import readline; module not found')
+	#	pass
 	#else:
-	#    import rlcompleter
+	#	import rlcompleter
 
-	readline.parse_and_bind( 'tab:complete' )
+# Yeah, this mainly just adds to the startup time for the interactive interpreter, but even so...
+try:
+	import readline
+	import rlcompleter # noqa: F401
+except ImportError as e:
+	print("!! Unable to import 'readline': " + e)
+	READLINE_AVAILABLE: bool = False
+else:
+	READLINE_AVAILABLE: bool = True
+	### Borrowed from `site.enablerlcompleter.register_readline`,
+	### which `sys.__interactivehook__` normally gets set to by the interactive interpreter
+	readline_doc = getattr(readline, '__doc__', '')
+	if readline_doc is not None and 'libedit' in readline_doc:
+		readline.parse_and_bind('bind ^I rl_complete')
+	else:
+		readline.parse_and_bind( 'tab:complete' )
+
+if READLINE_AVAILABLE:
+	def rehist(alternatePath: str = '') -> None:
+		"""Re-read history from the history file
+		The history file is one of the following, in decreasing order of priority:
+			1) alternatePath
+			2) The environment variable `PYTHON_HISTORY`, if the interpreter is Python 3.13 or later
+			3) ~/.python_history (Default)
+		"""
+		from os.path import expanduser # noqa: PLC0415
+		alternatePath = alternatePath.strip()
+		histfile = alternatePath if alternatePath != '' else '~/.python_history'
+		if sys.version_info >= (3, 13) and alternatePath == '':
+			### Python 3.13 adds support for changing the location of a .python_history file via the PYTHON_HISTORY environment variable.
+			from os import getenv
+			histfile = getenv('PYTHON_HISTORY', histfile)
+		histfile = expanduser(histfile)
+		readline.write_history_file(histfile)
+else:
+	__errNoHistorySupport = 'Readline could not be imported, so the history file functionality is not available.'
+	def rehist(alternatePath: str = '') -> None: # noqa: ARG001
+		"""Re-read history from the history file"""
+		raise NotImplementedError(__errNoHistorySupport)
+	del __errNoHistorySupport
+
 
 #function __pyreadline(){
 #    local prog="--progress-bar=pretty"
@@ -23,3 +65,50 @@ if platform.system() == 'Windows':
 #    pip install $repo $prog
 #    /d/Python3.6/Scripts/pip install $repo -Ut /d/Python3.6/Lib/site-packages $>
 #}
+
+
+class STYLE():
+	### This gate REALLY shouldn't be useful, but apparently mintty doesn't need winpty or conpty to use cygwin's (MSYS2) python3.11 interactively.
+	### However, the same can't be said for (MSVC) python3.7 (which, even with winpty, doesn't properly handle directly outputting SGR sequences,
+	### EXCEPT as part of sys.ps1 and sys.ps2, where they mysteriously work perfectly).
+	### While MinGW64 python3.11 properly handles SGR without winpty or conpty, lacking one of the two results in broken line-editing,
+	### and using winpty fixes line-editing, but breaks escape sequences entirely (I suspect encoding shenanigans).
+	if sys.stdout.isatty():
+		# DOC_TARGET_COLOR:str = '\x1b[48;5;92;38;5;234m'
+		DOC_TARGET_COLOR = '\x1b[38;5;92m'
+		# DOC_STR_COLOR:str = '\x1b[48;5;20;38;5;244m'
+		DOC_STR_COLOR = '\x1b[38;5;20m'
+		NORMAL = '\x1b[m'
+	else:
+		DOC_TARGET_COLOR = ''
+		DOC_STR_COLOR = ''
+		NORMAL = ''
+### It's ultimately intended to be used more like a dict with dotted property accessors,
+### so this will stop readline from trying to complete it as a function.
+STYLE = STYLE()
+
+def getdoc(obj) -> None: # noqa: ANN001
+	"""
+	Print docstring for an object, or it's class (if it lacks its own docstring), in a relatively legible format.
+	Assumes STDOUT is a terminal supporting xterm CSI (Control Sequence Introducer) SGR (Select Graphic Rendition) sequences.
+	"""
+	print(f'{STYLE.DOC_TARGET_COLOR}{obj}{STYLE.NORMAL}: {STYLE.DOC_STR_COLOR}{obj.__doc__ or "NONE"}{STYLE.NORMAL}\n')
+
+def doc_all(obj) -> None: # noqa: ANN001
+	"""
+	Print docstrings for all visible attributes of an object in a relatively legible format.
+	Assumes STDOUT is a terminal supporting xterm CSI (Control Sequence Introducer) SGR (Select Graphic Rendition) sequences.
+	"""
+	print(
+		*iter(
+			f'\n\n\x1b[36m-=-=-=-=-=-=-=-=-\n{x}\n-=-=-=-=-=-=-=-=-\x1b[m\n\n{getattr(obj, x).__doc__}' for x in dir(obj)
+		)
+	)
+
+
+def findModule(moduleName: str) -> None:
+	"""Print the spec for an arbitrary module name, including the location."""
+	from importlib.util import find_spec
+	print(str(find_spec(moduleName)))
+
+del READLINE_AVAILABLE
