@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 # shellcheck shell=bash
 # Some example alias instructions
 # If these are enabled they will be used instead of any instructions
