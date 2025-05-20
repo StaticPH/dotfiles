@@ -1,3 +1,5 @@
+# -*- shell-script -*-
+# shellcheck shell=sh
 #########################################################
 #########################################################
 # ALL FUNCTIONS CONTAINED HEREIN SHOULD EITHER BE

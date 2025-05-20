@@ -1,3 +1,4 @@
+# -*- shell-script -*-
 # shellcheck shell=bash
 # Some example functions:
 #
