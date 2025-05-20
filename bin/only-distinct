@@ -1,0 +1,18 @@
+#! /bin/sh
+__PROGNAME__="${0##*/}" # Use "${0##*/}" instead of spawning a child process for `basename`
+
+if [ "$#" -ne 0 ]; then
+	case "$1" in
+		-h|--help)
+			printf '%s\n' "$__PROGNAME__: Usage: "
+			printf '  %s\n' 'Pipe in lines of text, or pass at least one file as an argument.' \
+							'Each unique line will be output to stdout when first encountered, ' \
+							'and discarded from then on, without sorting.' \
+							'Similar to piping through `uniq`, but no sorting is needed or used to prevent non-consecutive duplicates.'
+			return 0
+			;;
+	esac
+fi
+awk '!seenLines[$0]++' "${@:--}"
+# Alternative version, still without sorting, still using awk; see #43 https://catonmat.net/awk-one-liners-explained-part-two :
+# awk '!($0 in seenLines) { seenLines[$0]; print }' "${@:--}"
