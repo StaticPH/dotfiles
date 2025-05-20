@@ -1,6 +1,15 @@
 #! /bin/bash
 
-for file in `ls | grep -e .[1-9]$`; do
-	#echo $file
-	gzip $file
-done
+namePat='\.[1-9]$'
+if command -v find >/dev/null 2>&1; then
+	if command -v xargs >/dev/null 2>&1; then
+		find . -type f -regex ".*${namePat}" -print0 | xargs -0 gzip
+	else
+		find . -type f -regex ".*${namePat}" -exec gzip "{}" +
+	fi
+else
+	for file in `ls | grep -e "$namePat"`; do
+		#echo $file
+		gzip "$file"
+	done
+fi
