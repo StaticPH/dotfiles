@@ -384,6 +384,10 @@
 --type-add
 	mk:include:make
 
+### "patch" as an alias for "diff"; do people normally save patches with a ".diff" extension?
+--type-add
+	patch:include:diff
+
 ### "pkgconf" as an alias for "pkgconfig", the former being a standalone replacement for the latter, and shorter
 --type-add
 	pkgconf:include:pkgconfig
