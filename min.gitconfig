@@ -1,132 +1,158 @@
-# This is Git's per-user configuration file.
+## This is Git's per-user configuration file.
+## By default, Git loads its config files in order as follows:
+## $(prefix)/etc/gitconfig  ->  ${XDG_CONFIG_HOME:-$HOME/.config}/git/config  ->  ~/.gitconfig  -> $GIT_DIR/config  ->  $GIT_DIR/config.worktree
 [user]
-
-	# Please adapt and uncomment the following lines:
+	## Please adapt and uncomment the following lines:
 	#	name =
 	#	email =
 
 [alias]
+	###########################
+	### Be aware that any alias using '!' to run a non-Git command (or call git commands explicitly, like "!git add" instead of "add") will ONLY
+	### be executed relative to the root of the repository's working directory (presumably this means that worktrees are their own root).
+	### Such aliases are NOT executed relative to the current directory; if an alias using an '!' should be executed relative to the current
+	### directory, it should be converted to a proper script instead.
+	###########################
 
-	# Show verbose output about tags, branches or remotes
+	## Show verbose output about tags, branches or remotes
 	tags = tag -l
 
 	remotes = remote -v
 
-	# List and regex-match aliases
+	## List and regex-match aliases
 	aliases = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\".$1\"; [ -n \"$arg1\" ] && shift;; esac; git config --get-regexp alias${arg1:-} $@; }; f"
 
-	# Amend the currently staged files to the latest commit
+	## Amend the currently staged files to the latest commit
 	amend = commit --amend --reuse-message=HEAD
 
-	# Check what git attributes are set for a file
+	## Check what git attributes are set for a file
 	attrs = check-attr --all
 
-	# Shorthand for status; nothing special
+	## Shorthand for status; nothing special
 	st = status
 
-	# Shorthand for ls-files; nothing special
+	## Shorthand for ls-files; nothing special
 	ls = ls-files
 
-	# Be extra careful about what you're getting rid of when using git clean
+	## Be extra careful about what you're getting rid of when using git clean
 	clean = clean -i
 
-	# Effectively equivalent to `git add` for each changed file; mark all files already being tracked by Git as staged.
-	stage-changed = "!f(){ git add $(git diff --name-only --diff-filter=AM); }; f"
+	## Effectively equivalent to `git add` for each changed file; mark all files already being tracked by Git as staged.
+	# stage-changed = "!f(){ git add $(git ls-files); }; f"
+	add-changed = "!f(){ git add $(git diff --name-only --diff-filter AM); }; f"
 
-	#  %(authordate:format:%Y-%m-%d %I:%M %p)										:  Prints authordate in a format like `2019-10-28 10:13 PM`
-	###  %(authordate:human)														:  Prints authordate in a format like `Mon Oct 28 22:13`
-	#  %(if)%(HEAD)%(then)* %(else)  %(end)											:  Prefix the current branch with an asterisk
-	#  %(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)	:  Color the current branch green, and all other branches red
+	## %(authordate:format:%Y-%m-%d %I:%M %p)                                       :  Prints authordate in a format like `2019-10-28 10:13 PM`
+	#### %(authordate:human)                                                        :  Prints authordate in a format like `Mon Oct 28 22:13`
+	## %(if)%(HEAD)%(then)* %(else)  %(end)                                         :  Prefix the current branch with an asterisk
+	## %(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)   :  Color the current branch green, and all other branches red
 	branches = for-each-ref --sort=-committerdate --format="\"%(color:blue bold)%(authordate:format:%Y-%m-%d %I:%M %p)    %(align:10,right)%(if)%(HEAD)%(then)* %(else)  %(end)%(if)%(HEAD)%(then)%(color:green)%(else)%(color:red)%(end)%(refname:short)%(end)\""
 
-	# More simplistic "branches"
+	## More simplistic "branches"
 	# branches = branch -a --sort=-committerdate
 
-	# Undo the effects of the last commit; reverts all changes to pristine state.
-	# Extra dangerous for merge commits, where HEAD has multipe parents,
-	# and this only discards the changes from one parent.
-	# Use a combination of ~n and ^m to specify which parent(s),
-	# Where ~n specifies a linear parent, and ^m is a branched parent.
-	# It's not a very intuitive syntax.
-	# See https://stackoverflow.com/questions/2221658
+	## Undo the effects of the last commit; reverts all changes to pristine state.
+	## Extra dangerous for merge commits, where HEAD has multipe parents,
+	## and this only discards the changes from one parent.
+	## Use a combination of ~n and ^m to specify which parent(s),
+	## Where ~n specifies a linear parent, and ^m is a branched parent.
+	## It's not a very intuitive syntax.
+	## See https://stackoverflow.com/questions/2221658
 	undo-destructive = reset --hard HEAD^
 
-	# Uncommit the last commit, but retain all changes made in the committed files. Literally just "uncommit"
+	## Uncommit the last commit, but retain all changes made in the committed files. Literally just "uncommit"
 	undo = reset --soft HEAD^
 
-	# Unstage one or more files from commit
+	## Revert all changes to all non-staged files tracked in the repository directory
+	restore-all = "!f(){ git restore $(git diff --name-only) $@; }; f"
+
+	## Unstage one or more files from commit
 	unstage = restore --staged
 
-	# Unstage any and all changes from commit
-	unstage-all = "!f(){ git unstage $( git diff --cached --name-only ); }; f"
+	## Unstage any and all changes from commit
+	unstage-all = "!f(){ git restore --staged $(git diff --cached --name-only); }; f"
 
-	# Print the path of the repository root
+	## Print the path of the repository root
 	root = rev-parse --show-toplevel
 
 	diff = diff -w --ignore-blank-lines
 
-	# Fetch changes to all submodules
+	## Fetch changes to all submodules
 	# fullFetch = submodule foreach 'git fetch — all’
 
-	# Pull in remote changes for the current repo AND all its submodules
+	## Pull in remote changes for the current repo AND all its submodules
 	fullPull = pull --recurse-submodules
 
-	# Clone a remote repo AND all its submodules
+	## Clone a remote repo AND all its submodules
 	fullClone = clone --recursive
 
-	# Show the user email for the current repository.
+	## Show the user email for the current repository.
 	whoami = config user.email
 
-	# Show the git log for the last N commits
+	## Show the git log for the last N commits
 	last-log = "!f(){ arg1=\"$1\"; [ -n \"$arg1\" ] && shift; git log -n ${arg1:-1} $@; }; f" # <N>
 
-	# Show git log, with a summary of each commit, list which files a commit touched
-	# and classify the change using one (or more?) characters according to the following:
-	#     Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R),
-	#     have their type (i.e. regular file, symlink, submodule, etc) changed (T),
-	#     are Unmerged (U), are Unknown (X), or have had their pairing Broken (B)
-	# The case block here is responsible for changing behavior according to whether the first argument is a positive integer (and doesnt start with a '0'),
-	# a possible flag (starts with a dash '-'), or an empty string (or no argument at all). Any errors thrown are still from Git.
+	## Show git log, with a summary of each commit, list which files a commit touched
+	## and classify the change using one (or more?) characters according to the following:
+	##     Added (A), Copied (C), Deleted (D), Modified (M), Renamed (R),
+	##     have their type (i.e. regular file, symlink, submodule, etc) changed (T),
+	##     are Unmerged (U), are Unknown (X), or have had their pairing Broken (B)
+	## The case block here is responsible for changing behavior according to whether the first argument is a positive integer (and doesnt start with a '0'),
+	## a possible flag (starts with a dash '-'), or an empty string (or no argument at all). Any errors thrown are still from Git.
 	flog = "!f(){ case $1 in ''|-*) arg1= ;; 0*|[!0-9]*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git log --name-status -n ${arg1:-1} $@; }; f"
 
-	# Formatted log graph showing all branches
+	## Formatted log graph showing all branches
 	grog = log --graph --abbrev-commit --decorate --all --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
 
-	# git grog, but only for a single branch
+	## git grog, but only for a single branch
 	bgrog = log --graph --abbrev-commit --decorate --format="\"%C(bold blue) %h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\""
 
-	# Show the change history of one or more specific files, including both commit messages and diff
+	## Show the change history of one or more specific files, including both commit messages and diff
 	filehist = log --follow -p
 
-	# Remove a file from the local repository index (and unstage it) without deleting the file itself; Follow this with a commit and push.
-	# Note that the file in question MUST also be added to .gitignore to prevent changing/deleting the local file during future merges/pulls.
-	# Afterwards, local changes to the file should no longer be tracked by git.
-	# Also see https://stackoverflow.com/a/21477287
-	rmFromIndex = rm --cached
-
-	# Stash all files, including files ignored or not yet tracked by git
+	## Stash all files, including files ignored or not yet tracked by git
 	stash-all = stash push --all
 
-	# Create a local branch without specifying a remote branch for it to track, nor allowing the implicit creation of a remote branch of the same name
+	## Stash all tracked files with changes
+	stash-tracked = stash push --all --no-include-untracked
+
+	## Interactively select modified (c)hunks from files to be stashed;
+	## the selected changes will be stashed and removed from the working tree, leaving the unselected hunks as is.
+	stash-chunk = stash push --patch
+
+	## Create a local branch without specifying a remote branch for it to track, nor allowing the implicit creation of a remote branch of the same name
 	local-only-branch = branch --no-track
 
-	# Something with git-icdiff has been misbehaving following an update I did, seemingly causing it to misinterpret all arguments. This seems to do what I need in the mean time.
+	## Something with git-icdiff has been misbehaving following an update I did, seemingly causing it to misinterpret all arguments. This seems to do what I need in the mean time.
 	jcdiff = "!f(){ case $1 in ''|-*) arg1= ;; *) arg1=\"$1\"; [ -n \"$arg1\" ] && shift;; esac; git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd='"icdiff --is-git-diff -Ns --tabsize 4 --cols=$(tput cols) --strip-trailing-cr"' ${arg1:-} $@; }; f"
 
-	# List all files being ignored by standard ignore files.
-	# Very similar to "fd --no-ignore --exclude '.git' --exec-batch '/usr/lib/git-core/git-check-ignore' '-v' '{}' ';'"
+	## Remove a file from the local repository index (and unstage it) without deleting the file itself; Follow this with a commit and push.
+	## Note that the file in question MUST also be added to .gitignore to prevent changing/deleting the local file during future merges/pulls.
+	## Afterwards, local changes to the file should no longer be tracked by git.
+	## Also see https://stackoverflow.com/a/21477287
+	rmFromIndex = rm --cached
+
+	## List all files being ignored by standard ignore files.
+	## Very similar to "fd --no-ignore --exclude '.git' --exec-batch '/usr/lib/git-core/git-check-ignore' '-v' '{}' ';'"
 	ignoring = ls-files -ico --exclude-standard
 
-	# Interactively select changes from files to stage, chunk by chunk
+	## Interactively select changes from files to stage, (c)hunk by (c)hunk
 	chunk = add -p
 
-	# If this doesn't behave properly, try just running 'git difftool --dir-diff --tool=meld' directly. ARGUMENT ORDERING MAY BE SIGNIFICANT! ALSO LAUNCHING IN BACKGROUND WITH A TRAILING &
+	## If this doesn't behave properly, try just running 'git difftool --dir-diff --tool=meld' directly.
+	## ARGUMENT ORDERING MAY BE SIGNIFICANT! ALSO LAUNCHING IN BACKGROUND WITH A TRAILING &
 	meld = "!f(){ git difftool --tool=meld --dir-diff \"$@\"; }; f"
 
-[color]
+	## Auto-add, amend, and push
+	repush = ! git -c advice.addEmptyPathspec=false add-changed && git amend && git push --force-with-lease
 
-	# Use colors in Git commands that are capable of colored output when
-	# outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
+	## Push new local branch to yet-to-be-created upstream remote branch of the same name
+	pnew = ! git push --set-upstream origin "$(git branch 2>/dev/null | sed -En '/^\\*/ s/\\*\\s*//p')" "$@"
+
+	## Shorter than typing out "push --force-with-lease"
+	shove = push --force-with-lease
+[color]
+	## Use colors in Git commands that are capable of colored output when
+	## outputting to the terminal. (This is the default setting in Git ≥ 1.8.4.)
 	ui = auto
 
 [color "branch"]
@@ -141,55 +167,51 @@
 	whitespace = red reverse
 
 [color "status"]
-
-	added = green		#files which are added but not committed; AKA updated
-	changed = red		#files which are changed but not added in the index
-	untracked = yellow	#files which are not tracked by Git
-	unmerged = 202		#files which have unmerged changes between remote and local branch content
-	branch = 129			#the current branch, somehow not the same as the localBranch color?
+	added = green           # Files which are added but not committed; AKA updated
+	changed = red           # Files which are changed but not added in the index
+	untracked = yellow      # Files which are not tracked by Git
+	unmerged = 202          # Files which have unmerged changes between remote and local branch content
+	branch = 129            # The current branch, somehow not the same as the localBranch color?
 
 #[commit]
-#
-#	# https://help.github.com/articles/signing-commits-using-gpg/
+#	## https://help.github.com/articles/signing-commits-using-gpg/
 #	gpgsign = true
 
 [completion]
-
-	# This is only used by git-completion.bash to add or remove commands from the list of completed commands.
-	# Normally only porcelain commands and a few select others are completed.
-	# You can add more commands, separated by space, in this variable.
-	# Prefixing the command with - will remove it from the existing list
-	commands = ls-files -ls -st check-ignore \
-			   -bundle -format-patch -instaweb -notes -repack -send-email -am
+	## This is only used by git-completion.bash to add or remove commands from the list of completed commands.
+	## Normally only porcelain commands and a few select others are completed.
+	## You can add more commands, separated by space, in this variable.
+	## Prefixing the command with - will remove it from the existing list.
+	commands = ls-files -ls -st check-ignore checkout-index column subtree \
+		-bundle -format-patch -instaweb -notes -repack -send-email -am
 
 [core]
-
-	# Speed up commands involving untracked files such as `git status`.
-	# https://git-scm.com/docs/git-update-index#_untracked_cache
+	## Speed up commands involving untracked files such as `git status`.
+	## https://git-scm.com/docs/git-update-index#_untracked_cache
 	untrackedCache = true
 
-	# I hate when a git command brings up vim, because I can never remember how to exit that, and end up having to look it up >.<
+	## I hate when a git command brings up vim, because I can never remember how to exit that, and end up having to look it up >.<
 	editor = "nano"
 
-	# EXPERIMENTAL
+	## EXPERIMENTAL
 	fscache = true
 	symlinks = true
 	ignorecase = false
 	whitespace = blank-at-eol,space-before-tab
 
-	# Including -F in LESS screws with the man command, but some git commands really should have less auto-exit if the full command output fits on one screen.
-	# Might as well enforce all the default flags git passes to less when LESS is unset, I guess?
+	## Including -F in LESS screws with the man command,
+	## but some git commands really should have less auto-exit if the full command output fits on one screen.
+	## Might as well enforce all the default flags git passes to less when LESS is unset, I guess?
 	pager = "less -RFX"
 
 #[credential]
-#
-#	# Specify an external helper to be called when a username or password credential is needed;
-#	# the helper may consult external storage to avoid prompting the user for the credentials.
-#	# Note that multiple helpers may be defined. See gitcredentials(7) for details.
-#	# ALSO Note that Git will supposedly try to prepend "git-credential-" to the helper name and look for it in the path.
-#	# If using git-for-windows, prefer the newer credential-manager, (manager-core) "git-credential-manager-core"
-#	# If using the git-credential-manager from git-for-windows, set helper to the full WINDOWS path to the executable,
-#	# i.e.	"C:/Program Files (x86)/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
+	## Specify an external helper to be called when a username or password credential is needed;
+	## the helper may consult external storage to avoid prompting the user for the credentials.
+	## Note that multiple helpers may be defined. See gitcredentials(7) for details.
+	## ALSO Note that Git will supposedly try to prepend "git-credential-" to the helper name and look for it in the path.
+	## If using git-for-windows, prefer the newer credential-manager, (manager-core) "git-credential-manager-core"
+	## If using the git-credential-manager from git-for-windows, set helper to the full WINDOWS path to the executable,
+	## i.e.	"C:/Program Files (x86)/Git/mingw64/libexec/git-core/git-credential-manager-core.exe"
 #	helper =
 
 [delta]
@@ -201,66 +223,66 @@
 	line-numbers = true
 
 [diff]
-
-	# Restrict changes shown to files inside the current directory, and show pathnames relative to that location
+	## Restrict changes shown to files inside the current directory, and show pathnames relative to that location.
 	relative = true
 
-	# Detect copies as well as renames
+	## Detect copies as well as renames.
 	renames = copies
 
 	wsErrorHighlight = all
 
-	# Set the default graphical difftool to Meld
+	## Set the default graphical difftool to Meld.
 	guitool = meld
 
-[diff "bin"]
+#[diff "astextplain"]
+#	textconv = astextplain
 
-	# Use `hexdump` to diff binary files
+[diff "bin"]
+	## Use `hexdump` to diff binary files.
 	textconv = hexdump -v -C
 
-# [difftool]
-#
-#	# Prompt before each invocation of the(any) diff tool
-#	# Default behavior is true.
+#[difftool]
+#	## Prompt before each invocation of the(any) diff tool.
+#	## Default behavior is true.
 #	prompt = false
 
 [difftool "icdiff"]
-	# icdiff provides colorized side-by-side diffs on the command line
-	# Assumes that icdiff is available in PATH
+	## icdiff provides colorized side-by-side diffs on the command line.
+	## Assumes that icdiff is available in PATH.
 	cmd = icdiff -Ns --tabsize 4 --strip-trailing-cr --cols="$(tput cols)" "$LOCAL" "$REMOTE"
 	#cmd = icdiff -Ns --tabsize 4 --strip-trailing-cr --cols=\"$(tput cols)\" -L '{basename} (OLD)' -L '{basename} (NEW)' $LOCAL $REMOTE
 
-	# Still somewhat broken on Windows, sadly. The good news is that the following command does exactly what the cmd SHOULD do:
-	# git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd="icdiff --is-git-diff -Ns --tabsize 4 --cols=$(tput cols) --strip-trailing-cr"
+	## Still somewhat broken on Windows, sadly. The good news is that the following command does exactly what the cmd SHOULD do:
+	## git difftool --no-prompt --ignore-cr-at-eol --color-moved-ws=ignore-space-at-eol --ignore-space-at-eol --extcmd="icdiff --is-git-diff -Ns --tabsize 4 --cols=$(tput cols) --strip-trailing-cr"
 
-	# Whether to prompt before each invocation of the (any) diff tool.
-	# Default behavior is true.
+	## Whether to prompt before each invocation of the (any) diff tool.
+	## Default behavior is true.
 	prompt = false # I hope this actually works...
 
 [difftool "meld"]
 	path = meld
 	cmd = meld "$REMOTE" "$LOCAL" --label='DIFF (Remote <-> Local)' # Left: LOCAL		Right: REMOTE
-	# For some reason, the REMOTE files always seems to insist upon displaying on the OPPOSITE side of the REMOTE directory tree, regardless of ordering of command line arguments or Meld settings.
+	## For some reason, the REMOTE files always seems to insist upon displaying on the OPPOSITE side of the REMOTE directory tree,
+	## regardless of ordering of command line arguments or Meld settings.
 	prompt = false
 
 [grep]
 	lineNumber = true
 
 #[help]
-#
-#	# Automatically correct and execute mistyped commands
+#	## Automatically correct and offer to execute mistyped commands.
 #	autocorrect = prompt
 
 [http]
 	sslVersion = tlsv1.2	# There was a reason not to use tlsv1.3, but I foolishly forgot to make a note explaining it.
 
 [icdiff]
-	# Used only by git-icdiff script; don't provide the "$LOCAL" "$REMOTE" arguments here.
-	# Note that --cols should be unneccessary except on Windows, and even then, may not be with the availability of ConPTY
+	## Used only by git-icdiff script; don't provide the "$LOCAL" "$REMOTE" arguments here.
+	## Note that --cols should be unneccessary except on Windows, and even then, may not be with the availability of ConPTY.
 	options = -Ns --tabsize 4 --strip-trailing-cr --cols="\"$(tput cols)\""
 
-	# Specifically EXCLUDE the -R/--RAW-CONTROL-CHARS flag, as git-icdiff adds that automatically
-	# The -J/--status-column flag may cause unnecessary line breaks to be added...
+	## Specifically EXCLUDE the -R/--RAW-CONTROL-CHARS flag, as git-icdiff adds that automatically.
+	## The -J/--status-column flag may cause unnecessary line breaks to be added...
 	pager = less -iJM --tilde --shift .25 --wheel-lines 3 --quit-if-one-screen
 
 [init]
@@ -270,54 +292,52 @@
 #	diffFilter = delta --color-only
 
 [log]
-	# Infuriatingly, I am unable to get the date format string to work with any sort of padding
-	# So even though I have confirmed that strftime can handle (prefixed with a '+') '%b %_2d, %_Y %_2I:%02M %p',
-	# I am unable to use my preferred date/time format.
-	#date = format-local:"%b %_2d, %_Y %_2I:%02M %p"
-	# I suppose I'll have to settle for default-local then
+	## Infuriatingly, I am unable to get the date format string to work with any sort of padding.
+	## So even though I have confirmed that strftime can handle (prefixed with a '+') '%b %_2d, %_Y %_2I:%02M %p',
+	## I am unable to use my preferred date/time format.
+	# date = format-local:"%b %_2d, %_Y %_2I:%02M %p"
+	## I suppose I'll have to settle for default-local then.
 	date = default-local
 
 [merge]
-
-	# Include summaries of merged commits in newly created merge commit messages; true = 20, false = 0
+	## Include summaries of merged commits in newly created merge commit messages; true = 20, false = 0
 	log = true
 
-	# In the event of a conflict, normal behavior is to show 2 sections, one for each of the changes in conflict.
-	# diff3 changes that behavior to show 3 sections, inserting between the original 2 an additional section showing the content before either of the conflicting changes is applied
+	## In the event of a conflict, normal behavior is to show 2 sections, one for each of the changes in conflict.
+	## diff3 changes that behavior to show 3 sections,
+	## inserting between the original 2 an additional section showing the content before either of the conflicting changes is applied.
 	conflictStyle = diff3
 
-	# Throw errors on merges that aren't fast-forwards; for those cases, you probably want to use 'git rebase -i' to avoid creating a merge commit.
-	# If you really want to create a merge commit, use 'git merge --ff' explicitly
+	## Throw errors on merges that aren't fast-forwards; for those cases, you probably want to use 'git rebase -i' to avoid creating a merge commit.
+	## If you really want to create a merge commit, use 'git merge --ff' explicitly.
 	ff = only
 
-	# Set the default graphical mergetool to Meld
+	## Set the default graphical mergetool to Meld.
 	guitool = meld
 
 [mergetool]
-	# Whether to prompt before each invocation of the (any) merge tool.
-	# Default behavior is true.
+	## Whether to prompt before each invocation of the (any) merge tool.
+	## Default behavior is true.
 	prompt = false
 
 [pager]
-
-#	# If the value is boolean, turns on or off pagination of the output of a particular Git subcommand when writing to a tty.
-#	# Otherwise, turns on pagination for the subcommand using the pager specified by the value of pager.<cmd>
-	blame = less -RF -JM --tilde --shift .25 # paginate the output of the 'log' subcommand using 'less -RF'
-	log = less -RF -JM --tilde --shift .25 # paginate the output of the 'log' subcommand using 'less -RF'
-	show = less -RF -JM --tilde --shift .25 # paginate the output of the 'log' subcommand using 'less -RF'
-	diff = delta # paginate the output of the 'diff' subcommand using 'delta'
+	## If the value is boolean, turns on or off pagination of the output of a particular Git subcommand when writing to a tty.
+	## Otherwise, turns on pagination for the subcommand using the pager specified by the value of pager.<cmd>
+	blame = less -RF -JM --tilde --shift .25
+	log = less -RF -JM --tilde --shift .25
+	show = less -RF -JM --tilde --shift .25
+	diff = delta
 
 #[pretty]
 #	# Sadly this cannot be used with any of the special field names available for for-each-ref
 #	# also note that unlike in for-each-ref, colors are applied in the format of %C(colorName [styling]), as opposed to %(color:colorName [styling])
 
 [push]
-
-#	# https://git-scm.com/docs/git-config#git-config-pushdefault
+	## https://git-scm.com/docs/git-config#git-config-pushdefault
 #	default = simple
 
-	# Make `git push` push relevant annotated tags when pushing branches out.
-	# Generally speaking, you create tags locally with the intention of including them in subsequent pushes.
+	## Make `git push` push relevant annotated tags when pushing branches out.
+	## Generally speaking, you create tags locally with the intention of including them in subsequent pushes.
 	followTags = true
 
 [status]
@@ -326,33 +346,29 @@
 ## URL shorthands
 
 [url "git@github.com:"]
-
-	# Any url starting with "gh:" will be rewritten to start with "git@github.com:" instead
+	## Any url starting with "gh:" will be rewritten to start with "git@github.com:" instead.
 	insteadOf = "gh:"
 	insteadOf = "github.com/"
 	insteadOf = "http://github.com/"
 
-	# Any url starting with "github:" will not be pushed to; when pushing to such an address,
-	# the url will be rewritten to start with "git@github.com:" instead, and the resulting address will be pushed to instead.
-	# This does not affect pulling from urls beginning with "github:"
+	## Any url starting with "github:" will not be pushed to; when pushing to such an address,
+	## the url will be rewritten to start with "git@github.com:" instead, and the resulting address will be pushed to instead.
+	## This does not affect pulling from urls beginning with "github:"
 	pushInsteadOf = "github:"
 	pushInsteadOf = "git://github.com/"
 	pushInsteadOf = "https://github.com/"
 
 [url "git://github.com/"]
-
 	insteadOf = "github:"
 
 #[url "git@gist.github.com:"]
-#
 #	insteadOf = "gst:"
 #	pushInsteadOf = "gist:"
 #	pushInsteadOf = "git://gist.github.com/"
 
 #[url "git://gist.github.com/"]
-#
 #	insteadOf = "gist:"
 
-# If using git-for-windows, this is used by the git-for-windows-updater utility script.
+## If using git-for-windows, this is used by the git-for-windows-updater utility script.
 [winUpdater]
 	recentlySeenVersion = 2.30.1.windows.1
