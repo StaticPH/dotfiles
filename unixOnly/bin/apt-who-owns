@@ -1,0 +1,101 @@
+#! /bin/bash
+
+# apt-who-owns(){ dpkg -S "$(realpath -Ls "$@")" "$(realpath -L "$@")"; }; apt-who-owns /bin/{apt,sed}
+# apt-who-owns(){
+# 	resolved="$(realpath -Ls "$@")" absolute="$(realpath -L "$@")" absolute_or_resolved="${resolved//$'\n'/ } ${absolute//$'\n'/ }";
+# 	dpkg -S "${absolute_or_resolved[@]}"
+# };  apt-who-owns /bin/{apt,sed}
+#
+# apt-who-owns(){
+# 	resolved=( "$(realpath -Ls "$@")" ) absolute=( "$(realpath -L "$@")" ) absolute_or_resolved=( "${resolved[@]//$'\n'/ }" )
+# 	absolute_or_resolved+=("${absolute[@]//$'\n'/ }" );
+# 	dpkg -S "${absolute_or_resolved[@]}"
+# };  apt-who-owns /bin/{apt,sed}
+#
+# apt-who-owns(){
+# 	IFS=$'\n' resolved=( "$(realpath -Ls "$@")" ) absolute=( "$(realpath -L "$@")" )
+# 	printf '\e[32m%s\t\e[33m%s\e[m\n' "${#resolved[@]}" "${#absolute[@]}"
+# 	resolved=( "${resolved[@]//$'\n'/ }" )
+# 	absolute=( "${absolute[@]//$'\n'/ }" )
+# 	printf '\e[32m%s\t\e[33m%s\e[m\n' "${#resolved[@]}" "${#absolute[@]}"
+# };  apt-who-owns /bin/{apt,sed}
+#
+# apt-who-owns(){
+# 	IFS=$'\n'
+# 	resolved=( "$(realpath -Ls "$@")" ) absolute=( "$(realpath -L "$@")" )
+# 	printf '\e[32m%s\t\e[33m%s\e[m\n' "${#resolved[@]}" "${#absolute[@]}"
+# 	resolved=( "${resolved[@]//$'\n'/ }" )
+# 	absolute=( "${absolute[@]//$'\n'/ }" )
+# 	printf '\e[32m%s\t\e[33m%s\e[m\n' "${#resolved[@]}" "${#absolute[@]}"
+# };  apt-who-owns /bin/{apt,sed}
+#
+# apt-who-owns(){
+# 	resolved=( "$(realpath -Ls "$@")" ) absolute=( "$(realpath -L "$@")" )
+# 	IFS=' ' resolved=( "${resolved[@]}" ) absolute=( "${absolute[@]}" )
+# 	printf '\e[32m%s\t\e[33m%s\e[m\n' "${#resolved[@]}" "${#absolute[@]}"
+# 	absolute_or_resolved=( "${resolved[@]}" )
+# 	absolute_or_resolved+=( "${absolute[@]}" )
+# 	absolute_or_resolved=( "${absolute_or_resolved[@]}" )
+# 	printf '%s\n' "${#absolute_or_resolved[@]}" "${absolute_or_resolved[@]}"
+# };  apt-who-owns /bin/{apt,sed}
+#
+# apt-who-owns(){
+# 	resolved=( "$(realpath -Ls "$@")" ) absolute=( "$(realpath -L "$@")" )
+# 	IFS=' ' resolved=( "$resolved" ) absolute=( "absolute" )
+# 	printf '\e[32m%s\t\e[33m%s\e[m\n' "${#resolved[@]}" "${#absolute[@]}"
+# 	absolute_or_resolved=( "${resolved[@]}" "${absolute[@]}" )
+# 	absolute_or_resolved=( "${absolute_or_resolved[@]}" )
+# 	printf '%s\n' "${#absolute_or_resolved[@]}" "${absolute_or_resolved[@]}"
+# };  apt-who-owns /bin/{apt,sed}
+#
+
+#_apt-who-owns(){
+#	local f
+#	declare -a paths=()
+#	for f in "$@"; do
+#		paths+=( "$(realpath -Ls "$f")" "$(realpath -L "$f")" )
+#	done
+#	dpkg -S "${paths[@]}" | sort -u
+#};  #_apt-who-owns /bin/{apt,sed}
+
+__PROGNAME__="${0##*/}" # Use "${0##*/}" instead of spawning a child process for `basename`
+
+_usage(){
+	printf 'Usage: %s [-h|--help] PATH...:\n' "${__PROGNAME__}"
+	printf '%s\n' 'Ask `dpkg` which installed package (if any) owns an existing path on the machine.'
+}
+
+_scan_for_flags(){
+	typeset _help_flag=0
+	typeset arg=''
+	for arg in "$@"; do
+		case "$arg" in
+			-h|--help) _help_flag=1;;
+		esac
+	done
+
+	if [ "$_help_flag" -eq 1 ]; then
+		_usage
+		exit 0
+	fi
+}
+
+_scan_for_flags "$@"
+
+_dpkg-who-owns(){
+	typeset f=''
+	typeset -a paths=()
+	for f in "$@"; do
+		if [ ! -e "$f" ]; then
+			printf 'WARNING: `%s` No such file/directory found\n' "$f"
+			continue
+		fi
+		paths+=( "$(realpath -Ls "$f")" "$(realpath -L "$f")" )
+	done
+	[ "${#paths[@]}" -eq 0 ] && exit 0
+	dpkg -S "${paths[@]}" | sort -u
+#	unset f paths
+};  #_apt-who-owns /bin/{apt,sed}
+
+_dpkg-who-owns "$@"
+
