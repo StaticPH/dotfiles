@@ -1,0 +1,4 @@
+#! /usr/bin/env -S "gzip" "-kdc"
+# This should be analogous to `gzcat` (which is analogous to `gzip -dc`, but `-c` is supposed to imply `-k`) on systems where it exists.
+# Note that in some cases, `zcat` may be an alias (sometimes a link) to `gzcat`, or vice versa, or a wrapper script around gzip (sometimes zip)
+
