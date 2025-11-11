@@ -1,0 +1,52 @@
+#! /bin/sh
+
+if ! command -v fzf >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "fzf (junegunn/fzf)"'
+elif ! command -v delta >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "delta/git-delta (dandavison/delta)"'
+elif ! command -v xargs >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "xargs"'
+fi
+
+gitRepoDir="$(git rev-parse --show-toplevel)"
+gitRepoDirName="${gitRepoDir##*/}"
+
+header(){
+	printf '%s\n' \
+		"Commit graph for: $gitRepoDirName" \
+		'[Toggle Sort <Ctrl+S>]  [Expand Commit Details <Ctrl+M/Enter>]  [Just File Names <Ctrl+J>]  [Exit <Ctrl+D/Ctrl+C>]'
+}
+
+## left/right/up/down
+previewPos=down
+
+### Equivalent:
+## awk 'BEGIN{FPAT="[a-f0-9]{7}"}{print $1}'
+## sed -E 's/[^a-f0-9]*([a-f0-9]{7}).*/\1/'
+## grep -o '[a-f0-9]\{7\}' | head -1
+
+git log --graph --color=always --abbrev-commit \
+	--format='%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' "$@" | \
+fzf --ansi --no-sort --reverse --tiebreak=index --tabstop=4 \
+	--color='border:bright-cyan:bold' \
+	--header "$(header)" \
+	--preview-window="$previewPos" \
+	--bind=ctrl-s:toggle-sort \
+	--bind "ctrl-n:preview-down,ctrl-p:preview-up" \
+	--bind "ctrl-m:execute:
+		(grep -o '[a-f0-9]\{7\}' | head -1 |
+		xargs -I % bash -c \"git show --color=always % | DELTA_PAGER='less -i -+F' delta\") <<- 'FZEOF'
+		{}
+		FZEOF" \
+	--bind "ctrl-j:execute:
+		(grep -o '[a-f0-9]\{7\}' | head -1 |
+		xargs -I % bash -c \"git show --color=always --name-only % | LESSKEYIN=<(printf '^j quit') DELTA_PAGER='less -i -+F' delta\") <<- 'FZEOF'
+		{}
+		FZEOF" \
+	--preview "
+		(grep -o '[a-f0-9]\{7\}' | head -1 |
+		xargs -I % bash -c 'git show --color=always % | delta --width=\$FZF_PREVIEW_COLUMNS') <<- 'FZEOF'
+		'{}'
+		FZEOF"
+#ctrl-e to edit file nearest top of screen?
+#alt+left/right arrows to move non-preview area?

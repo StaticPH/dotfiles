@@ -1,0 +1,81 @@
+#! /usr/bin/bash
+__PROGNAME__="${0##*/}"
+
+showHelp(){
+	printf "Usage: $__PROGNAME__ [-h|--help]\n"
+	printf "    %s\n" 'Interactively specify a number of recent commits to process for squash and fixup prefixes.' \
+		   "The prefixes, 'squash!' and 'fixup!' may be added to the start of commit messages either manually," \
+		   "or using the '--squash' and '--fixup' flags for 'git commit'." \
+		   "The prefixes will be automatically removed upon successfully squashing."
+}
+
+isPositiveInt(){
+	case $1 in
+		''|*[!0-9]*) return 1;;
+		*) [ "$1" -ne 0 ];;
+	esac
+}
+
+seekConfirmation(){
+	printf '%s\n' 'To continue, enter "Y/Yes".' 'To specify a different number, enter "N/No".' 'To quit, enter "Q/Quit".' 'All options are case-insensitive.'
+
+	while true; do
+		read -p 'Confirm? ' -r answer
+		case "${answer^^}" in # Coerce answer to uppercase before comparing
+			Y|YES) return 0;;
+			N|NO) return 1;;
+			Q|QUIT) exit 1;;
+		esac
+	done
+}
+
+isInGitBranch(){
+	git symbolic-ref --short HEAD >/dev/null 2>&1
+}
+
+previewCommits(){
+	printf '%s commits to process for "fixup!" and "squash!" commit prefixes:\n' "$1"
+	git log --abbrev-commit --decorate --format='%C(auto)%h - %ad - %an (%ar)%d    %s' -n "$1"
+}
+
+autosquashNCommits(){
+	# By specifying 'GIT_SEQUENCE_EDITOR=true', 'git rebase' automatically accepts changes made as a result of using '--autosquash'
+	GIT_SEQUENCE_EDITOR=true git rebase -i --autosquash 'HEAD~'"$1"
+}
+
+if [ $# -ne 0 ]; then
+	case "$1" in
+		-h|--help) showHelp; exit 0;;
+		*) showHelp; exit 1;;
+	esac
+fi
+
+if ! isInGitBranch; then
+	echo "ERROR: $__PROGNAME__: Not currently within a Git repository"
+	exit 1
+fi
+
+while true; do
+	read -p 'How many recent commits should be examined for autosquashing (Press "Enter" to submit)? ' -r count
+	if isPositiveInt "$count"; then
+		previewCommits "$count"
+		if ! seekConfirmation; then
+			echo
+			continue # Answered "no", request a new number from the user
+		else
+			echo "Processing..."
+			autosquashNCommits "$count"
+			break;
+		fi
+	else
+		printf '"%s" is not a valid count; specify a positive integer.\n' "$count"
+	fi
+done
+
+# shellcheck disable=SC2016
+# Commit messages of squashed commits will be concatenated, without their squash/fixup prefixes.
+printf '%s\n' 'Reminder: You will need to force-push following autosquashing.' \
+			  'It is strongly advised to review the changes made by the autosquash operation.' \
+			  'Also, prefer using `--force-with-lease` instead of `--force` if possible.'
+
+unset count answer __PROGNAME__

@@ -1,4 +1,9 @@
 # Additional git commands
+* git autosquash: More accurately, a squash helper script, for people that make a mess because they can't figure out git command syntax
+* git cherry-file: Cherry pick paths selectively from a commit
+* git logfuzz: Use `fzf` to search through git logs, with `delta` for previewing
+* git prune-preview: Use `fzf` and `delta` to preview refs that would be removed by `git prune`
+* git orphan-tree: Convenience script for creating git worktrees with disconnected histories. Made before there was a simple flag to do that.
 * git glossary:	Try to open a man page containing a glossary of terms used by git
 * git rmBranch:	Delete a branch
 * git unstash:	**NYI** Unstash a branch. (There is an extra # on line 1 to prevent the file from showing up in completion)

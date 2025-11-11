@@ -1,0 +1,49 @@
+#! /bin/sh
+
+if ! command -v fzf >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "fzf (junegunn/fzf)"'
+elif ! command -v delta >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "delta/git-delta (dandavison/delta)"'
+elif ! command -v xargs >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "xargs"'
+fi
+
+case "$1" in
+	-h|--help)
+		git prune --help;
+		exit 0;;
+esac
+
+header(){
+	printf '%s\n' \
+		'[View All Details <Ctrl+E>]  [Maximize Preview <Ctrl+V>]  [Exit <Ctrl+(C/D/Q)>]' \
+		"Refs to be pruned:"
+}
+
+## left/right/up/down
+previewPos=right
+
+git prune --dry-run "$@" | \
+	awk '{if ($1 != "rm"){ print($1); }}' | \
+	fzf --ansi --no-sort --reverse --tiebreak=index --tabstop=4 \
+	--color='border:bright-cyan:bold' \
+	--header "$(header)" \
+	--preview-window="$previewPos" \
+	--bind "ctrl-n:preview-down,ctrl-p:preview-up" \
+	--bind "ctrl-e:execute:
+		(xargs -I % bash -c \"git show --color=always % | LESSKEYIN=<(printf '^e quit') DELTA_PAGER='less -i -+F' delta\") <<- 'FZEOF'
+		{}
+		FZEOF" \
+	--bind "ctrl-v:execute:
+		(xargs -I % bash -c \"git show --color=always --name-only % | LESSKEYIN=<(printf '^v quit') DELTA_PAGER='less -i -+F' delta\") <<- 'FZEOF'
+		{}
+		FZEOF" \
+	--preview "
+		xargs -I % bash -c 'git show --color=always --name-only % | delta --width=\$FZF_PREVIEW_COLUMNS' <<- 'FZEOF'
+		{}
+		FZEOF" \
+	 -m --wrap --header-first \
+	--no-input
+
+#	--bind "load:disable-search"
+# Apparently I can't both have the info from the prompt line *AND* disable the search function?

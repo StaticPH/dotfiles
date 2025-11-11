@@ -1,0 +1,109 @@
+#! /usr/bin/bash
+
+# See https://stackoverflow.com/a/29788254
+
+__PROGNAME__="${0##*/}"
+
+showHelp(){
+	printf "Usage: $__PROGNAME__ [--show-command] <commit SHA> <pathspec...>\n"
+	printf "       $__PROGNAME__ [--show-command] %s <commit SHA> <pathspec...>\n" \
+		   '--check' \
+		   '--reject'
+	printf "       $__PROGNAME__ %s\n" \
+		   '[-h|--help]'
+	# shellcheck disable=SC2016
+	printf '  %s\n' 'Cherry pick paths selectively from a commit.' \
+		   'Pathspec may be one or more files, directories, or globs.' \
+		   'Like `git cherry-pick`, only changes made by SHA will be picked, ignoring changes made by other commits.' \
+		   'Changes are NOT automatically staged or committed.' \
+		   'OPTIONS:'
+	# shellcheck disable=SC2016
+	printf '      %s\t%s\n' \
+		   '--show-command' 'Show the git commands that would be run, without executing them.' \
+		   '--check' 'Instead of applying any changes, just check to see if all the changes made by SHA are applicable to the current working tree, and report issues.' \
+		   '--reject' 'Allow applying patches where only some hunks apply, leaving the non-applicable hunks in corresponding `*.rej` files. The `--partial` flag may be used as an alias.' \
+		   '-h | --help' 'Display this help text and exit.' #| \
+		   #column -t -W 2 -l 2 -s $'\t' | fold -s # Sadly, while `fold` can be told to avoid breaking words, `column` apparently cant
+	# --check currently only applies to working tree, not index, for this wrapper script
+}
+
+if [ $# -eq 0 ]; then
+	showHelp
+	exit 1
+fi
+
+## I have to be honest, the coreutils getopt command keeps looking more and more useful than the getopts builtin
+applyCheck=0
+applyNonAtomic=0
+showCommand=0
+
+# Remember which of the aliased flags should be used for error messages about disallowed flag combinations
+rejectFlagStr=
+
+opts='h-:' # The - is for long options
+while getopts "$opts" flag; do
+	case "$flag" in
+		h) showHelp; exit 0;;
+		-) # Long options
+			case "$OPTARG" in
+				help)
+					showHelp
+					exit 0;;
+				check)
+					if [ "$applyNonAtomic" -ne 0 ]; then
+						echo "ERROR: --${OPTARG} cannot be used with ${rejectFlagStr}"
+						exit 1
+					fi
+					applyCheck=1;;
+#				dry-run)
+#					applyCheck=1;
+#					applyStat=1;; # Use `--stat` for `git apply`
+				reject | partial)
+					if [ "$applyCheck" -ne 0 ]; then
+						echo "ERROR: --${OPTARG} cannot be used with --check"
+						exit 1
+					fi
+					rejectFlagStr="--${OPTARG}"
+					applyNonAtomic=1;;
+				show-command) showCommand=1;;
+				*)
+					echo "ERROR: Unknown flag: --${OPTARG}" >/dev/stderr
+					showHelp
+					exit 1;;
+			esac;;
+		*)
+			echo "ERROR: Unknown flag: -${OPTARG}" >/dev/stderr
+			showHelp
+			exit 1;;
+	esac
+done
+shift $((OPTIND-1))
+
+if [ $# -eq 0 ]; then
+	echo "ERROR: $__PROGNAME__: Missing required commit-hash argument"
+	exit 1
+fi
+SHA="$1"
+shift
+
+# DEBUG
+showCommand=1
+
+# After all arguments have been parsed, the --show-command flag can be used even when the working directory is not a git repository.
+if [ "$showCommand" -ne 0 ]; then
+	# FIXME: :+ appears to be resolving to right-side-argument if left-side-argument == 0; may need to rethink this a little
+	cmd=( 'git show' "$SHA" '--' "$@" '|' 'git apply' ${applyCheck:+--check} ${applyNonAtomic:+--reject} '-' )
+	printf '%s\n' "${cmd[*]}"
+	exit 0
+fi
+
+isInGitBranch(){
+	git symbolic-ref --short HEAD >/dev/null 2>&1
+}
+if ! isInGitBranch; then
+	echo "ERROR: $__PROGNAME__: Not currently within a Git repository"
+	exit 1
+fi
+
+echo ARGS REMAINING:
+printf '%s\n' "$@" | nl
