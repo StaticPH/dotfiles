@@ -1,4 +1,19 @@
-#! /usr/bin/sh
+#! /usr/bin/bash
+
+tool=''
+if command -v wordpad.exe >/dev/null 2>&1; then
+	tool=wordpad.exe
+elif [ -x '/c/Program Files/Windows NT/Accessories/wordpad.exe' ]; then
+	tool='/c/Program Files/Windows NT/Accessories/wordpad.exe'
+elif [ -x '/mnt/c/Program Files/Windows NT/Accessories/wordpad.exe' ]; then
+	tool='/mnt/c/Program Files/Windows NT/Accessories/wordpad.exe'
+elif [ -x "C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe" ]; then
+	tool="C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe"
+else
+	echo 'ERROR: Unable to locate wordpad.exe'
+	exit 1
+fi
+
 # Using 'start' instead of calling the executable directly will start Microsoft Word, rather than Wordpad.
-"C:\\Program Files\\Windows NT\\Accessories\\wordpad.exe" $@ &
+"$tool" $@ &
 disown $!
