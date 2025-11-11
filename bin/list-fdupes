@@ -1,0 +1,13 @@
+#! /bin/bash
+
+lookIn="$1"
+
+pushd >/dev/null 2>&1 "$lookIn" || (echo "Could not find \"$lookIn\""; exit 1;)
+
+## Demonstration of finding non-unique shasums, ignoring the identity of the identical files.
+#shasum $(find -maxdepth 1 -type f) | awk '{print $1;}' | sort | uniq --count | grep --invert-match '^\s*1\s'
+
+## Not fully satisfied yet, but its a start
+shasum $(find -maxdepth 1 -type f) | awk '{printf("%s    %s\n", $2, $1);}' | sort -k 2.1 | uniq -f1 --group | awk '{printf("%s    %s\n", $2, $1);}'
+
+popd >/dev/null 2>&1

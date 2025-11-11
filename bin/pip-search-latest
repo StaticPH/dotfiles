@@ -1,0 +1,52 @@
+#! /bin/bash
+
+printf '%s\n' "$@" | while read -r pyPkgName; do
+	pypiLatest="$(curl -m 10 -Z -S -s https://pypi.org/simple/"${pyPkgName}"/ | sed -Ee 's@[^>]+>([^<]+)</.+@\1@' -e '/[-.]dev[0-9]*[-.]|[<>]/d' -e 's/.+[-_]([0-9]([0-9]|[-._])*[0-9]).+/\1/' -e '/\./!d' | tail -n 1)"
+	printf 'Latest Version: %-15s Package Name: %s\n' "${pypiLatest:-???}" "$pyPkgName"
+done
+unset pyPkgName pypiLatest
+
+### If there are more than this number of packages to check, use the -Z/--parallel flag for curl
+### This comes at the cost of writing to temporary files and utilizing shell syntax not supported by POSIX sh.
+#BULK_IF_MORE_THAN=5
+#if [ "$1" = '--noclean' ]; then
+#	NOCLEAN=1
+#	shift
+#else
+#	NOCLEAN=0
+#fi
+#
+#cleanup(){
+#	[ "$NOCLEAN" -eq 0 ] && rm -rf /tmp/*.pylist || true
+#}
+#extractLatestVer(){
+#	sed -Ee 's@[^>]+>([^<]+)</.+@\1@' -e '/[-.]dev[0-9]*[-.]|[<>]/d' \
+#		-e 's/.+[-_]([0-9]([0-9]|[-._])*[0-9]).+/\1/' \
+#		-e '/\./!d' "${1:--}" | \
+#	tail -n 1
+#}
+#performQuery(){
+#	curl -L "https://pypi.org/simple/${1}/" | extractLatestVer
+#}
+#
+#makeQueries(){
+#	for pkgName in "$@"; do
+#		ver="$(performQuery "$pkgName")"
+#		printf 'Latest Version: %-15s Package Name: %s\n' "${ver:-???}" "$pkgName"
+#	done
+#}
+#
+
+#if [ "$#" -gt "$BULK_IF_MORE_THAN" ]; then
+#	#urls=( $(echo $@ | sed -E 's@([a-zA-Z0-9_-]+)@https://pypi.org/simple/\1/ -o /tmp/\1.pylist@g') )
+#	urls=( $(echo $@ | awk '{ for(i=1; i<=NF; i++){print "https://pypi.org/simple/"$i"/ -o /tmp/"$i".pylist";} }') )
+#
+#	curl -Z -S -s "${urls[@]}"
+#	for pkg in $@; do
+#		pypiLatest="$(sed -Ee 's@[^>]+>([^<]+)</.+@\1@' -e '/[-.]dev[0-9]*[-.]|[<>]/d' -e 's/.+[-_]([0-9]([0-9]|[-._])*[0-9]).+/\1/' -e '/\./!d' "/tmp/${pkg}.pylist" | tail -n1)"
+#		printf 'Latest Version: %-15s Package Name: %s\n' "${pypiLatest:-???}" "$pkg"
+#	done
+#	cleanup
+#else
+#	#makeQueries "$@"
+#fi

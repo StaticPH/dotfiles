@@ -1,0 +1,7 @@
+#! /bin/sh
+## Accepts directory paths, and attempts to print unique file extensions found within.
+## If not given any paths, search in the current directory.
+fd --type file --one-file-system --strip-cwd-prefix --no-ignore-parent --no-ignore-vcs -uu "${@:-.}" |\
+	sed -E 's/.+(\.[^.]*?)$/\1/; /\./!d' |\
+	perl -ne 'print unless $a{$_}++'
+

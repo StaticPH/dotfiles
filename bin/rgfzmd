@@ -1,0 +1,26 @@
+#! /bin/sh
+
+if ! command -v fzf >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "fzf (junegunn/fzf)"'
+elif ! command -v rg >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "rg (burnsushi/ripgrep)"'
+elif ! command -v mdcat >/dev/null 2>&1; then
+	echo 'ERROR: missing required tool: "mdcat (swsnr/mdcat)"'
+fi
+
+impl_rgfzmd(){
+	previewDefault='mdcat {}'
+	previewBind1="f1:preview:'mdcat {}'"
+	previewBind2="f2:preview:'nl {}'"
+	previewBind3="f3:preview:'cat {}'"
+
+	borderStyle='sharp'
+	# _FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:+${FZF_DEFAULT_OPTS}} --bind $previewBind1,$previewBind2,$previewBind3"
+	# Creating multiple preview modes doesn't seem to work very well; there must be a trick to it
+	_FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS:+${FZF_DEFAULT_OPTS}} --bind $previewBind2"
+
+	rg -t md --files-with-matches "$@" | FZF_DEFAULT_OPTS="$_FZF_DEFAULT_OPTS" fzf --disabled --no-mouse --tabstop=4 \
+		--border="${borderStyle}" --preview="$previewDefault" --preview-window "wrap,border-${borderStyle},nohidden"
+}
+
+impl_rgfzmd "$@"

@@ -1,0 +1,61 @@
+#! /bin/bash
+__PROGNAME__="${0##*/}"
+
+BOTH=0
+HAS_FILE_ARGS=0
+
+# shellcheck disable=SC2016,SC2119,SC2120
+usage(){
+	printf '%s\n' "Usage: $__PROGNAME__ [-h|--help] [--both] FILEPATH..." \
+	'Show the apparent and real size of files and directories. Little more than a convenience wrapper around `du`.' \
+	'By default, only the apparent size is shown.' \
+	'If no existing file/directory arguments are explicitly given, the current directory is used, and only the total size(s) are printed.' \
+	'       -h|--help         Display this help and exit.' \
+	'          --both         Show both the apparent (Size) and real sizes (Allocated), side by side.' \
+	'       Other than -h and --help, flags will be passed along to `du`.'
+	exit "${1:-0}"
+}
+
+# If no arguments are given, the current directory is used.
+#[ $# -eq 0 ] && usage 1
+
+case "$1" in
+	--both) shift; BOTH=1;;
+	-h|--help) usage;;
+esac
+
+# See if any arguments are files or directories that exist
+for arg in "$@"; do
+	if [ -e "$arg" ]; then
+		HAS_FILE_ARGS=1
+		break
+	fi
+done
+
+# Trim the output according to the presence of the --both flag and existing file/dir arguments
+outputWrapper(){
+	if [ "$HAS_FILE_ARGS" -eq 1 ]; then
+		# If any explicit file/dir arguments are provided, don't trim the output.
+		tee # Essentially a no-op
+	elif [ "$BOTH" -eq 1 ]; then
+		# Has --both, but only existing file/dir argument is an IMPLIED '.'
+		# Print the column headers and the totals
+		sed -n '1p; $p'
+	else
+		# Only print apparent size, and only for the IMPLIED '.' argument
+		sed -n '$p'
+	fi
+}
+
+dataSize(){ command du --apparent-size -h "$@"; }
+diskSize(){ command du -h "$@"; }
+getSizes(){
+	# prefer apparent to real
+	if [ "$BOTH" -eq 0 ]; then
+		dataSize "$@"
+	else
+		join -o '1.1,2.1,0' -j 2 <(dataSize "$@") <(diskSize "$@") | column -t -l 3 -W 3 -R 1,2 -N 'Size','Allocated'
+	fi
+}
+
+getSizes "$@" | outputWrapper

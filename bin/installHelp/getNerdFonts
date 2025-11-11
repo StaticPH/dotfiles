@@ -1,0 +1,17 @@
+#! /bin/bash
+
+repo='ryanoasis/nerd-fonts'
+wantedFonts=( 'CodeNewRoman' 'DejaVuSansMono' 'Inconsolata' 'RobotoMono' 'NerdFontsSymbolsOnly' )
+
+for name in "${wantedFonts[@]}"; do
+	command wget --progress=bar:noscroll --show-progress --no-verbose -N --random-wait \
+		"https://github.com/${repo}/releases/latest/download/${name}.tar.xz"
+done
+
+# OLD
+#version="$(curl -Is "https://github.com/${repo}/releases/latest/" | sed -nE '/^location/{s#.+/##; p}' )"
+#for name in "${wantedFonts[@]}"; do
+#	command wget --progress=bar:noscroll --show-progress --no-verbose -N --random-wait \
+#		"https://github.com/${repo}/releases/latest/download/${version}/${name}.tar.xz"
+#done
+

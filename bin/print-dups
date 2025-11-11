@@ -1,0 +1,38 @@
+#! /bin/sh
+
+__PROGNAME__="${0##*/}"
+
+usage(){
+	printf "%s\n" "Usage: $__PROGNAME__ [-] FILES..." \
+		"       $__PROGNAME__ [-h|--help]" \
+		"    In addition to file arguments, $__PROGNAME__ also accepts input from pipes on stdin." \
+		"    To process BOTH files AND pipes, the '-' argument must be provided;" \
+		"    otherwise, piped input is discarded when there are file arguments." \
+		"    $(tput setaf 3)WARNING: THE LAST LINE OF INPUT MAY NOT BE COUNTED!$(tput sgr0)"
+}
+
+#if [ "$#" -eq 0 ]; then  # This clause sometimes causes problems when piping output from $__PROGNAME__ to another program.
+#	usage
+#	return 1
+#else
+	# FIXME: proper argument handling, without positional significance.
+	case "$1" in
+		-h|--help) usage; return 0;;
+		-) ;;
+		-*)
+			if [ ! -r "$1" ]; then
+				echo "ERROR: \"$1\" is neither a recognized parameter nor a readable file"
+				return 1;
+			fi
+			;;
+	esac
+#fi
+
+# FIXME: I MAY SKIP ONE DUPLICATE IF LAST LINE IS A DUPLICATE!
+perl -ne 'print if ++$a{$_} == 2' "${@:- -}"
+
+# Both of these attempted workarounds for the last line being ignored
+# cause piped input to be ignored, and disallow entering lines on stdin.
+# File substitution would probably work, but would not be POSIX-compliant.
+# echo '~!~print-dups duplicate count fixer line~!~' |
+# << '~!~print-dups duplicate count fixer line~!~'
