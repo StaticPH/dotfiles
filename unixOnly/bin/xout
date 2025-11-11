@@ -1,0 +1,2 @@
+#! /usr/bin/env -S xclip -o -r -sel "clipboard"
+

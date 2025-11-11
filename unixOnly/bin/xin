@@ -1,0 +1,5 @@
+#!/bin/sh
+exec xclip -i -r -sel clipboard
+
+# This just copies itself to the clipboard for whatever reason
+#! /usr/bin/env -S xclip -i -r -sel clipboard
