@@ -131,7 +131,7 @@ function showColorRange(){
 	printf "\e[0m\n"
 }
 
-echoChar (){
+echoChar(){
 	if [ $# -ne 1 ]; then
 		printf "Usage: ${FUNCNAME[0]} UNICODE_NUMBER\n" && return 1
 	fi
@@ -179,9 +179,9 @@ useMainScreenBuf(){
 	printf "\e[?1049l" # This should be equivalent to `tput rmcup`.
 }
 
-#Check if root user has root privelege. Remember that for bash, 0 is true
+# Check if root user has root privelege. Remember that for POSIX-compliant shells, 0 is true
 isRoot(){
-	if [ "$UID" -ne 0 ] ; then
+	if [ "x$UID" != 'x' ] && [ "$UID" -ne 0 ] ; then
 		# echo "You need to be root to run this script!"
 		return 1
 	else
@@ -199,7 +199,7 @@ sendToClipboard(){
 alias clearClipboard="sendToClipboard ''"
 
 # Count the number of files in a directory
-function filecount() {
+filecount() {
 	find "${1-.}" -type f | wc -l
 }
 
@@ -238,33 +238,74 @@ curlup(){
 }
 
 epochTime(){
-	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
-		printf "Usage: ${FUNCNAME[0]} [-h|--help] [TIME_STRING]\n"
-		printf "  A convenience function for converting a human-readable time to the equivalent unix epoch time.\n" | fold -s
-		printf "  Without a parameter, converts the current time to unix epoch form.\n"
-		return 0
-	elif [ "$#" -gt 1 ]; then
+	usage(){
+		printf '%s\n' \
+			"Usage: ${FUNCNAME[0]} [-h|--help] [TIME_STRING]"
+		printf '  %s\n' \
+			'A convenience function for converting a human-readable time to the equivalent unix epoch time.' \
+			'Without a parameter, converts the current time to unix epoch form.'
+	}
+
+	case "$1" in
+		-h|--help|help)
+			usage | fold -s
+			return 0;;
+	esac
+	if [ $# -gt 1 ]; then
 		printf "${FUNCNAME[0]} accepts at most 1 argument.\n"
 		return 1
 	fi
 
-	# date explicitly defaults to "now" if not provided	(or provided empty string)
+	# date explicitly defaults to "now" if not provided (or provided empty string)
 	date -d "${1:-now}" "+%s"
 }
 
 fromEpoch(){
-	if [ "${1,,}" == "-h" ] || [ "${1,,}" == "--help" ]; then
-		printf "Usage: ${FUNCNAME[0]} [-h|--help] [UNIX_EPOCH]\n"
-		printf "  A convenience function for converting a unix epoch timestamp to a human-readable format, using the current system time zone.\n" | fold -s
-		# printf "  Output format is determined by the values of LC_TIME and TIME_STYLE.\n"	# Determine order of precedence
-		# printf "  Time zone rules are indicated by the TZ environment variable, or by the system default rules if TZ is not set.\n"
-		return 0
-	elif [ "$#" -ne 1 ]; then
+	usage(){
+		printf '%s\n' \
+			"Usage: ${FUNCNAME[0]} [-h|--help] [UNIX_EPOCH]"
+		printf '  %s\n' \
+			'A convenience function for converting a unix epoch timestamp to a human-readable format, using the current system time zone.' # \
+			# 'Output format is determined by the values of LC_TIME and TIME_STYLE.' \	# Determine order of precedence
+			# 'Time zone rules are indicated by the TZ environment variable, or by the system default rules if TZ is not set.'
+	}
+
+	case "$1" in
+		-h|--help|help)
+			usage | fold -s
+			return 0;;
+	esac
+	if [ $# -ne 1 ]; then
 		printf "${FUNCNAME[0]} requires exactly 1 argument.\n"
 		return 1
 	fi
 
 	date -d "@$1"
+}
+
+convEpoch(){
+	usage(){
+		printf '%s\n' \
+			"Usage: ${FUNCNAME[0]} [-h|--help] [UNIX_EPOCH|TIME_STRING]"
+		printf '  %s\n' \
+			'A wrapper that intelligently converts between unix epoch time and a human-readable time string.'
+	}
+
+	if [ $# -eq 0 ]; then
+		usage | fold -s
+		return 1
+	fi
+
+	case "$1" in
+		-h|--help|help)
+			usage | fold -s
+			return;;
+		[!0-9+-])
+			## If any character in $1 is not a number, plus, or minus, then we're converting a human-readable time to the unix epoch equivalent
+			epochTime "$1";;
+		*)
+			fromEpoch "$1";;
+	esac
 }
 
 # function quotify(){
@@ -306,11 +347,22 @@ mancat(){
 	man --nj --nh "$@" | unexpand --first-only --tabs=4 | tr -s ' '
 }
 
-function excuse(){
-	# shellcheck disable=SC2155
-	local str=$(curl -s developerexcuses.com | grep -Eo '<a href.*>.*<\/a>')
-	local str2="${str:71:${#str}}"
-	echo "${str2:0:${#str2}-4}"
+excuse(){
+	target='developerexcuses.com'
+	trimmer(){
+		if command -v htmlq >/dev/null 2>&1; then
+			htmlq -t a
+			return
+		fi
+		awk -F'<a href[^>]*>|</a>' '/<a href.*>/,/<\/a>/{print $2}'
+	}
+
+	curl -s "$target" | trimmer
+	### Bash/Zsh/Ksh implementation
+	## shellcheck disable=SC2155
+	## local str=$(curl -s "$target" | grep -Eo '<a href.*>.*<\/a>')
+	## local str2="${str:71:${#str}}"
+	## echo "${str2:0:${#str2}-4}"
 }
 
 # shellcheck disable=SC2016
@@ -326,8 +378,8 @@ odz(){
 }
 
 # shellcheck disable=SC2046
-if [ "$(seemsLikeWSL)" ] && [ ! "$(command -v wslpath &>/dev/null)" ]; then
-	function wslpath(){
+if seemsLikeWSL && ! command -v wslpath >/dev/null 2>&1; then
+	wslpath(){
 		if [ $# -eq 0 ]; then
 			### https://github.com/Microsoft/WSL/issues/2715
 cat << '__EOF__'
@@ -367,7 +419,7 @@ fi
 
 if command -v durt >/dev/null 2>&1; then
 	# durt should really just operate on the current directory if I don't specify one
-	function durt(){
+	durt(){
 		command durt "${@:-$PWD}"
 	}
 fi

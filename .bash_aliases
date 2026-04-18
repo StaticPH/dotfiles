@@ -393,6 +393,7 @@ alias ..="cd .."
 alias cls="clear"
 
 alias dec2hex='printf "%x\n"'	# print decimal as hex
+alias hex2dec='printf "%i\n"'	# print hex as decimal
 # alias hexdump='hexdump --color=auto' -x    -C    --format
 alias odHex='od -t xz'
 alias odx='od -t x2z'
