@@ -62,6 +62,11 @@ find-providers help --completions" pac
 EOF
 }
 
+messageCheckLocalDB(){
+	trySubcommandName="$1"
+	printf 'One or more package(s) could not be found in the sync database.\nIf you are certain they are installed, try querying the local package database, using the `%s` command.\n' "$trySubcommandName"
+}
+
 	if [[ $# == 0 ]]; then
 		usage
 	else
@@ -78,6 +83,9 @@ EOF
 			info | show)
 				shift
 				pacman -S --info --info $*
+				if [ "$?" != 0 ]; then
+					messageCheckLocalDB 'show-local'
+				fi
 				;;
 			download)
 				shift
@@ -118,7 +126,7 @@ EOF
 				;;
 			check)
 				shift
-				if [ "$#" != 0 ];then
+				if [ "$#" != 0 ]; then
 					pacman -Qkq "$@" | sed -Ee 's#(.*)( .*)#\1 is missing \2#'
 				else
 					# pacman -Qk |
@@ -127,8 +135,8 @@ EOF
 						# FIXME: I truly dont understand why this doesn't seem to work ( T.T)
 						# TODO: REPLACE $(tput setaf 3) with __YELLOW__
 						pacman -Qk "$pkg" | sed -E \
-						-e 's#(warning: )(.+?)(:)(.+?)( \(No such file or directory\))# printf "%s%s%s%s" "$(tput setaf 3)\1$(tput sgr0)" "\2" " is missing" "\4"#e' \
-						-e '/.*0 missing files$/!s/(.*total files, )(.*)/printf "%s%s" "\1" "$(tput setaf 3)\2$(tput sgr0)"/e'
+						-e '/warning: .+\(No such file or directory\)/{ s#(warning: )(.+?)(:)(.+?)( \(No such file or directory\))# printf "%s%s%s%s" "$(tput setaf 3)\1$(tput sgr0)" "\2" " is missing" "\4"#e; }' \
+						-e '/total files, /{ /.*0 missing files$/!s/(.*total files, )(.*)/printf "%s%s" "\1" "$(tput setaf 3)\2$(tput sgr0)"/e; }'
 					done
 				fi
 				;;
@@ -192,6 +200,9 @@ EOF
 			provides-what)
 				shift
 				pacman -F --list $@ # Does not appear to be capable of finding SOME packages that don't show up with 'pacman -Q --search PKG_NAME', like pkgconf, but will for others, like dosfstools (at least from msys2).
+				if [ "$?" != 0 ]; then
+					messageCheckLocalDB 'list-package-owned'
+				fi
 				;;
 			find-providers)
 				# Find all packages IN THE SYNC DATABASE that provide the file(s) passed as arguments.
